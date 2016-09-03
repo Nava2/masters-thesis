@@ -178,3 +178,13 @@ TSWLatexianTemp*
 
 # KBibTeX
 *~[0-9]*
+
+# OSX
+.DS_Store
+
+# VSCode
+.vscode
+
+# Binary
+*.app
+*.pdf
