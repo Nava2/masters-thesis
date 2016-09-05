@@ -4,7 +4,14 @@
 
 ShelbySim is an education-oriented software system for designing, simulating, and evaluating computer-engineering based applications. ShelbySim was designed surrounding a new Java-like programming language including a compiler explicitly built around providing extensive diagnostic information such as logging, tracing, and inspection capabilities. These tools provide students with raw data for quantitative analysis, evaluation and reporting of their designs. 
 
-The software is open-source, though not available, and is written using Java allowing full operating system independent support. Additionally, 3D visualized results are provided for viewing developed components. ShelbySim is broken down into three subcomponents: 1) Software component including a custom programming language (Shelby), a compiler, and an interpretation runtime. 
+The software is open-source, though not available, and is written using Java allowing full operating system independent support. Additionally, 3D visualized results are provided for viewing developed components. ShelbySim is broken down into three subcomponents:
+\begin{enumerate}
+\item Software component - a custom programming language (Shelby), a compiler, and an interpretation runtime
+\item Hardware component - filling a similar niche to MultiSim, but with tight integration with Shelby and its underlying tracing. Additional support exists for external component integration
+\item Simulation component - providing a deterministic and stochastic approach for inputs into custom hardware versions
+\end{enumerate} 
+
+Provides evaluation criterion for students components and underlying systems. The simulated components have parameters that are modifiable through switches and sliders (e.g. \{on, off\} or a range from 0 - 100\%). This gives students metrics to evaluate their designs. Additionally, outputs are exported at runtime to Comma Separated Value (CSV) files allowing for more in-depth analysis with external programs such as Microsoft Excel or MATLAB. This gives a flexible and realistic testing environment for student learning. 
 
 \subsubsection{Talking Points}
 
@@ -13,9 +20,10 @@ The software is open-source, though not available, and is written using Java all
 \item Industry software hides underlying information (rightly so for them)
 \item Visualization gives "less opaque" view of the system
 \item Language 
+\item Focuses on compiler semantics, low-level detail implementations (e.g. motor characteristics)
 \end{itemize}
 
-\lipsum
+\lipsum[1]
 
 
 %\begin{figure}[ht]
