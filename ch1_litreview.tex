@@ -1,5 +1,43 @@
 \chapter{Literature Review}
 
+\begin{itemize}
+
+\item What research question(s) are you asking?
+\begin{itemize}
+\item Can improvements to software simulation stories improve learning outcomes for students in electrical, computer and software engineering on topics surrounding microcontrollers? 
+\item Do familiar high-level software constructs improve student learning outcomes of low-level hardware components?
+\item What are the requirements needed for a simulation suite to be successful in a pedagogical space rather than industrial?
+\item What curriculum changes are required to improve student outcomes?
+\end{itemize}
+
+\item Why are you asking it/them?
+\begin{itemize}
+\item Drop in marks for students within these courses
+\item Students voice frustration with course material and current solutions
+\end{itemize}
+
+\item Has anyone else done anything similar?
+\begin{itemize}
+\item Yes. 
+\end{itemize}
+\item Is your research relevant to research/practice/theory in your field?
+\begin{itemize}
+\item Education is always required
+\item Improvements are required as IoT increases and devices are moving back towards small
+	microelectronics
+\end{itemize}
+\item What is already known or understood about this topic?
+\begin{itemize}
+\item Simulations: \cite{Tappan2009}, \cite{Skrien2001}, \cite{Skillen2011}
+\item Curriculum: 
+\end{itemize}
+\item How might your research add to this understanding, or challenge existing theories and beliefs?
+\begin{itemize}
+\item Extend on existing solution
+\item Propose opportunity to replace multiple configurations, not a single one
+\end{itemize}
+\end{itemize}
+
 \section{ShelbySim \cite{Tappan2009}}
 
 ShelbySim is an education-oriented software system for designing, simulating, and evaluating computer-engineering based applications. ShelbySim was designed surrounding a new Java-like programming language including a compiler explicitly built around providing extensive diagnostic information such as logging, tracing, and inspection capabilities. These tools provide students with raw data for quantitative analysis, evaluation and reporting of their designs. 
@@ -104,6 +142,40 @@ Mixture of discussion surrounding architectures and organization -- less on simu
 \item Ships with URISC architecture (subleq)
 \end{itemize}
 
+\section{A Perspective on the Experiential Learning of Computer Architecture \cite{McLoughlin2010}, \cite{Nakamura2013}}
+
+Discussion of an MSc. curriculum based around designing a CPU called ``TinyCPU'' \cite{McLoughlin2010} and an extension ``TinyCSE'' \cite{Nakamura2013}. The MSc. program detailed is very similar to Western's computer engineering undergraduate program in content/topics. 
+
+\subsection{Design considerations}
+
+Utilizes a simple dual-BUS architecture for address and data. Uses memory-mapped ``I/O space'' controller for a port-mapped I/O scheme. An interrupt controller is built consisting of a single register, \verb|intr| that stores information about what device interrupted. The authors used a simplified interrupt model in which only one interrupt is supported at a given time. The addition of the interrupt support required the addition of ``RETURN'' and ``CALL'' instructions to support subroutines. Any interrupt implementation must have these machine instructions specified to give the controller the ability to change execution flow whilst maintaining state of the machine. 
+
+
+\subsection{Talking Points}
+
+\begin{itemize}
+\item Verilog HDL-based
+\item Requires use of complex suites like Modelsim or Altera
+\item To be used directly on FPGAs
+\item Comes with a C compiler/assembler
+\item Proved implementation of multiple device controllers
+\item Bound to a single architecture
+\end{itemize}
+
+\section{Computer Engineering Curricula 2016 \cite{cec2016}}
+
+TODO Find the information surrounding CE topics and how they relate to our project. 
+
+\subsection{Talking Points}
+
+\begin{itemize}
+\item Verilog HDL-based
+\item Requires use of complex suites like Modelsim or Altera
+\item To be used directly on FPGAs
+\item Comes with a C compiler/assembler
+\item Proved implementation of multiple device controllers
+\item Bound to a single architecture
+\end{itemize}
 
 %\begin{figure}[ht]
 %\begin{center}
