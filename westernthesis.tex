@@ -4,7 +4,7 @@
 % With thanks to Mr. (soon to be Dr.) Will Robertson.
 
 
-\documentclass[12pt,twoside]{report}
+\documentclass[12pt, twoside]{report}
 %% Decomment next line to use PostScript fonts
 %%\UsePackage{times}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -28,7 +28,8 @@
 \usepackage{txfonts}
 \usepackage{tocloft}
 
-\usepackage{csquotes}
+% Topic listings that are conditional to draft
+\usepackage[obeyFinal]{todonotes}
 
 \usepackage{lipsum}
 \usepackage[backend=biber, style=ieee]{biblatex}
@@ -37,6 +38,7 @@
 
 \usepackage{minted}
 
+\usepackage{csquotes}
 
 \makeatletter
 \numberwithin{figure}{chapter}
@@ -133,7 +135,7 @@
 \flushbottom
 
 \setcounter{tocdepth}{3} % Number the subsubsections 
-\def\normalspacing{1.25} % default line spacing
+\def\normalspacing{1.5} % default line spacing
 
 \newcommand\isco[1]{%
   \edef\@tempa{#1}%
@@ -191,8 +193,8 @@
 
 %\renewcommand{\appendixtocname}{\Huge \textbf{List of Appendices} \normalsize}
 \newcommand{\blank}{\hspace{-2mm}}
-\newcommand{\super}{Dr. A. I. McLeod} %supervisor
-\newcommand{\superj}{Dr. A. Manning} %joint supervisor, if there is one, leave blank if not (lbin)... only one of the three.
+\newcommand{\super}{Dr. K. McIsaac} %supervisor
+\newcommand{\superj}{} %joint supervisor, if there is one, leave blank if not (lbin)... only one of the three.
 \newcommand{\superc}{} %co-supervisor, if there is one, leave blank if not (lbin)
 \newcommand{\supera}{} %alternate supervisor, if there is one, leave blank if not (lbin)
 \newcommand{\sco}{Dr. W. J. Braun}  %member of supervisory committee
@@ -201,23 +203,24 @@
 \newcommand{\examt}{Dr. W. Fing}
 \newcommand{\examth}{Dr. G. Hing}
 \newcommand{\examf}{}
-\newcommand{\department}{Statistics and Actuarial Science}
-\newcommand{\degree}{Masters of Science}
-\newcommand{\firstname}{Tom}
-\newcommand{\middlename}{}
-\newcommand{\lastname}{Smith}
+\newcommand{\department}{Electrical and Computer Engineering}
+\newcommand{\degree}{Masters of Engineering Science}
+\newcommand{\firstname}{Kevin}
+\newcommand{\middlename}{A}
+\newcommand{\lastname}{Brightwell}
 %\renewcommand{\author}[1]{\ifx\empty#1\else\gdef\@author{#1}\fi} 
 \newcommand{\authorname}{{\firstname} {\middlename} {\lastname}}
-\newcommand{\titl}{Computational Statistics: Time Series and Data Mining}
-\newcommand{\spinetitle}{Plib}%only if the above is more than 60 characters
+\newcommand{\titl}{Improvements in Microprocessor Engineering Education Through Simulation Technologies}
+\newcommand{\spinetitle}{Microprocessor Engineering Education via Simulation}%only if the above is more than 60 characters
 \newcommand{\thesisformat}{Monograph} %or Integrated Article
 \newcommand{\gyear}{\number\year}
 \newcommand{\makecoauthor}{
 %Type information about coauthorship here/
-I would like to acknowlege my imaginary friend, Jummi for doing all the work. 
+
 }
 \newcommand{\makeacknowlege} {
 %Type in acknowlegements here
+I would like to acknowledge: Brad, Thomas, Kyle.
 }
 \newcommand{\listappendixname}{List of Appendices}
 \newlistof{myappendices}{app}{\listappendixname}
@@ -307,7 +310,7 @@ The thesis by \\ \vfill
 \vfill
 entitled:\\\vfill
 \textbf{\titl}\\\vfill
-is accepted in partial fulfillment of the \\
+is accepted in partial fulfilment of the \\
 requirements for the degree of\\
 \degree\\
 \end{center}
@@ -329,6 +332,8 @@ Chair of the Thesis Examination Board
 
 }
 
+\linespread{1.5}
+
 \makeatother
 \begin{document}
 
@@ -337,7 +342,7 @@ Chair of the Thesis Examination Board
 %% '\newtheorem's (in other words, all the global definitions that you
 %% will need throughout your thesis) in a separate file and use
 %% "\input{filename}" to input it here.
-
+\input{commands}
 
 %% This sets the page style and numbering for preliminary sections.
 \begin{preliminary}
@@ -350,8 +355,8 @@ Chair of the Thesis Examination Board
 %\addcontentsline{toc}{chapter}{Co-Authorship Statement}
 %\coauthor{\makecoauthor}  %comment this out if none
 %\newpage
-%\addcontentsline{toc}{chapter}{Acknowlegements}
-%\acknowlege{\makeacknowlege}	%as above
+\addcontentsline{toc}{chapter}{Acknowlegements}
+\acknowlege{\makeacknowlege}	%as above
 \addcontentsline{toc}{chapter}{Abstract}
 \Large\begin{center}\textbf{Abstract}\end{center}\normalsize
 %%  ***  Put your Abstract here.   ***
@@ -414,20 +419,31 @@ This is a really silly abstract.
 \begin{table}[ht]
 \begin{tabular}{ll}
 \textbf{Name:} & \firstname{} \lastname\\\\
-\textbf{Post-Secondary} & La La School\\
-\textbf{Education and}& La La Land\\
-\textbf{Degrees:}& 1996 - 2000 M.A.\\\\
-& University of Western Ontario\\
+\textbf{Post-Secondary} & The University of Western Ontario\\
+\textbf{Education and}& London, ON\\
+\textbf{Degrees:}& 2009 - 2015 BESc.\\\\
+& The University of Western Ontario\\
 & London, ON\\
-& 2008 - 2012 Ph.D.\\\\
-\textbf{Honours and}& NSERC PGS M\\
-\textbf{Awards:}& 2006-2007\\\\
-\textbf{Related Work}& Teaching Assistant\\
-\textbf{Experience:}& The University of Western Ontario\\
-& 2008 - 2012\\
+& 2009 - 2015 BSc.\\\\
+& The University of Western Ontario\\
+& London, ON\\
+& 2015 - 2017 MESc.\\\\
+\textbf{Honours and}& Ontario Graduate Scholarship\\
+\textbf{Awards:}& 2015-2016\\\\
+& Best Presentation - Software Engineering \\
+& Electrical and Computer Engineering Graduate Symposium \\
+& Spring 2016 \\\\
+\textbf{Related Work}& Limited Duties Instructor \\
+\textbf{Experience:}& Data Structures and Algorithms for Software Engineering\\
+& The University of Western Ontario\\
+& Winter 2017\\\\
+& Teaching Assistant\\
+& The University of Western Ontario\\
+& 2015 - 2016\\
 \end{tabular}
 \end{table}
 \subsubsection*{Publications:}
+:(
 La La
 \end{document}
 
