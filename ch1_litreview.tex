@@ -24,7 +24,59 @@ Each of these questions are elaborated in further sections.
 
 \section{Motivation}
 
-Students in both computer engineering and software engineering have a growing requirement to have strong knowledge of both embedded systems
+Students in computer engineering have a growing requirement to have strong knowledge of both embedded systems and computer architectures due to increases in computer engineering careers\cite[p.~30]{cec2016}\cite{bls2014}. Unfortunately, many students do not show enthusiasm for these subjects. 
+
+\subsection{ECE 3375 - Student Sentiments}
+
+At Western University, students in all programs in Electrical \& Computer Engineering must take the course ECE 3375 - Microprocessors and Microcomputers\cite{uwo-we-programprogression, eceoutline-ece3375}. For example, shown in \cref{table-course-enthusiasm-ece3375}
+\todo{Update with 2015/2016 data if provided}, for a required course in embedded systems at Western University (ECE 3375)\cite{eceOutlines}, student enthusiasm for the course is extremely mixed. Unfortunately, there does not exist data broken down between computer and software engineering -- both are required to take this course. Additionally, with primitive sentiment analysis applied to \cite{evals:ece3375-2013, evals:ece3375-2014}, shown in \cref{fig:ece-3375-course-sentiment}, we can see that after completion of the course, students are overall happy with the course content in itself as 72.73\% of students found the experience positive. However, by extracting comments regarding the laboratory sessions and applying the same technique for sentiment as the course, shown in \cref{fig:ece-3375-lab-sentiment} \todo{Fix chart formatting, names}, we find that students are likely very unhappy with the lab components as 33\% stated negative reviews of the component. Given the sentiment analysis and the comments provided by students, we extracted several propositions for improving laboratory sessions: 
+
+\begin{enumerate}[ref={proposition~\arabic*}]
+    \item Increase number of laboratory sessions 
+        \label{prop:add-lab-sessions}
+    \item Add tutorial sessions
+        \label{prop:add-tutorial-sessions}
+    \item Change course material
+        \label{prop:change-course-materials}
+    \item Replace laboratory microcontrollers with different hardware
+        \label{prop:replace-hardware} % REPEAL AND REPLACE!11!!11
+    \item Improve/replace software within laboratory
+        \label{prop:replace-software}
+\end{enumerate}
+
+\begin{table}[!h]
+    \centering
+    \begin{tabular}{lc|r|r|r|r}
+        \multicolumn{5}{c}{Initial Level of Enthusiasm} \\ \hline\hline
+        \multicolumn{2}{l}{Year} & \multicolumn{1}{|c}{2013} & \multicolumn{1}{|c}{2014} & \multicolumn{1}{|c}{Total} \\ \hline
+        High          & \%       & 45.6                     & 57.8                     & 53.0                      \\ 
+        Medium        & \%       & 54.2                     & 33.3                     & 41.6                      \\
+        Low           & \%       & 0.0                      & 8.9                      & 5.4                       \\ 
+        Total         & \#       & 59                       & 90                       & 149                       \\ \hline
+    \end{tabular}
+    \caption{ECE 3375 Course ``Level of enthusiasm before taking the course'' as reported by undergraduate students\cite{evals:ece3375-2013, evals:ece3375-2014}} 
+    \label{table-course-enthusiasm-ece3375}
+\end{table}
+
+\begin{figure}
+    \centering
+    \begin{subfigure}{.8\linewidth}
+       \centering
+       \includegraphics[width=.8\linewidth]{img/course-sentiment-ece-3375}
+       \caption{Overall Course Sentiment}
+       \label{fig:ece-3375-course-sentiment}
+    \end{subfigure}
+   
+    \begin{subfigure}{.8\linewidth}
+       \centering
+       \includegraphics[width=.8\linewidth]{img/lab-sentiment-ece-3375}
+       \caption{Lab Sentiment}
+       \label{fig:ece-3375-lab-sentiment}
+    \end{subfigure}
+
+    \caption{ECE 3375 - Course Sentiment Analysis\cite{evals:ece3375-2013, evals:ece3375-2014}}
+\end{figure}
+
 
 
 This thesis presents a novel iteration of simulation software to improve the learning outcomes embedded systems for students in computer and software engineering programs. Currently available software packages are often needlessly complicated, expensive and overwhelming for introductory students. 
