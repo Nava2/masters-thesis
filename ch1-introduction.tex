@@ -3,7 +3,7 @@
 \todo{Educational justification}
 \todo{comparison of other simulators}
 
-Embedded systems and computer architectures are a critical part of both computer and software engineering undergraduate programs\cite[appendix, p.~73-76]{cec2016}\cite[p.~33]{sec2015}. Over time, it is expected that knowledge of embedded systems and computer architectures will be required given the rapid growth of positions in both systems software developers (+13\%) and computer occupations (+12.5\%)\cite{bls2014}. At the authors institution, The University of Western Ontario, two courses cover embedded systems and computer architectures, ECE 3375 - Microprocessors and Microcomputers and ECE 3390B - Hardware/Software Co-Design\cite{eceOutlines}. These topics are taught through the use of industry based software such as Intel Quartus Prime (formerly Altera Quartus II)\cite{quartus} or Xilinx ISE WebPACK\cite{xilinxISE}.
+Embedded systems and computer architectures are a critical part of both computer and software engineering undergraduate programs\cite[appendix, p.~73-76]{cec2016}\cite[p.~33]{sec2015}\cite{ece-ce-program, Ristov2011, Stolikj2011}. Over time, it is expected that knowledge of embedded systems and computer architectures will be required given the rapid growth of positions in both systems software developers (+13\%) and computer occupations (+12.5\%)\cite{bls2014}. At the author's institution, The University of Western Ontario, two courses cover embedded systems and computer architectures, ECE 3375 - Microprocessors and Microcomputers and ECE 3390B - Hardware/Software Co-Design\cite{eceOutlines}. These topics are taught through the use of industry based software such as Intel Quartus Prime (formerly Altera Quartus II)\cite{quartus} or Xilinx ISE WebPACK\cite{xilinxISE}.
 
 \section{Research Question}
 
@@ -26,27 +26,11 @@ Each of these questions are elaborated in further sections.
 
 Students in computer engineering have a growing requirement to have strong knowledge of both embedded systems and computer architectures due to increases in computer engineering careers\cite[p.~30]{cec2016}\cite{bls2014}. Unfortunately, many students do not show enthusiasm for these subjects. 
 
-\subsection{ECE 3375 - Student Sentiments}
-
-At Western University, students in all programs in Electrical \& Computer Engineering must take the course ECE 3375 - Microprocessors and Microcomputers\cite{uwo-we-programprogression, eceoutline-ece3375}. For example, shown in \cref{table-course-enthusiasm-ece3375}
-\todo{Update with 2015/2016 data if provided}, for a required course in embedded systems at Western University (ECE 3375)\cite{eceOutlines}, student enthusiasm for the course is extremely mixed. Unfortunately, there does not exist data broken down between computer and software engineering -- both are required to take this course. Additionally, with primitive sentiment analysis applied to \cite{evals:ece3375-2013, evals:ece3375-2014}, shown in \cref{fig:ece-3375-course-sentiment}, we can see that after completion of the course, students are overall happy with the course content in itself as 72.73\% of students found the experience positive. However, by extracting comments regarding the laboratory sessions and applying the same technique for sentiment as the course, shown in \cref{fig:ece-3375-lab-sentiment} \todo{Fix chart formatting, names}, we find that students are likely very unhappy with the lab components as 33\% stated negative reviews of the component. Given the sentiment analysis and the comments provided by students, we extracted several propositions for improving laboratory sessions: 
-
-\begin{enumerate}[ref={proposition~\arabic*}]
-    \item Increase number of laboratory sessions 
-        \label{prop:add-lab-sessions}
-    \item Add tutorial sessions
-        \label{prop:add-tutorial-sessions}
-    \item Change course material
-        \label{prop:change-course-materials}
-    \item Replace laboratory microcontrollers with different hardware
-        \label{prop:replace-hardware} % REPEAL AND REPLACE!11!!11
-    \item Improve/replace software within laboratory
-        \label{prop:replace-software}
-\end{enumerate}
+At Western University, students in all programs in Electrical \& Computer Engineering must take the course ECE 3375 - Microprocessors and Microcomputers\cite{uwo-we-programprogression, eceoutline-ece3375}. For example, shown in \cref{table-course-enthusiasm-ece3375}\todo{Update with 2015/2016 data if provided}, for a required course in embedded systems at Western University (ECE 3375)\cite{eceOutlines}, student enthusiasm for the course is extremely mixed. Unfortunately, there does not exist data broken down between computer and software engineering -- both are required to take this course. Additionally, with primitive sentiment analysis applied to \cite{evals:ece3375-2013, evals:ece3375-2014}, shown in \cref{fig:ece-3375-course-sentiment}, we can see that after completion of the course, students are overall happy with the course content in itself as 72.73\% of students found the experience positive. However, by extracting comments regarding the laboratory sessions and applying the same technique for sentiment as the course, shown in \cref{fig:ece-3375-lab-sentiment} \todo{Fix chart formatting, names}, we find that students are likely very unhappy with the lab components as 33\% stated negative reviews of the component. 
 
 \begin{table}[!h]
     \centering
-    \begin{tabular}{lc|r|r|r|r}
+    \begin{tabular}{lc|r|r|r}
         \multicolumn{5}{c}{Initial Level of Enthusiasm} \\ \hline\hline
         \multicolumn{2}{l}{Year} & \multicolumn{1}{|c}{2013} & \multicolumn{1}{|c}{2014} & \multicolumn{1}{|c}{Total} \\ \hline
         High          & \%       & 45.6                     & 57.8                     & 53.0                      \\ 
@@ -77,7 +61,50 @@ At Western University, students in all programs in Electrical \& Computer Engine
     \caption{ECE 3375 - Course Sentiment Analysis\cite{evals:ece3375-2013, evals:ece3375-2014}}
 \end{figure}
 
+Researchers have found that there are concerns with low-level hardware constructs being taught to high-level Computer Science, Software Engineering and Computer engineering graduates \cite{Ristov2011, Stolikj2011}. Additionally, the author can corroborate the following claims by \cite{Ristov2011}: 
+\begin{displayquote}
+    \begin{enumerate}
+        \item Disjointed material between lectures, theoretical and practical
+        exercises. Students could not transfer knowledge gained from either lectures or theoretical exercises to practical exercises [\dots] 
+            \label{quote:ristov:1}
+        \item Inappropriate programming and simulation environment [\dots] 
+            \label{quote:ristov:2}
+        \item No ``real world'' application [\dots] 
+            \label{quote:ristov:3}
+    \end{enumerate}
+\end{displayquote}
+Given the author's first-hand experiences in both taking and assisting in the instruction of ECE3375, these claims are repeated by students during laboratory exercises and review sessions creating hostility towards the subject matter. In a direct comparison to \cref{quote:ristov:2}, students in ECE3375 use the WinIDE12Z Integrated Development Environment\cite{winide}, shown in \cref{fig:winide-screenshot-pemicro}. In ECE3375, students found WinIDE complicated, frustrating and ``outdated'' \cite{evals:ece3375-2013, evals:ece3375-2014} both \cref{quote:ristov:2} and \cref{quote:ristov:3} of \cite{Ristov2011}'s observations. Additionally students found it difficult to move from lecture material that presented embedded systems as ``translucent'' devices composed of inner components to the literal ``black box'' of the physical hardware -- shown in \cref{fig:hc12-board}. 
 
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=0.7\linewidth]{img/winide-screenshot-pemicro}
+    \caption{WinIDE12Z Integrated Development Environment\cite{winide-screenshot}}
+    \label{fig:winide-screenshot-pemicro}
+\end{figure}
+
+\begin{figure}[!hb]
+    \centering
+    \includegraphics[width=0.8\linewidth]{img/board-on-cropped}
+    \caption{Freescale S12CPUV2 development board built by Western Engineering Electronics Shop for use in ECE 3375}
+    \label{fig:hc12-board}
+\end{figure}
+
+Given sentiment analysis and the comments provided by students, the author extracted several propositions for improving laboratory sessions: 
+
+\begin{enumerate}[label={Proposition~\arabic*}, ref=Proposition~(\alph*), leftmargin=*]
+    \item Increase the number of laboratory sessions 
+    \label{prop:add-lab-sessions}
+    \item Add tutorial sessions to course schedule
+    \label{prop:add-tutorial-sessions}
+    \item Change course material to use modern processors
+    \label{prop:change-course-materials}
+    \item Replace laboratory microcontrollers with different hardware
+    \label{prop:replace-hardware} % REPEAL AND REPLACE!11!!11
+    \item Improve and/or replace software within laboratory
+    \label{prop:replace-software}
+\end{enumerate}
+
+All of these considerations were bought to the course instructor and the following limitations were noted for each. For \cref{prop:add-lab-sessions}, while the addition of more hands-on experience has been shown to improve student outcomes\cite{Ristov2011, Stolikj2011} due to the large amount of financial resources required to add more laboratory sessions, this option is rarely available for many programs. In addition, due to the layout of the current course laboratory sessions, there does not exist enough weeks in the 12-week course to add more sessions given the current resources. Thus, \cref{prop:add-lab-sessions} can not be implemented.  
 
 This thesis presents a novel iteration of simulation software to improve the learning outcomes embedded systems for students in computer and software engineering programs. Currently available software packages are often needlessly complicated, expensive and overwhelming for introductory students. 
 
@@ -119,7 +146,9 @@ This thesis presents a novel iteration of simulation software to improve the lea
 \end{itemize}
 \end{itemize}
 
-\section{ShelbySim \cite{Tappan2009}}
+\section{ShelbySim}
+
+\cite{Tappan2009}
 
 ShelbySim is an education-oriented software system for designing, simulating, and evaluating computer-engineering based applications. ShelbySim was designed surrounding a new Java-like programming language including a compiler explicitly built around providing extensive diagnostic information such as logging, tracing, and inspection capabilities. These tools provide students with raw data for quantitative analysis, evaluation and reporting of their designs. 
 
@@ -132,7 +161,7 @@ The software is open-source, though not available, and is written using Java all
 
 Provides evaluation criterion for students components and underlying systems. The simulated components have parameters that are modifiable through switches and sliders (e.g. \{on, off\} or a range from 0 - 100\%). This gives students metrics to evaluate their designs. Additionally, outputs are exported at runtime to Comma Separated Value (CSV) files allowing for more in-depth analysis with external programs such as Microsoft Excel or MATLAB. This gives a flexible and realistic testing environment for student learning. 
 
-\subsubsection{Talking Points}
+\subsection{Talking Points}
 
 \begin{itemize}
 \item Most software does not focus on pedagogy
@@ -142,7 +171,9 @@ Provides evaluation criterion for students components and underlying systems. Th
 \item Focuses on compiler semantics, low-level detail implementations (e.g. motor characteristics)
 \end{itemize}
 
-\section{CPUSim \cite{Skrien2001}}
+\section{CPUSim}
+
+\cite{Skrien2001}
 
 CPU Sim is a Java CPU simulator written for use within a classroom environment. CPUSim allows students to design, modify, and compare various computer architectures at the register-transfer level and higher. Additionally, students may write and debug assembly code for custom architectures. The JavaFX front-end allows for viewing CPU internal components (e.g. RAMs and Registers) while stepping through programs. CPUSim allows students to encode and decode values through a user interface for machine codes. 
 
@@ -150,7 +181,7 @@ CPUSim also allows students to specify microinstructions that are combined to cr
 
 CPUSim's design is flexible given the Java-based system allowing students to work on multiple different platforms easily. Additionally, it is written such that many aspect of the software may be customized. Unfortunately, due to the decision to utilize the Java Virtual Machine, interfaces with lower-level components such as serial ports is difficult. 
 
-\subsubsection{Talking Points}
+\subsection{Talking Points}
 
 \begin{itemize}
 \item Java-based
@@ -160,7 +191,9 @@ CPUSim's design is flexible given the Java-based system allowing students to wor
 \item 
 \end{itemize}
 
-\section{EASE \cite{Skillen2011}}
+\section{EASE}
+
+\cite{Skillen2011}
 
 \blockquote[Skillen2011]{Striking the right balance between teaching sufficient de-tails of hardware components and their working principles, and important theoretical concepts useful for programming the computer is always a challenge.}
 
@@ -206,7 +239,9 @@ Based on descriptions of the internal mechanics, it is tightly coupled to the cu
 \item Ships with URISC architecture (subleq)
 \end{itemize}
 
-\section{Survey/eval of simulators for teaching \cite{Nikolic2009}}
+\section{Survey/eval of simulators for teaching}
+
+\cite{Nikolic2009}
 
 Mixture of discussion surrounding architectures and organization -- less on simulation of actual assembly-level programming.  
 
@@ -223,7 +258,9 @@ Mixture of discussion surrounding architectures and organization -- less on simu
 \item Ships with URISC architecture (subleq)
 \end{itemize}
 
-\section{A Perspective on the Experiential Learning of Computer Architecture \cite{McLoughlin2010}, \cite{Nakamura2013}}
+\section{A Perspective on the Experiential Learning of Computer Architecture}
+
+\cite{McLoughlin2010, Nakamura2013}
 
 Discussion of an MSc. curriculum based around designing a CPU called ``TinyCPU'' \cite{McLoughlin2010} and an extension ``TinyCSE'' \cite{Nakamura2013}. The MSc. program detailed is very similar to Western's computer engineering undergraduate program in content/topics. 
 
@@ -243,7 +280,9 @@ Utilizes a simple dual-BUS architecture for address and data. Uses memory-mapped
 \item Bound to a single architecture
 \end{itemize}
 
-\section{Computer Engineering Curricula 2016 \cite{cec2016}}
+\section{Computer Engineering Curricula 2016}
+
+\cite{cec2016}
 
 TODO Find the information surrounding CE topics and how they relate to our project. 
 

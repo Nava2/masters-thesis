@@ -24,7 +24,7 @@
 \usepackage{graphicx}
 \usepackage{amsmath}
 \usepackage[byname]{smartref}
-\usepackage{hyperref} %comment out for hardcopy
+\usepackage{hyperref} % comment out for hardcopy
 \usepackage{txfonts}
 \usepackage{tocloft}
 
@@ -33,12 +33,16 @@
 
 \usepackage{subcaption}
 
-\usepackage{enumitem, cleveref}
+\usepackage{enumitem}
+% Always use capitalizaion, include the name and do not abbreviate the 
+% label type, this is similar to how \\autoref works. 
+\usepackage[capitalize, nameinlink, noabbrev]{cleveref}
 
 \usepackage{lipsum}
 \usepackage[backend=biber, style=ieee]{biblatex}
 
-\addbibresource{research.bib}
+\addbibresource{online.bib}
+\addbibresource{print.bib}
 
 \usepackage{minted}
 
@@ -401,9 +405,8 @@ This is a really silly abstract.
 %% "\input" makes each chapter start on a new page.                   %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\include{ch1_litreview}
+\include{ch1-introduction}
 \include{chapter2}
-
 
 %% This adds a line for the Bibliography in the Table of Contents.
 \addcontentsline{toc}{chapter}{Bibliography}
