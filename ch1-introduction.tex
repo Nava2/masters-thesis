@@ -3,6 +3,46 @@
 \todo{Educational justification}
 \todo{comparison of other simulators}
 
+\begin{comment}
+\begin{itemize}
+
+\item What research question(s) are you asking?
+\begin{itemize}
+\item Can improvements to software simulation stories improve learning outcomes for students in electrical, computer and software engineering on topics surrounding microcontrollers? 
+\item Do familiar high-level software constructs improve student learning outcomes of low-level hardware components?
+\item What are the requirements needed for a simulation suite to be successful in a pedagogical space rather than industrial?
+\item What curriculum changes are required to improve student outcomes?
+\end{itemize}
+
+\item Why are you asking it/them?
+\begin{itemize}
+\item Drop in marks for students within these courses
+\item Students voice frustration with course material and current solutions
+\end{itemize}
+
+\item Has anyone else done anything similar?
+\begin{itemize}
+\item Yes. 
+\end{itemize}
+\item Is your research relevant to research/practice/theory in your field?
+\begin{itemize}
+\item Education is always required
+\item Improvements are required as IoT increases and devices are moving back towards small
+microelectronics
+\end{itemize}
+\item What is already known or understood about this topic?
+\begin{itemize}
+\item Simulations: \cite{Tappan2009}, \cite{Skrien2001}, \cite{Skillen2011}
+\item Curriculum: 
+\end{itemize}
+\item How might your research add to this understanding, or challenge existing theories and beliefs?
+\begin{itemize}
+\item Extend on existing solution
+\item Propose opportunity to replace multiple configurations, not a single one
+\end{itemize}
+\end{itemize}
+\end{comment}
+
 Embedded systems and computer architectures are a critical part of both computer and software engineering undergraduate programs\cite[appendix, p.~73-76]{cec2016}\cite[p.~33]{sec2015}\cite{ece-ce-program, Ristov2011, Stolikj2011}. Over time, it is expected that knowledge of embedded systems and computer architectures will be required given the rapid growth of positions in both systems software developers (+13\%) and computer occupations (+12.5\%)\cite{bls2014}. At the author's institution, The University of Western Ontario, two courses cover embedded systems and computer architectures, ECE 3375 - Microprocessors and Microcomputers and ECE 3390B - Hardware/Software Co-Design\cite{eceOutlines}. These topics are taught through the use of industry based software such as Intel Quartus Prime (formerly Altera Quartus II)\cite{quartus} or Xilinx ISE WebPACK\cite{xilinxISE}.
 
 \section{Research Question}
@@ -91,62 +131,30 @@ Given the author's first-hand experiences in both taking and assisting in the in
 
 Given sentiment analysis and the comments provided by students, the author extracted several propositions for improving laboratory sessions: 
 
-\begin{enumerate}[label={Proposition~\arabic*}, ref=Proposition~(\alph*), leftmargin=*]
+\begin{enumerate}%[label={\textbf{\theproposition \arabic*}}]
     \item Increase the number of laboratory sessions 
-    \label{prop:add-lab-sessions}
+        \label[proposition]{prop:add-lab-sessions}
     \item Add tutorial sessions to course schedule
-    \label{prop:add-tutorial-sessions}
+        \label[proposition]{prop:add-tutorial-sessions}
     \item Change course material to use modern processors
-    \label{prop:change-course-materials}
+        \label[proposition]{prop:change-course-materials}
     \item Replace laboratory microcontrollers with different hardware
-    \label{prop:replace-hardware} % REPEAL AND REPLACE!11!!11
+        \label[proposition]{prop:replace-hardware} % REPEAL AND REPLACE!11!!11
     \item Improve and/or replace software within laboratory
-    \label{prop:replace-software}
+        \label[proposition]{prop:replace-software}
 \end{enumerate}
 
-All of these considerations were bought to the course instructor and the following limitations were noted for each. For \cref{prop:add-lab-sessions}, while the addition of more hands-on experience has been shown to improve student outcomes\cite{Ristov2011, Stolikj2011} due to the large amount of financial resources required to add more laboratory sessions, this option is rarely available for many programs. In addition, due to the layout of the current course laboratory sessions, there does not exist enough weeks in the 12-week course to add more sessions given the current resources. Thus, \cref{prop:add-lab-sessions} can not be implemented.  
+All of these considerations were bought to the course instructor and the following limitations were noted for each. For \cref{prop:add-lab-sessions,,prop:add-tutorial-sessions}, while the addition of more hands-on experience has been shown to improve student outcomes\cite{Ristov2011, Stolikj2011} due to the large amount of financial resources required to add more laboratory sessions, this option is rarely available for many programs. In addition, due to the layout of the current course laboratory sessions, there does not exist enough weeks in the 12-week course to add more sessions given the current resources. Thus, both \cref{prop:add-lab-sessions,,prop:add-tutorial-sessions} can not be implemented given financial and temporal restrictions.
 
-This thesis presents a novel iteration of simulation software to improve the learning outcomes embedded systems for students in computer and software engineering programs. Currently available software packages are often needlessly complicated, expensive and overwhelming for introductory students. 
+\Cref{prop:change-course-materials} asks the instructor to change the current course material to use more modern hardware/software. There are several reasons why this is not beneficial to the improvement of learning outcomes. The current architecture used is the Freescale S68HC12. This architecture provides a simple interface with only six 16-bit addressable registers (\verb|A|, \verb|B|, \verb|SP|, \verb|PC|, \verb|X|, \verb|Y|) and multiple addressing modes\cite{hc12Manual2006}. The software abstractions of the S68HC12 is similar to current Intel\textregistered{} x86 processors\cite{intel2017}. The parallelism between architectures allows instructors to use more simple architectures that still allow students to apply concepts to higher-level architectures while simultaneously reducing the cognitive ``base knowledge'' required to succeed. Using simpler architectures like the Ultimate Reduced Instruction Set Computer (URISC, \cite{mavaddat1988}) has been shown to be very applicable to improving student outcomes\cite{Nakamura2013, McLoughlin2010, mavaddat1988}. Additionally, by changing course materials, it leads into changing the laboratory hardware which \cref{prop:replace-hardware} discusses. Unfortunately, the replacing laboratory equipment is requires significant investment and with justifications for \cref{prop:change-course-materials} showcasing that there is not noticeable improvements in learning outcomes, the cost-benefit analysis does not prove worthwhile to adjust both \cref{prop:change-course-materials,,prop:replace-hardware}.
 
-\begin{itemize}
+The last proposition, \cref{prop:replace-software} is the most attainable proposition. Researchers have found that improving software technology in the classroom and laboratory can vastly improve the learning outcomes of students while improving engagement \cite{Ackovska2014, Stolikj2011, Ristov2011, Ristov2014, Nikolic2009, Skillen2011, Tappan2009, Djordjevic2005, cec2016}. Unfortunately, within ECE3375 students are immediately presented with the interfaces shown in \cref{fig:winide-screenshot-pemicro}. Students have expressed immense frustrations with the software when used in the laboratory exercises and often encounter hardware issues that are not caused by their own work\cite{evals:ece3375-2013, evals:ece3375-2014}. For other hardware solutions, \textquote[\cite{Ackovska2014}]{students were faced with hardware-specific problems such as sensor failure or unconnected pins.} These errors are hard to debug, if not impossible for students with no prior knowledge. Teaching assistants and instructors are often unable to debug these issues without the aid of technicians. These hard-to-diagnose hardware issues lead to strained teaching resources and frustrations. Thus, creating a large gain by replacing this ageing software with new tooling. Thus, this thesis looks to investigate the requirements surrounding replacing the current software in use within the ECE3375 course and propose a solution for others to utilize in other courses. 
 
-\item What research question(s) are you asking?
-\begin{itemize}
-\item Can improvements to software simulation stories improve learning outcomes for students in electrical, computer and software engineering on topics surrounding microcontrollers? 
-\item Do familiar high-level software constructs improve student learning outcomes of low-level hardware components?
-\item What are the requirements needed for a simulation suite to be successful in a pedagogical space rather than industrial?
-\item What curriculum changes are required to improve student outcomes?
-\end{itemize}
+\subsection{Evaluation of current simulation technologies} 
 
-\item Why are you asking it/them?
-\begin{itemize}
-\item Drop in marks for students within these courses
-\item Students voice frustration with course material and current solutions
-\end{itemize}
 
-\item Has anyone else done anything similar?
-\begin{itemize}
-\item Yes. 
-\end{itemize}
-\item Is your research relevant to research/practice/theory in your field?
-\begin{itemize}
-\item Education is always required
-\item Improvements are required as IoT increases and devices are moving back towards small
-	microelectronics
-\end{itemize}
-\item What is already known or understood about this topic?
-\begin{itemize}
-\item Simulations: \cite{Tappan2009}, \cite{Skrien2001}, \cite{Skillen2011}
-\item Curriculum: 
-\end{itemize}
-\item How might your research add to this understanding, or challenge existing theories and beliefs?
-\begin{itemize}
-\item Extend on existing solution
-\item Propose opportunity to replace multiple configurations, not a single one
-\end{itemize}
-\end{itemize}
 
-\section{ShelbySim}
+\subsubsection{ShelbySim}
 
 \cite{Tappan2009}
 
