@@ -24,7 +24,7 @@
 \usepackage{graphicx}
 \usepackage{amsmath}
 \usepackage[byname]{smartref}
-\usepackage{hyperref} % comment out for hardcopy
+\usepackage{hyperref} % comment out for hardcopy, hyperref must be loaded before cleveref
 \usepackage{txfonts}
 \usepackage{tocloft}
 
@@ -33,10 +33,7 @@
 
 \usepackage{subcaption}
 
-\usepackage{enumitem}
-% Always use capitalizaion, include the name and do not abbreviate the 
-% label type, this is similar to how \\autoref works. 
-\usepackage[capitalize, nameinlink, noabbrev]{cleveref}
+\usepackage{enumitem} % load before cleveref
 
 \usepackage{lipsum}
 \usepackage[backend=biber, style=ieee]{biblatex}
@@ -48,6 +45,19 @@
 \usepackage{comment}
 
 \usepackage{csquotes}
+
+\usepackage{makecell}
+
+\usepackage{array,multirow,graphicx}
+
+\if@final
+\else 
+    \usepackage[pass,showframe]{geometry}
+\fi
+
+% Always use capitalizaion, include the name and do not abbreviate the 
+% label type, this is similar to how \\autoref works. 
+\usepackage[capitalize, nameinlink, noabbrev]{cleveref}
 
 \makeatletter
 \numberwithin{figure}{chapter}
@@ -229,7 +239,7 @@
 }
 \newcommand{\makeacknowlege} {
 %Type in acknowlegements here
-I would like to acknowledge: Brad, Thomas, Kyle.
+I would like to acknowledge: Ramesh, Brad, Thomas, Kyle.
 }
 \newcommand{\listappendixname}{List of Appendices}
 \newlistof{myappendices}{app}{\listappendixname}
@@ -343,15 +353,15 @@ Chair of the Thesis Examination Board
 
 \linespread{1.5}
 
-\makeatother
-\begin{document}
-
 %% ***   NOTE   ***
 %% You should put all of your '\newcommand', '\newenvironment', and
 %% '\newtheorem's (in other words, all the global definitions that you
 %% will need throughout your thesis) in a separate file and use
 %% "\input{filename}" to input it here.
 \input{commands}
+
+\makeatother
+\begin{document}
 
 %% This sets the page style and numbering for preliminary sections.
 \begin{preliminary}

@@ -1,1 +1,26 @@
 
+\newcommand{\cxxinline}[1]{\mintinline{C++}{#1}}
+\newcommand{\javainline}[1]{\mintinline{java}{#1}}
+
+% Cleveref!
+
+\newlist{requirements}{enumerate}{2}
+\setlist[requirements,1]{%
+    label=\textbf{Requirement~\arabic*:~},ref=\arabic*,%
+    leftmargin=0pt,labelsep=0pt,%
+    align=left,%
+    labelwidth=\widthof{\textbf{Requirement~8:~}},%
+    itemindent=\widthof{\textbf{Requirement~8:~}},%
+    listparindent=\parindent}
+\setlist[requirements,2]{%
+    label=\textbf{\therequirementsi.\alph*:~},ref=\therequirementsi.\alph*,%
+    leftmargin=2em,labelsep=0pt,%
+    align=left,%
+    labelwidth=\widthof{\textbf{8.m:~}},%
+    itemindent=\widthof{\textbf{8.m:~}},%
+    listparindent=\parindent}
+
+\crefname{requirements}{requirement}{requirements}
+\Crefname{requirements}{Requirement}{Requirements}
+\crefalias{requirementsi}{requirements}
+\crefalias{requirementsii}{requirements}

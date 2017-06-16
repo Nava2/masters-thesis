@@ -146,11 +146,158 @@ Given sentiment analysis and the comments provided by students, the author extra
 
 All of these considerations were bought to the course instructor and the following limitations were noted for each. For \cref{prop:add-lab-sessions,,prop:add-tutorial-sessions}, while the addition of more hands-on experience has been shown to improve student outcomes\cite{Ristov2011, Stolikj2011} due to the large amount of financial resources required to add more laboratory sessions, this option is rarely available for many programs. In addition, due to the layout of the current course laboratory sessions, there does not exist enough weeks in the 12-week course to add more sessions given the current resources. Thus, both \cref{prop:add-lab-sessions,,prop:add-tutorial-sessions} can not be implemented given financial and temporal restrictions.
 
-\Cref{prop:change-course-materials} asks the instructor to change the current course material to use more modern hardware/software. There are several reasons why this is not beneficial to the improvement of learning outcomes. The current architecture used is the Freescale S68HC12. This architecture provides a simple interface with only six 16-bit addressable registers (\verb|A|, \verb|B|, \verb|SP|, \verb|PC|, \verb|X|, \verb|Y|) and multiple addressing modes\cite{hc12Manual2006}. The software abstractions of the S68HC12 is similar to current Intel\textregistered{} x86 processors\cite{intel2017}. The parallelism between architectures allows instructors to use more simple architectures that still allow students to apply concepts to higher-level architectures while simultaneously reducing the cognitive ``base knowledge'' required to succeed. Using simpler architectures like the Ultimate Reduced Instruction Set Computer (URISC, \cite{mavaddat1988}) has been shown to be very applicable to improving student outcomes\cite{Nakamura2013, McLoughlin2010, mavaddat1988}. Additionally, by changing course materials, it leads into changing the laboratory hardware which \cref{prop:replace-hardware} discusses. Unfortunately, the replacing laboratory equipment is requires significant investment and with justifications for \cref{prop:change-course-materials} showcasing that there is not noticeable improvements in learning outcomes, the cost-benefit analysis does not prove worthwhile to adjust both \cref{prop:change-course-materials,,prop:replace-hardware}.
+\Cref{prop:change-course-materials} asks the instructor to change the current course material to use more modern hardware/software. There are several reasons why this is not beneficial to the improvement of learning outcomes. The current architecture used is the Freescale M68HC12. This architecture provides a simple interface with only six 16-bit addressable registers (\verb|A|, \verb|B|, \verb|SP|, \verb|PC|, \verb|X|, \verb|Y|) and multiple addressing modes\cite{hc12Manual2006}. The software abstractions of the M68HC12 is similar to current Intel\textregistered{} x86 processors\cite{intel2017}. The parallelism between architectures allows instructors to use more simple architectures that still allow students to apply concepts to higher-level architectures while simultaneously reducing the cognitive ``base knowledge'' required to succeed. Using simpler architectures like the Ultimate Reduced Instruction Set Computer (URISC, \cite{mavaddat1988}) has been shown to be very applicable to improving student outcomes\cite{Nakamura2013, McLoughlin2010, mavaddat1988}. Additionally, by changing course materials, it leads into changing the laboratory hardware which \cref{prop:replace-hardware} discusses. Unfortunately, the replacing laboratory equipment is requires significant investment and with justifications for \cref{prop:change-course-materials} showcasing that there is not noticeable improvements in learning outcomes, the cost-benefit analysis does not prove worthwhile to adjust both \cref{prop:change-course-materials,,prop:replace-hardware}.
 
 The last proposition, \cref{prop:replace-software} is the most attainable proposition. Researchers have found that improving software technology in the classroom and laboratory can vastly improve the learning outcomes of students while improving engagement \cite{Ackovska2014, Stolikj2011, Ristov2011, Ristov2014, Nikolic2009, Skillen2011, Tappan2009, Djordjevic2005, cec2016}. Unfortunately, within ECE3375 students are immediately presented with the interfaces shown in \cref{fig:winide-screenshot-pemicro}. Students have expressed immense frustrations with the software when used in the laboratory exercises and often encounter hardware issues that are not caused by their own work\cite{evals:ece3375-2013, evals:ece3375-2014}. For other hardware solutions, \textquote[\cite{Ackovska2014}]{students were faced with hardware-specific problems such as sensor failure or unconnected pins.} These errors are hard to debug, if not impossible for students with no prior knowledge. Teaching assistants and instructors are often unable to debug these issues without the aid of technicians. These hard-to-diagnose hardware issues lead to strained teaching resources and frustrations. Thus, creating a large gain by replacing this ageing software with new tooling. Thus, this thesis looks to investigate the requirements surrounding replacing the current software in use within the ECE3375 course and propose a solution for others to utilize in other courses. 
 
-\subsection{Evaluation of current simulation technologies} 
+\section{Problem Statement}
+
+Our analysis of the current state of the ECE 3375 course showcased the pervasive dislike and discomfort with the current laboratory exercises. Given previous analysis, the author chose to improve the current software used within the laboratory exercises and the classroom. To do this, a current survey of known technologies must be done to ascertain whether a new solution should be created or an existing solution will provide the requirements. Thus, the formal problem to solve becomes: Can a solution be provided to students that is configurable (hardware and software interfaces) and showcases the connection between hardware and software while focusing on pedagogy rather than industry performance? 
+
+Further, this software must have the following requirements: 
+
+\begin{requirements}
+    \item\label{req:personal} Must be available for use outside of the laboratory on personal computers
+        
+    \item\label{req:configuration} Provide a student configurable system that works for different ISAs
+        
+    \item\label{req:pedagogical} Focus on pedagogical features over accuracy where required
+        
+    \item\label{req:simulations} Simulations must allow: 
+        \begin{requirements}
+            \item viewing of the current state of hardware components
+            \item stepping at the assembly and microcode level
+            \item connecting ``external'' peripheral components
+        \end{requirements}
+        
+\end{requirements}
+
+\Cref{req:personal} outlines that the software must work on personal computers. StackOverflow's Developer survey \cite{StackOverflowSurvey2016} found that approximately 47.9\% of those surveyed used a non-Microsoft Windows environment (macOS or Linux). The metrics recorded for 2016 desktop operating systems is shown in \cref{fig:stack-overflow-os-share}. While other metrics show that over 80\% of computers are Microsoft Windows\cite{StatCounter2017}, the author believes the StackOverflow survey is a better metric given the user base for this tooling are likely to go on to become hardware and software developers the primarily surveyed group with secondary being students\cite[Sec.~II.~Developer~Profiles]{StackOverflowSurvey2016}. Further, StackOverflow has found the year-over-year change to show a decrease in Microsoft Windows-based operating systems between 2013 and 2016\cite{StackOverflowSurvey2016}. This means that this project's solution must run on all three major operating systems with minimal effort to allow students to perform their out-of-classroom exercises. 
+
+\newcommand{\ostitlecell}[1]{\parbox[t]{2mm}{\multirow{6}{*}{\rotatebox[origin=c]{90}{\textbf{#1}}}}}
+
+\begin{figure}[bh]
+    \centering
+    \includegraphics[width=.8\linewidth]{img/stack-overflow-os-share}
+    
+    \begin{table}[H]
+        \centering
+        \begin{tabular}{llr|llr|llr}
+            \multicolumn{9}{c}{\thead{Operating System}} \\ \hline
+            \ostitlecell{Linux} & Ubuntu & 12.3   & \ostitlecell{Apple} & macOS & 26.2   & \ostitlecell{Windows} & 7    & 22.5  \\
+            & Debian & 1.9  & &     &     & & 10      & 20.8  \\
+            & Fedora & 1.4  & &     &     & & 8       & 8.4   \\
+            & Mint   & 1.7  & &     &     & & Vista   & 0.1   \\
+            & Other  & 4.4  & &     &     & & XP      & 0.4   \\
+            & \textbf{Total} & \textbf{21.7} &  & \textbf{Total} & \textbf{26.2} & & \textbf{Total} & \textbf{52.1} \\ \hline
+        \end{tabular}
+    \end{table}    
+    \caption{StackOverflow 2016 developer survey results for desktop operating systems\cite[Sec.~VIII.~Desktop~Operating~System]{StackOverflowSurvey2016}}
+    \label{fig:stack-overflow-os-share}
+\end{figure}
+
+
+
+
+\section{Previous Work: hc12sim}
+
+In 2013, the author worked collaboratively with colleague and fellow student Ramesh Raj to build a behaviourally accurate simulator for the M68HC12 processor\footnote{The author's capstone work is outlined in \cite{Brightwell2013}}. This work was completed as part of the capstone project for the author's Computer Engineering degree from Western University. This software was worked on over the course of a year and had the following features: 
+
+\begin{enumerate}
+    \item Included all basic memory elements (e.g. registers, memory layout)
+    \item Compile-time configurable microinstructions (addressing modes were not configurable)
+    \item Real-time simulation speeds
+    \item Debugging of assembly code with runtime viewing of internal hardware components
+    \item Accurate CISC addressing modes 
+    \item Full assembler creating exact machine code
+    \item Simple IDE for writing M68HC12 assembly code, compiling and simulating it (shown in \cref{fig:hc12ide-invalid-instruction})
+\end{enumerate}
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=0.6\linewidth]{img/hc12ide-invalid-instruction}
+    \caption{hc12ide Integrated Development Environment showing a student error.}
+    \label{fig:hc12ide-invalid-instruction}
+\end{figure}
+
+\subsection{Software Design}
+
+This project was written in C++ utilizing the then modern C++11 features such as lambdas/closures and cross-platform libraries (e.g. Qt and Boost\footnote{Available: Qt (\url{https://www.qt.io}) and Boost (\url{https://boost.org/})}). During this work, the primary design goals were: 
+
+\begin{enumerate}
+    \item Support all three major platforms: Microsoft Windows, Mac OS X, and GNU/Linux
+    \item Separate compiler and simulation components
+    \item Completely decouple any IDE from simulation
+    \item Heavily unit-test all software components for validity
+\end{enumerate}
+
+These lead into further requirements for any technology used (in order of priority): 
+
+\begin{enumerate}
+    \item User interface library available
+    \item Access to low-level types
+    \item Fast enough for simulation
+\end{enumerate}
+
+While initially writing the software in Java utilizing Java's Swing Toolkit and the Java Standard Library, it was rewritten in C++ due to access of low-level unsigned types, method references and multithreading capabilities.
+
+\subsubsection*{Instructions}
+\label{hc12sim:instruction-generation}
+
+Due to the M68HC12 having over 200 instructions with multiple addressing modes for each\cite{hc12Manual2006}, the simulation and assembler code put heavy emphasis on generating code to simplify writing and adding instructions. This allowed for generating multiple classes that had all of the meta-information required for all stages of a program (writing, assembly, programming, execution). In order to handle all of the generation required, a custom user interface was created to easily load and store data and generate C++ code. An image of the tool at this time is shown in \cref{fig:hc12sim-instruction-generater-ui}. As shown, the execution code is written in C++ and written beside the encoding of different addressing modes\footnote{See \cite[Table~3-1,~p.~30]{hc12Manual2006} for a table outlining the addressing modes available for the M68HC12}\todo{Should the full table be included from \cite{hc12Manual2006}?}. In addition to the user interface, the generator back-end was built into a command-line tool that allowed the generation to be run at compile time when hooked into build scripts (in this case, CMake\footnote{CMake: \url{https://cmake.org}}). The use of code generation became extremely prevalent in future work. 
+
+\begin{figure}[h!t]
+    \centering
+    \includegraphics[width=0.6\linewidth]{img/hc12sim-instruction-generater-ui}
+    \caption{hc12sim Instruction Generator showing the meta information for addressing modes, execution, and output.}
+    \label{fig:hc12sim-instruction-generater-ui}
+\end{figure}
+
+\subsubsection*{Hardware Simulation}
+\label{hc12sim:hardware-simulation}
+
+Physical ``components'' of the simulation were all written as custom classes. For example, the \verb|A| and \verb|B| registers were of \cxxinline{class Register<size_t width>} where the \verb|width| template parameter defined the bit width of the \cxxinline{Register}. Unfortunately, any special behaviours were ``decorated'' on top of the base type creating many different types depending on how the underlying component was used. This created confusing class hierarchies and directly contradicts the advice of the Decorator pattern\cite[p.~175]{go4}. Of particular interest was the design of the \cxxinline{Timer} and \cxxinline{TimerDependant} types which allowed for completely concurrent, event-based timing. An example interaction is shown in \cref{fig:hc12sim-timer-seq}. While these concurrent timing components are fast and well designed, it creates problems with discrete execution as each operates concurrently and can not be ``stepped'' through without executing all of the threaded operations simultaneously. In addition, each \cxxinline{TimerDependant} adds a thread of execution adding runtime overhead to simulation while not adding any functionality to the simulation\todo{Redo \cref{fig:hc12sim-timer-seq} diagram}.
+
+\begin{figure}[!hp]
+    \begin{minipage}{.5\linewidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/hc12sim-timer-sequence} 
+    \end{minipage}%
+    \begin{minipage}{.5\linewidth}
+        \begin{enumerate}
+            \item A \cxxinline{Timer} object is instantiated and started, it will enter sleep state
+            \item Two \cxxinline{TimerDependant} objects are created with execution methods bound within.
+            \item The \cxxinline{Timer} object binds the two \cxxinline{TimerDependant} objects to itself
+            \item In the \cxxinline{Timer}'s thread, it wakes and asks the Operating system to simultaneously signals all \cxxinline{TimerDependant} objects to wake
+            \item Synchronously, all the \cxxinline{TimerDependant} objects:
+            \begin{enumerate}
+                \item Run it's own execution method within it's thread
+                \item Return to a sleep-state and wait for next notification
+            \end{enumerate}
+        \end{enumerate}
+    \end{minipage}
+    \caption{Sequence of events for \cxxinline{Timer} and \cxxinline{TimerDependant} interaction\cite{Brightwell2013}} 
+    \label{fig:hc12sim-timer-seq}
+\end{figure}
+
+\subsubsection*{Execution}
+
+The simulator implemented execution through an \cxxinline{class Executor} that asynchronously executes the execution scheme specified by the M68HC12\cite[Sec.~4,~p.~47]{hc12Manual2006} and implemented in terms of \cite[p.~59]{Vahid2002}. The \cxxinline{Executor} utilized a fetch, decode, fetch (if needed), execute loop for executing all instructions. The actual execution of an instruction was completed by code written in the instruction generation step (see \cref{hc12sim:instruction-generation} for more information). However, the generated code is run within a separate thread context to keep the ``clock'' of the system running at a consistent speed. Of particular note, this simulation could not handle interrupts or pipe-lining. The full sequence of actions of this execution unit is shown in \cref{fig:hc12sim-execunit-sequence}.
+\todo{Redo \cref{fig:hc12sim-execunit-sequence} diagram}
+
+\begin{figure}[ph!]
+    \centering
+    \includegraphics[width=.9\linewidth]{img/hc12sim-execunit-sequence}
+    \caption{Sequence diagram of Execution process within Simulator}
+    \label{fig:hc12sim-execunit-sequence}
+\end{figure} 
+
+\subsubsection*{Iteration}
+
+While the hc12sim project was a success by most metrics, it missed major features such as interrupts and pipe-lining. It is tailored very specifically to the Freescale M68HC12 processor. Lastly, it does not support attaching peripheral devices (e.g. motors, LEDs). 
+
+\section{Evaluation of current simulation technologies} 
+
 
 
 
