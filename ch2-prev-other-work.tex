@@ -1,0 +1,240 @@
+\chapter{Previous and Survey of Other Works}
+\label{ch:prev-other-work}
+
+\section{Previous Work: hc12sim}
+
+In 2013, the author worked collaboratively with colleague and fellow student Ramesh Raj to build a behaviourally accurate simulator for the M68HC12 processor\footnote{The author's capstone work is outlined in \cite{Brightwell2013}}. This work was completed as part of the capstone project for the author's Computer Engineering degree from Western University. This software was worked on over the course of a year and had the following features: 
+
+\begin{enumerate}
+    \item Included all basic memory elements (e.g. registers, memory layout)
+    \item Compile-time configurable microinstructions (addressing modes were not configurable)
+    \item Real-time simulation speeds
+    \item Debugging of assembly code with runtime viewing of internal hardware components
+    \item Accurate CISC addressing modes 
+    \item Full assembler creating exact machine code
+    \item Simple IDE for writing M68HC12 assembly code, compiling and simulating it (shown in \cref{fig:hc12ide-invalid-instruction})
+\end{enumerate}
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=0.6\linewidth]{img/hc12ide-invalid-instruction}
+    \caption{hc12ide Integrated Development Environment showing a student error.}
+    \label{fig:hc12ide-invalid-instruction}
+\end{figure}
+
+\subsection{Software Design}
+
+This project was written in C++ utilizing the then modern C++11 features such as lambdas/closures and cross-platform libraries (e.g. Qt and Boost\footnote{Available: Qt (\url{https://www.qt.io}) and Boost (\url{https://boost.org/})}). During this work, the primary design goals were: 
+
+\begin{enumerate}
+    \item Support all three major platforms: Microsoft Windows, Mac OS X, and GNU/Linux
+    \item Separate compiler and simulation components
+    \item Completely decouple any IDE from simulation
+    \item Heavily unit-test all software components for validity
+\end{enumerate}
+
+These lead into further requirements for any technology used (in order of priority): 
+
+\begin{enumerate}
+    \item User interface library available
+    \item Access to low-level types
+    \item Fast enough for simulation
+\end{enumerate}
+
+While initially writing the software in Java utilizing Java's Swing Toolkit and the Java Standard Library, it was rewritten in C++ due to access of low-level unsigned types, method references and multithreading capabilities.
+
+\subsubsection*{Instructions}
+\label{hc12sim:instruction-generation}
+
+Due to the M68HC12 having over 200 instructions with multiple addressing modes for each\cite{hc12Manual2006}, the simulation and assembler code put heavy emphasis on generating code to simplify writing and adding instructions. This allowed for generating multiple classes that had all of the meta-information required for all stages of a program (writing, assembly, programming, execution). In order to handle all of the generation required, a custom user interface was created to easily load and store data and generate C++ code. An image of the tool at this time is shown in \cref{fig:hc12sim-instruction-generater-ui}. As shown, the execution code is written in C++ and written beside the encoding of different addressing modes\footnote{See \cite[Table~3-1,~p.~30]{hc12Manual2006} for a table outlining the addressing modes available for the M68HC12}\todo{Should the full table be included from \cite{hc12Manual2006}?}. In addition to the user interface, the generator back-end was built into a command-line tool that allowed the generation to be run at compile time when hooked into build scripts (in this case, CMake\footnote{CMake: \url{https://cmake.org}}). The use of code generation became extremely prevalent in future work. 
+
+\begin{figure}[h!t]
+    \centering
+    \includegraphics[width=0.6\linewidth]{img/hc12sim-instruction-generater-ui}
+    \caption{hc12sim Instruction Generator showing the meta information for addressing modes, execution, and output.}
+    \label{fig:hc12sim-instruction-generater-ui}
+\end{figure}
+
+\subsubsection*{Hardware Simulation}
+\label{hc12sim:hardware-simulation}
+
+Physical ``components'' of the simulation were all written as custom classes. For example, the \verb|A| and \verb|B| registers were of \cxxinline{class Register<size_t width>} where the \verb|width| template parameter defined the bit width of the \cxxinline{Register}. Unfortunately, any special behaviours were ``decorated'' on top of the base type creating many different types depending on how the underlying component was used. This created confusing class hierarchies and directly contradicts the advice of the Decorator pattern\cite[p.~175]{go4}. Of particular interest was the design of the \cxxinline{Timer} and \cxxinline{TimerDependant} types which allowed for completely concurrent, event-based timing. An example interaction is shown in \cref{fig:hc12sim-timer-seq}. While these concurrent timing components are fast and well designed, it creates problems with discrete execution as each operates concurrently and can not be ``stepped'' through without executing all of the threaded operations simultaneously. In addition, each \cxxinline{TimerDependant} adds a thread of execution adding runtime overhead to simulation while not adding any functionality to the simulation.
+
+\begin{figure}[!hp]
+    \begin{minipage}{.5\linewidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/hc12sim-timer-sequence} 
+        \todofig{Replace with visio diagram}
+    \end{minipage}%
+    \begin{minipage}{.5\linewidth}
+        \begin{enumerate}
+            \item A \cxxinline{Timer} object is instantiated and started, it will enter sleep state
+            \item Two \cxxinline{TimerDependant} objects are created with execution methods bound within.
+            \item The \cxxinline{Timer} object binds the two \cxxinline{TimerDependant} objects to itself
+            \item In the \cxxinline{Timer}'s thread, it wakes and asks the Operating system to simultaneously signals all \cxxinline{TimerDependant} objects to wake
+            \item Synchronously, all the \cxxinline{TimerDependant} objects:
+            \begin{enumerate}
+                \item Run it's own execution method within it's thread
+                \item Return to a sleep-state and wait for next notification
+            \end{enumerate}
+        \end{enumerate}
+    \end{minipage}
+    \caption{Sequence of events for \cxxinline{Timer} and \cxxinline{TimerDependant} interaction\cite{Brightwell2013}} 
+    \label{fig:hc12sim-timer-seq}
+\end{figure}
+
+\subsubsection*{Execution}
+
+The simulator implemented execution through an \cxxinline{class Executor} that asynchronously executes the execution scheme specified by the M68HC12\cite[Sec.~4,~p.~47]{hc12Manual2006} and implemented in terms of \cite[p.~59]{Vahid2002}. The \cxxinline{Executor} utilized a fetch, decode, fetch (if needed), execute loop for executing all instructions. The actual execution of an instruction was completed by code written in the instruction generation step (see \cref{hc12sim:instruction-generation} for more information). However, the generated code is run within a separate thread context to keep the ``clock'' of the system running at a consistent speed. Of particular note, this simulation could not handle interrupts or pipe-lining. The full sequence of actions of this execution unit is shown in \cref{fig:hc12sim-execunit-sequence}.
+
+\begin{figure}[ph!]
+    \centering
+    \includegraphics[width=.9\linewidth]{img/hc12sim-execunit-sequence}
+    \caption{Sequence diagram of Execution process within Simulator}
+    \label{fig:hc12sim-execunit-sequence}
+    \todofig{Replace with visio diagram}
+\end{figure} 
+
+\subsubsection*{Iteration}
+
+While the hc12sim project was a success by most metrics, it missed major features such as interrupts and pipe-lining. It is tailored very specifically to the Freescale M68HC12 processor. Lastly, it does not support attaching peripheral devices (e.g. motors, LEDs). 
+
+
+\section{Evaluation of current simulation technologies} 
+\label{sec:simulator-survey}
+
+\todo{Better intro to this section}Presented in the following sections are a series of similar works to the space 
+
+\subsection{ShelbySim}
+
+\cite{Tappan2009}
+
+ShelbySim is an education-oriented software system for designing, simulating, and evaluating computer-engineering based applications. ShelbySim was designed surrounding a new Java-like programming language including a compiler explicitly built around providing extensive diagnostic information such as logging, tracing, and inspection capabilities. These tools provide students with raw data for quantitative analysis, evaluation and reporting of their designs. 
+
+The software is open-source, though not available, and is written using Java allowing full operating system independent support. Additionally, 3D visualized results are provided for viewing developed components. ShelbySim is broken down into three subcomponents:
+\begin{enumerate}
+    \item Software component - a custom programming language (Shelby), a compiler, and an interpretation runtime
+    \item Hardware component - filling a similar niche to MultiSim, but with tight integration with Shelby and its underlying tracing. Additional support exists for external component integration
+    \item Simulation component - providing a deterministic and stochastic approach for inputs into custom hardware versions
+\end{enumerate} 
+
+Provides evaluation criterion for students components and underlying systems. The simulated components have parameters that are modifiable through switches and sliders (e.g. \{on, off\} or a range from 0 - 100\%). This gives students metrics to evaluate their designs. Additionally, outputs are exported at runtime to Comma Separated Value (CSV) files allowing for more in-depth analysis with external programs such as Microsoft Excel or MATLAB. This gives a flexible and realistic testing environment for student learning. 
+
+\subsubsection{Talking Points}
+
+\begin{itemize}
+    \item Most software does not focus on pedagogy
+    \item Industry software hides underlying information (rightly so for them)
+    \item Visualization gives "less opaque" view of the system
+    \item Language 
+    \item Focuses on compiler semantics, low-level detail implementations (e.g. motor characteristics)
+\end{itemize}
+
+\subsection{CPUSim}
+
+\cite{Skrien2001}
+
+CPU Sim is a Java CPU simulator written for use within a classroom environment. CPUSim allows students to design, modify, and compare various computer architectures at the register-transfer level and higher. Additionally, students may write and debug assembly code for custom architectures. The JavaFX front-end allows for viewing CPU internal components (e.g. RAMs and Registers) while stepping through programs. CPUSim allows students to encode and decode values through a user interface for machine codes. 
+
+CPUSim also allows students to specify microinstructions that are combined to create full assembly-level instructions. This forces students to describe and think about what actions they need for their ``higher-level'' instructions. 
+
+CPUSim's design is flexible given the Java-based system allowing students to work on multiple different platforms easily. Additionally, it is written such that many aspect of the software may be customized. Unfortunately, due to the decision to utilize the Java Virtual Machine, interfaces with lower-level components such as serial ports is difficult. 
+
+\subsubsection{Talking Points}
+
+\begin{itemize}
+    \item Java-based
+    \item Full-debugger
+    \item Specify microinstructions (microcodes) instead of assuming them
+    \item Code is older, tightly coupled and problematic
+    \item 
+\end{itemize}
+
+\subsection{EASE}
+
+\cite{Skillen2011}
+
+\blockquote[Skillen2011]{Striking the right balance between teaching sufficient de-tails of hardware components and their working principles, and important theoretical concepts useful for programming the computer is always a challenge.}
+
+Found most of the simulators in \cite{Nikolic2009} were inadequate for teaching simulation architecture courses, driving the work in EASE. Many were used for circuitry/RTL level work thus not good enough for project at hand. 
+
+The following characteristics are most important: 
+
+\begin{enumerate}
+    \item Support of more than one architecture to illustrate CISC, RISC and URISC
+    \item Designed in a modular way to allow for extension of the simulation (adding new instructions)
+    \item Source code available
+    \item Portable
+\end{enumerate}
+
+All of which are now (or will be) fixed in future versions of CPUSim. The article compared approximately version 3.1 (\cite{Skrien2001}). 
+
+Requires the following further improvements: 
+
+\begin{itemize}
+    \item Add built-in editor
+    \item No provided documentation or samples
+    \item 
+\end{itemize}
+
+\subsubsection{EASE vs. CPUSim}
+
+Architectures are specified outside the simulation itself as a Java Library -- disconnected from the simulator/software itself. 
+
+Architectures are bound to specific models that are specified by EASE, (e.g. CISC (similar to x86), RISC and a URISC). These are tightly coupled to EASE itself. 
+
+Based on descriptions of the internal mechanics, it is tightly coupled to the current structure and not flexible in changing internals -- though, the source is not available. 
+
+
+\subsubsection{Talking Points}
+
+\begin{itemize}
+    \item Java-based
+    \item CPUSim is directly compared in this paper
+    \item No source available (yet claims it is..)
+    \item Dead-ware
+    \item Tightly coupled to specified architectures
+    \item Focuses on assembly in these architectures
+    \item Ships with URISC architecture (subleq)
+\end{itemize}
+
+\subsection{Nikolic}
+
+\cite{Nikolic2009}
+
+Mixture of discussion surrounding architectures and organization -- less on simulation of actual assembly-level programming.  
+
+
+\subsubsection{Talking Points}
+
+\begin{itemize}
+    \item Java-based
+    \item CPUSim is directly compared in this paper
+    \item No source available (yet claims it is..)
+    \item Dead-ware
+    \item Tightly coupled to specified architectures
+    \item Focuses on assembly in these architectures
+    \item Ships with URISC architecture (subleq)
+\end{itemize}
+
+\subsection{A Perspective on the Experiential Learning of Computer Architecture}
+
+\cite{McLoughlin2010, Nakamura2013}
+
+Discussion of an MSc. curriculum based around designing a CPU called ``TinyCPU'' \cite{McLoughlin2010} and an extension ``TinyCSE'' \cite{Nakamura2013}. The MSc. program detailed is very similar to Western's computer engineering undergraduate program in content/topics. 
+
+\subsubsection{Design considerations}
+
+Utilizes a simple dual-BUS architecture for address and data. Uses memory-mapped ``I/O space'' controller for a port-mapped I/O scheme. An interrupt controller is built consisting of a single register, \verb|intr| that stores information about what device interrupted. The authors used a simplified interrupt model in which only one interrupt is supported at a given time. The addition of the interrupt support required the addition of ``RETURN'' and ``CALL'' instructions to support subroutines. Any interrupt implementation must have these machine instructions specified to give the controller the ability to change execution flow whilst maintaining state of the machine. 
+
+
+\subsubsection{Talking Points}
+
+\begin{itemize}
+    \item Verilog HDL-based
+    \item Requires use of complex suites like Modelsim or Altera
+    \item To be used directly on FPGAs
+    \item Comes with a C compiler/assembler
+    \item Proved implementation of multiple device controllers
+    \item Bound to a single architecture
+\end{itemize}

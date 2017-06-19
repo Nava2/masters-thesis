@@ -1,7 +1,5 @@
 \chapter{Introduction}
-
-\todo{Educational justification}
-\todo{comparison of other simulators}
+\label{ch:introduction}
 
 \begin{comment}
 \begin{itemize}
@@ -66,7 +64,7 @@ Each of these questions are elaborated in further sections.
 
 Students in computer engineering have a growing requirement to have strong knowledge of both embedded systems and computer architectures due to increases in computer engineering careers\cite[p.~30]{cec2016}\cite{bls2014}. Unfortunately, many students do not show enthusiasm for these subjects. 
 
-At Western University, students in all programs in Electrical \& Computer Engineering must take the course ECE 3375 - Microprocessors and Microcomputers\cite{uwo-we-programprogression, eceoutline-ece3375}. For example, shown in \cref{table-course-enthusiasm-ece3375}\todo{Update with 2015/2016 data if provided}, for a required course in embedded systems at Western University (ECE 3375)\cite{eceOutlines}, student enthusiasm for the course is extremely mixed. Unfortunately, there does not exist data broken down between computer and software engineering -- both are required to take this course. Additionally, with primitive sentiment analysis applied to \cite{evals:ece3375-2013, evals:ece3375-2014}, shown in \cref{fig:ece-3375-course-sentiment}, we can see that after completion of the course, students are overall happy with the course content in itself as 72.73\% of students found the experience positive. However, by extracting comments regarding the laboratory sessions and applying the same technique for sentiment as the course, shown in \cref{fig:ece-3375-lab-sentiment} \todo{Fix chart formatting, names}, we find that students are likely very unhappy with the lab components as 33\% stated negative reviews of the component. 
+At Western University, students in all programs in Electrical \& Computer Engineering must take the course ECE 3375 - Microprocessors and Microcomputers\cite{uwo-we-programprogression, eceoutline-ece3375}. For example, shown in \cref{table-course-enthusiasm-ece3375}, for a required course in embedded systems at Western University (ECE 3375)\cite{eceOutlines}, student enthusiasm for the course is extremely mixed. Unfortunately, there does not exist data broken down between computer and software engineering -- both are required to take this course. Additionally, with primitive sentiment analysis applied to \cite{evals:ece3375-2013, evals:ece3375-2014}, shown in \cref{fig:ece-3375-course-sentiment}, we can see that after completion of the course, students are overall happy with the course content in itself as 72.73\% of students found the experience positive. However, by extracting comments regarding the laboratory sessions and applying the same technique for sentiment as the course, shown in \cref{fig:ece-3375-lab-sentiment}, we find that students are likely very unhappy with the lab components as 33\% stated negative reviews of the component. 
 
 \begin{table}[!h]
     \centering
@@ -80,6 +78,7 @@ At Western University, students in all programs in Electrical \& Computer Engine
     \end{tabular}
     \caption{ECE 3375 Course ``Level of enthusiasm before taking the course'' as reported by undergraduate students\cite{evals:ece3375-2013, evals:ece3375-2014}} 
     \label{table-course-enthusiasm-ece3375}
+    \todofig{Update with 2015/2016 data if provided}
 \end{table}
 
 \begin{figure}
@@ -96,13 +95,14 @@ At Western University, students in all programs in Electrical \& Computer Engine
        \includegraphics[width=.8\linewidth]{img/lab-sentiment-ece-3375}
        \caption{Lab Sentiment}
        \label{fig:ece-3375-lab-sentiment}
+       \todofig{Fix chart formatting, names}
     \end{subfigure}
 
     \caption{ECE 3375 - Course Sentiment Analysis\cite{evals:ece3375-2013, evals:ece3375-2014}}
 \end{figure}
 
 Researchers have found that there are concerns with low-level hardware constructs being taught to high-level Computer Science, Software Engineering and Computer engineering graduates \cite{Ristov2011, Stolikj2011}. Additionally, the author can corroborate the following claims by \cite{Ristov2011}: 
-\begin{displayquote}
+\begin{displayquote}[\cite{Ristov2011}]
     \begin{enumerate}
         \item Disjointed material between lectures, theoretical and practical
         exercises. Students could not transfer knowledge gained from either lectures or theoretical exercises to practical exercises [\dots] 
@@ -151,6 +151,7 @@ All of these considerations were bought to the course instructor and the followi
 The last proposition, \cref{prop:replace-software} is the most attainable proposition. Researchers have found that improving software technology in the classroom and laboratory can vastly improve the learning outcomes of students while improving engagement \cite{Ackovska2014, Stolikj2011, Ristov2011, Ristov2014, Nikolic2009, Skillen2011, Tappan2009, Djordjevic2005, cec2016}. Unfortunately, within ECE3375 students are immediately presented with the interfaces shown in \cref{fig:winide-screenshot-pemicro}. Students have expressed immense frustrations with the software when used in the laboratory exercises and often encounter hardware issues that are not caused by their own work\cite{evals:ece3375-2013, evals:ece3375-2014}. For other hardware solutions, \textquote[\cite{Ackovska2014}]{students were faced with hardware-specific problems such as sensor failure or unconnected pins.} These errors are hard to debug, if not impossible for students with no prior knowledge. Teaching assistants and instructors are often unable to debug these issues without the aid of technicians. These hard-to-diagnose hardware issues lead to strained teaching resources and frustrations. Thus, creating a large gain by replacing this ageing software with new tooling. Thus, this thesis looks to investigate the requirements surrounding replacing the current software in use within the ECE3375 course and propose a solution for others to utilize in other courses. 
 
 \section{Problem Statement}
+\label{sec:problem-statement}
 
 Our analysis of the current state of the ECE 3375 course showcased the pervasive dislike and discomfort with the current laboratory exercises. Given previous analysis, the author chose to improve the current software used within the laboratory exercises and the classroom. To do this, a current survey of known technologies must be done to ascertain whether a new solution should be created or an existing solution will provide the requirements. Thus, the formal problem to solve becomes: Can a solution be provided to students that is configurable (hardware and software interfaces) and showcases the connection between hardware and software while focusing on pedagogy rather than industry performance? 
 
@@ -159,16 +160,24 @@ Further, this software must have the following requirements:
 \begin{requirements}
     \item\label{req:personal} Must be available for use outside of the laboratory on personal computers
         
-    \item\label{req:configuration} Provide a student configurable system that works for different ISAs
+    \item\label{req:configuration} Provide a student configurable system for different ISAs including configuration of:
+        \begin{requirements}
+            \item microcode and assembly instructions
+            \item execution semantics (i.e. how a processor executes code)
+            \item internal hardware components and connections
+            \item external peripherals
+        \end{requirements}
         
-    \item\label{req:pedagogical} Focus on pedagogical features over accuracy where required
-        
+    \item\label{req:pedagogical} Trade-off pedagogical features over accuracy as required
+       
     \item\label{req:simulations} Simulations must allow: 
         \begin{requirements}
             \item viewing of the current state of hardware components
             \item stepping at the assembly and microcode level
             \item connecting ``external'' peripheral components
         \end{requirements}
+    
+    \item \label{req:modern} Provide a modern user interface that is similar to current high-level programming IDEs
         
 \end{requirements}
 
@@ -196,313 +205,22 @@ Further, this software must have the following requirements:
     \label{fig:stack-overflow-os-share}
 \end{figure}
 
+As stated within \cite[p.~32]{cec2016}:
+\begin{displayquote}[\cite{cec2016}]
+    One area of concern to the computer engineer is the software/hardware interface, where difficult trade-off    decisions often provide engineering challenges. Considerations on this interface or boundary lead to an    appreciation of and insights into computer architecture and the importance of a computer’s machine code. At this boundary, difficult decisions regarding hardware/software trade-offs can occur, and they lead naturally to the design of special-purpose computers and systems.
+\end{displayquote}
+\Cref{req:configuration} enables students to design all of the hardware/software components interact. This enables student's to have a stronger understanding of ISA design. While many tools have this flexibility (discussed later in \cref{sec:simulator-survey}), many of the currently used, industry-grade solutions provide over-complicated and powerful options that are overwhelming for students. \cite{Chalmers2003} notes that \textquote[\cite{Chalmers2003}]{disorientation for student computer users may have an impact on decreases in performance, production, motivation and morale.} As the focus of this project is to improve student learning outcomes, we need to reduce the amount of options are not relevant for learning and trade-off in favour of pedagogical improvement over accuracy as listed in \Cref{req:pedagogical}. 
 
-\section{Previous Work: hc12sim}
+\Cref{req:simulations} outlines the conditions that simulations must have to be accurate enough while still respecting \cref{req:pedagogical}. Simulations are an important practical tool for students to see the inner workings of the hardware components and attempts to increase the transparency of the long-standing ``black-box'' of hardware for embedded systems courses. For computer architecture courses, simulation tools are required for debugging and implementing ISAs. 
 
-In 2013, the author worked collaboratively with colleague and fellow student Ramesh Raj to build a behaviourally accurate simulator for the M68HC12 processor\footnote{The author's capstone work is outlined in \cite{Brightwell2013}}. This work was completed as part of the capstone project for the author's Computer Engineering degree from Western University. This software was worked on over the course of a year and had the following features: 
+Lastly, the over-arching \Cref{req:modern} is to try and reduce the overhead gap of working with new tools by reducing differences in features for students. Reducing the overall cognitive load by integrating similar styles and controls to existing tools within interfaces will reduce the cognitive load for students which \cite{Chalmers2003} states should improve learning outcomes.
 
-\begin{enumerate}
-    \item Included all basic memory elements (e.g. registers, memory layout)
-    \item Compile-time configurable microinstructions (addressing modes were not configurable)
-    \item Real-time simulation speeds
-    \item Debugging of assembly code with runtime viewing of internal hardware components
-    \item Accurate CISC addressing modes 
-    \item Full assembler creating exact machine code
-    \item Simple IDE for writing M68HC12 assembly code, compiling and simulating it (shown in \cref{fig:hc12ide-invalid-instruction})
-\end{enumerate}
 
-\begin{figure}[!ht]
-    \centering
-    \includegraphics[width=0.6\linewidth]{img/hc12ide-invalid-instruction}
-    \caption{hc12ide Integrated Development Environment showing a student error.}
-    \label{fig:hc12ide-invalid-instruction}
-\end{figure}
+\section{Outline} 
 
-\subsection{Software Design}
-
-This project was written in C++ utilizing the then modern C++11 features such as lambdas/closures and cross-platform libraries (e.g. Qt and Boost\footnote{Available: Qt (\url{https://www.qt.io}) and Boost (\url{https://boost.org/})}). During this work, the primary design goals were: 
-
-\begin{enumerate}
-    \item Support all three major platforms: Microsoft Windows, Mac OS X, and GNU/Linux
-    \item Separate compiler and simulation components
-    \item Completely decouple any IDE from simulation
-    \item Heavily unit-test all software components for validity
-\end{enumerate}
-
-These lead into further requirements for any technology used (in order of priority): 
-
-\begin{enumerate}
-    \item User interface library available
-    \item Access to low-level types
-    \item Fast enough for simulation
-\end{enumerate}
-
-While initially writing the software in Java utilizing Java's Swing Toolkit and the Java Standard Library, it was rewritten in C++ due to access of low-level unsigned types, method references and multithreading capabilities.
-
-\subsubsection*{Instructions}
-\label{hc12sim:instruction-generation}
-
-Due to the M68HC12 having over 200 instructions with multiple addressing modes for each\cite{hc12Manual2006}, the simulation and assembler code put heavy emphasis on generating code to simplify writing and adding instructions. This allowed for generating multiple classes that had all of the meta-information required for all stages of a program (writing, assembly, programming, execution). In order to handle all of the generation required, a custom user interface was created to easily load and store data and generate C++ code. An image of the tool at this time is shown in \cref{fig:hc12sim-instruction-generater-ui}. As shown, the execution code is written in C++ and written beside the encoding of different addressing modes\footnote{See \cite[Table~3-1,~p.~30]{hc12Manual2006} for a table outlining the addressing modes available for the M68HC12}\todo{Should the full table be included from \cite{hc12Manual2006}?}. In addition to the user interface, the generator back-end was built into a command-line tool that allowed the generation to be run at compile time when hooked into build scripts (in this case, CMake\footnote{CMake: \url{https://cmake.org}}). The use of code generation became extremely prevalent in future work. 
-
-\begin{figure}[h!t]
-    \centering
-    \includegraphics[width=0.6\linewidth]{img/hc12sim-instruction-generater-ui}
-    \caption{hc12sim Instruction Generator showing the meta information for addressing modes, execution, and output.}
-    \label{fig:hc12sim-instruction-generater-ui}
-\end{figure}
-
-\subsubsection*{Hardware Simulation}
-\label{hc12sim:hardware-simulation}
-
-Physical ``components'' of the simulation were all written as custom classes. For example, the \verb|A| and \verb|B| registers were of \cxxinline{class Register<size_t width>} where the \verb|width| template parameter defined the bit width of the \cxxinline{Register}. Unfortunately, any special behaviours were ``decorated'' on top of the base type creating many different types depending on how the underlying component was used. This created confusing class hierarchies and directly contradicts the advice of the Decorator pattern\cite[p.~175]{go4}. Of particular interest was the design of the \cxxinline{Timer} and \cxxinline{TimerDependant} types which allowed for completely concurrent, event-based timing. An example interaction is shown in \cref{fig:hc12sim-timer-seq}. While these concurrent timing components are fast and well designed, it creates problems with discrete execution as each operates concurrently and can not be ``stepped'' through without executing all of the threaded operations simultaneously. In addition, each \cxxinline{TimerDependant} adds a thread of execution adding runtime overhead to simulation while not adding any functionality to the simulation\todo{Redo \cref{fig:hc12sim-timer-seq} diagram}.
-
-\begin{figure}[!hp]
-    \begin{minipage}{.5\linewidth}
-        \centering
-        \includegraphics[width=\textwidth]{img/hc12sim-timer-sequence} 
-    \end{minipage}%
-    \begin{minipage}{.5\linewidth}
-        \begin{enumerate}
-            \item A \cxxinline{Timer} object is instantiated and started, it will enter sleep state
-            \item Two \cxxinline{TimerDependant} objects are created with execution methods bound within.
-            \item The \cxxinline{Timer} object binds the two \cxxinline{TimerDependant} objects to itself
-            \item In the \cxxinline{Timer}'s thread, it wakes and asks the Operating system to simultaneously signals all \cxxinline{TimerDependant} objects to wake
-            \item Synchronously, all the \cxxinline{TimerDependant} objects:
-            \begin{enumerate}
-                \item Run it's own execution method within it's thread
-                \item Return to a sleep-state and wait for next notification
-            \end{enumerate}
-        \end{enumerate}
-    \end{minipage}
-    \caption{Sequence of events for \cxxinline{Timer} and \cxxinline{TimerDependant} interaction\cite{Brightwell2013}} 
-    \label{fig:hc12sim-timer-seq}
-\end{figure}
-
-\subsubsection*{Execution}
-
-The simulator implemented execution through an \cxxinline{class Executor} that asynchronously executes the execution scheme specified by the M68HC12\cite[Sec.~4,~p.~47]{hc12Manual2006} and implemented in terms of \cite[p.~59]{Vahid2002}. The \cxxinline{Executor} utilized a fetch, decode, fetch (if needed), execute loop for executing all instructions. The actual execution of an instruction was completed by code written in the instruction generation step (see \cref{hc12sim:instruction-generation} for more information). However, the generated code is run within a separate thread context to keep the ``clock'' of the system running at a consistent speed. Of particular note, this simulation could not handle interrupts or pipe-lining. The full sequence of actions of this execution unit is shown in \cref{fig:hc12sim-execunit-sequence}.
-\todo{Redo \cref{fig:hc12sim-execunit-sequence} diagram}
-
-\begin{figure}[ph!]
-    \centering
-    \includegraphics[width=.9\linewidth]{img/hc12sim-execunit-sequence}
-    \caption{Sequence diagram of Execution process within Simulator}
-    \label{fig:hc12sim-execunit-sequence}
-\end{figure} 
-
-\subsubsection*{Iteration}
-
-While the hc12sim project was a success by most metrics, it missed major features such as interrupts and pipe-lining. It is tailored very specifically to the Freescale M68HC12 processor. Lastly, it does not support attaching peripheral devices (e.g. motors, LEDs). 
-
-\section{Evaluation of current simulation technologies} 
-
-
-
-
-\subsubsection{ShelbySim}
-
-\cite{Tappan2009}
-
-ShelbySim is an education-oriented software system for designing, simulating, and evaluating computer-engineering based applications. ShelbySim was designed surrounding a new Java-like programming language including a compiler explicitly built around providing extensive diagnostic information such as logging, tracing, and inspection capabilities. These tools provide students with raw data for quantitative analysis, evaluation and reporting of their designs. 
-
-The software is open-source, though not available, and is written using Java allowing full operating system independent support. Additionally, 3D visualized results are provided for viewing developed components. ShelbySim is broken down into three subcomponents:
-\begin{enumerate}
-\item Software component - a custom programming language (Shelby), a compiler, and an interpretation runtime
-\item Hardware component - filling a similar niche to MultiSim, but with tight integration with Shelby and its underlying tracing. Additional support exists for external component integration
-\item Simulation component - providing a deterministic and stochastic approach for inputs into custom hardware versions
-\end{enumerate} 
-
-Provides evaluation criterion for students components and underlying systems. The simulated components have parameters that are modifiable through switches and sliders (e.g. \{on, off\} or a range from 0 - 100\%). This gives students metrics to evaluate their designs. Additionally, outputs are exported at runtime to Comma Separated Value (CSV) files allowing for more in-depth analysis with external programs such as Microsoft Excel or MATLAB. This gives a flexible and realistic testing environment for student learning. 
-
-\subsection{Talking Points}
-
-\begin{itemize}
-\item Most software does not focus on pedagogy
-\item Industry software hides underlying information (rightly so for them)
-\item Visualization gives "less opaque" view of the system
-\item Language 
-\item Focuses on compiler semantics, low-level detail implementations (e.g. motor characteristics)
-\end{itemize}
-
-\section{CPUSim}
-
-\cite{Skrien2001}
-
-CPU Sim is a Java CPU simulator written for use within a classroom environment. CPUSim allows students to design, modify, and compare various computer architectures at the register-transfer level and higher. Additionally, students may write and debug assembly code for custom architectures. The JavaFX front-end allows for viewing CPU internal components (e.g. RAMs and Registers) while stepping through programs. CPUSim allows students to encode and decode values through a user interface for machine codes. 
-
-CPUSim also allows students to specify microinstructions that are combined to create full assembly-level instructions. This forces students to describe and think about what actions they need for their ``higher-level'' instructions. 
-
-CPUSim's design is flexible given the Java-based system allowing students to work on multiple different platforms easily. Additionally, it is written such that many aspect of the software may be customized. Unfortunately, due to the decision to utilize the Java Virtual Machine, interfaces with lower-level components such as serial ports is difficult. 
-
-\subsection{Talking Points}
-
-\begin{itemize}
-\item Java-based
-\item Full-debugger
-\item Specify microinstructions (microcodes) instead of assuming them
-\item Code is older, tightly coupled and problematic
-\item 
-\end{itemize}
-
-\section{EASE}
-
-\cite{Skillen2011}
-
-\blockquote[Skillen2011]{Striking the right balance between teaching sufficient de-tails of hardware components and their working principles, and important theoretical concepts useful for programming the computer is always a challenge.}
-
-Found most of the simulators in \cite{Nikolic2009} were inadequate for teaching simulation architecture courses, driving the work in EASE. Many were used for circuitry/RTL level work thus not good enough for project at hand. 
-
-The following characteristics are most important: 
-
-\begin{enumerate}
-\item Support of more than one architecture to illustrate CISC, RISC and URISC
-\item Designed in a modular way to allow for extension of the simulation (adding new instructions)
-\item Source code available
-\item Portable
-\end{enumerate}
-
-All of which are now (or will be) fixed in future versions of CPUSim. The article compared approximately version 3.1 (\cite{Skrien2001}). 
-
-Requires the following further improvements: 
-
-\begin{itemize}
-\item Add built-in editor
-\item No provided documentation or samples
-\item 
-\end{itemize}
-
-\subsection{EASE vs. CPUSim}
-
-Architectures are specified outside the simulation itself as a Java Library -- disconnected from the simulator/software itself. 
-
-Architectures are bound to specific models that are specified by EASE, (e.g. CISC (similar to x86), RISC and a URISC). These are tightly coupled to EASE itself. 
-
-Based on descriptions of the internal mechanics, it is tightly coupled to the current structure and not flexible in changing internals -- though, the source is not available. 
-
-
-\subsection{Talking Points}
-
-\begin{itemize}
-\item Java-based
-\item CPUSim is directly compared in this paper
-\item No source available (yet claims it is..)
-\item Dead-ware
-\item Tightly coupled to specified architectures
-\item Focuses on assembly in these architectures
-\item Ships with URISC architecture (subleq)
-\end{itemize}
-
-\section{Survey/eval of simulators for teaching}
-
-\cite{Nikolic2009}
-
-Mixture of discussion surrounding architectures and organization -- less on simulation of actual assembly-level programming.  
-
-
-\subsection{Talking Points}
-
-\begin{itemize}
-\item Java-based
-\item CPUSim is directly compared in this paper
-\item No source available (yet claims it is..)
-\item Dead-ware
-\item Tightly coupled to specified architectures
-\item Focuses on assembly in these architectures
-\item Ships with URISC architecture (subleq)
-\end{itemize}
-
-\section{A Perspective on the Experiential Learning of Computer Architecture}
-
-\cite{McLoughlin2010, Nakamura2013}
-
-Discussion of an MSc. curriculum based around designing a CPU called ``TinyCPU'' \cite{McLoughlin2010} and an extension ``TinyCSE'' \cite{Nakamura2013}. The MSc. program detailed is very similar to Western's computer engineering undergraduate program in content/topics. 
-
-\subsection{Design considerations}
-
-Utilizes a simple dual-BUS architecture for address and data. Uses memory-mapped ``I/O space'' controller for a port-mapped I/O scheme. An interrupt controller is built consisting of a single register, \verb|intr| that stores information about what device interrupted. The authors used a simplified interrupt model in which only one interrupt is supported at a given time. The addition of the interrupt support required the addition of ``RETURN'' and ``CALL'' instructions to support subroutines. Any interrupt implementation must have these machine instructions specified to give the controller the ability to change execution flow whilst maintaining state of the machine. 
-
-
-\subsection{Talking Points}
-
-\begin{itemize}
-\item Verilog HDL-based
-\item Requires use of complex suites like Modelsim or Altera
-\item To be used directly on FPGAs
-\item Comes with a C compiler/assembler
-\item Proved implementation of multiple device controllers
-\item Bound to a single architecture
-\end{itemize}
-
-\section{Computer Engineering Curricula 2016}
-
-\cite{cec2016}
-
-TODO Find the information surrounding CE topics and how they relate to our project. 
-
-\subsection{Talking Points}
-
-\begin{itemize}
-\item Verilog HDL-based
-\item Requires use of complex suites like Modelsim or Altera
-\item To be used directly on FPGAs
-\item Comes with a C compiler/assembler
-\item Proved implementation of multiple device controllers
-\item Bound to a single architecture
-\end{itemize}
-
-%\begin{figure}[ht]
-%\begin{center}
-%\includegraphics[height = 9cm, width = 9cm]{pic1.jpeg}
-%\caption{A long memory time series\label{ts1}}
-%\end{center}
-%\end{figure}
-
-%Here's a table.
-%\begin{table}[ht]
-%\begin{center}
-%\begin{tabular}[ht]{|c|lr|c|} 
-%%c stands for centre, l for left, r for right; the | puts lines in between, and the hline puts a horizontal line in
-%\hline
-%$n$ & $\alpha$ &$n\alpha$ & $\beta$\\
-%\hline
-%1 & 0.2 & 0.2 & 5\\
-%\hline
-%2 & 0.3 & 0.6 & 4\\
-%\hline
-%3 & 0.7 & 2.1 & 3\\
-%\hline
-%\end{tabular}
-%\caption{A random table \label{tab1}}
-%\end{center}
-%\end{table}
-%
-%\begin{eqnarray}
-%y &=& mx + b \label{eq1}\\
-%&=& ax+ c
-%\label{eq2}
-%\end{eqnarray}
-%
-%This is an un-numbered equation, along with a numbered one. 
-%\begin{eqnarray}
-%u &=& px \nonumber\\
-%p &=& P(X=x) \label{eqn3}
-%\end{eqnarray}
-%
-%Look at Table \ref{tab1} and Figure \ref{ts1} and equations \ref{eq1},  \ref{eq2}, and \ref{eqn3}.
-%
-%Let's do some matrix algebra now.
-%
-%\begin{equation}
-%det\left(\left|\begin{array}{ccc} 2 & 3 & 5\\
-%4 & 4 & 6\\
-%9 & 8 & 1
-%\end{array}\right|\right) = 42
-%\end{equation}
-%
-%In the equation and eqnarray environments, you don't need to have the dollar sign to enter math mode.
-%
-%\begin{eqnarray}
-%\alpha = \beta_1 \Gamma^{-1}
-%\end{eqnarray}
-%
-%This is citing a reference ~\cite{mygood11111}.  This is citing another ~\cite{mrx05}.  Nobody said something ~\cite{Nobody06}.
+This thesis is presented in an additional \numberstringnum{\numexpr\totvalue{chapter} - 1\relax} chapters. \Cref{ch:prev-other-work} presents work completed prior to this thesis by the author as part of an undergraduate capstone project. Further, \cref{ch:prev-other-work} includes a survey of existing simulation solutions evaluated against the requirements in \cref{sec:problem-statement}. \Cref{ch:akka-lua-configuration} discusses two solutions that were attempted during the course of this thesis completion: 
+\begin{enumerate*}
+    \item An Akka-based, event-driven model
+    \item A Lua-driven student configuration simulation model
+\end{enumerate*}\todo{Mention they were dropped here or in the ch?}. 
+\Cref{ch:cpusim} outlines collaborative work completed on the CPUSim project to improve maintenance, code stability, and allow for feature improvements required by \cref{sec:problem-statement}. \Cref{ch:event-driven-simulation} contains a description of a new event-driven model for CPUSim based on research conducted in \Cref{ch:akka-lua-configuration}. A new representation for student design of ISAs is presented in \cref{ch:micro-reduction} to work with the event-driven model from \cref{ch:event-driven-simulation}. Lastly, \cref{ch:conclusion} provides conclusions and recommendations for future work. 

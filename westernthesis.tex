@@ -33,7 +33,7 @@
 
 \usepackage{subcaption}
 
-\usepackage{enumitem} % load before cleveref
+\usepackage[inline]{enumitem} % load before cleveref
 
 \usepackage{lipsum}
 \usepackage[backend=biber, style=ieee]{biblatex}
@@ -50,14 +50,21 @@
 
 \usepackage{array,multirow,graphicx}
 
-\if@final
-\else 
+\if@final%
+\else%
     \usepackage[pass,showframe]{geometry}
 \fi
 
 % Always use capitalizaion, include the name and do not abbreviate the 
 % label type, this is similar to how \\autoref works. 
 \usepackage[capitalize, nameinlink, noabbrev]{cleveref}
+
+% Use for doing total calculations, handy to not have to update stuff later :)
+\usepackage{totcount}
+\regtotcounter{chapter}
+
+% Converts numbers to words!
+\usepackage{fmtcount}
 
 \makeatletter
 \numberwithin{figure}{chapter}
@@ -206,7 +213,7 @@
   \edef\@tempa{#1}%
   \def\@tempb{}%
   \ifx\@tempa\@tempb
-	\else \newpage \Large Acknowlegements\normalsize\\\indent\\#1\newpage
+	\else \newpage \Large Acknowledgements\normalsize\\\indent\\#1\newpage
   \fi
 }
 
@@ -360,6 +367,8 @@ Chair of the Thesis Examination Board
 %% "\input{filename}" to input it here.
 \input{commands}
 
+
+
 \makeatother
 \begin{document}
 
@@ -402,6 +411,12 @@ This is a really silly abstract.
 %\addcontentsline{toc}{chapter}{List of Abbreviations, Symbols, and Nomenclature}
 %\large List of Abbreviations, Symbols, and Nomenclature \normalsize
 %\newpage
+
+\if@final%
+\else%
+\todototoc
+\listoftodos
+\fi
 \end{preliminary}
 %% End of the preliminary sections: reset page style and numbering.
 
@@ -417,7 +432,12 @@ This is a really silly abstract.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \include{ch1-introduction}
-\include{chapter2}
+\include{ch2-prev-other-work}
+\include{ch3-akka-lua-configuration}
+\include{ch4-cpusim}
+\include{ch5-event-driven-exec-engine}
+\include{ch6-micro-reduction}
+\include{ch7-conclusion}
 
 %% This adds a line for the Bibliography in the Table of Contents.
 \addcontentsline{toc}{chapter}{Bibliography}
@@ -432,21 +452,21 @@ This is a really silly abstract.
 
 %Appendices.
 \begin{appendices}
-\include{appendixa}
+\include{appa-software-testing}
 \end{appendices}
 
 %CV only relevant stuff... not full CV.
 \addcontentsline{toc}{chapter}{Curriculum Vitae}
 \chapter*{Curriculum Vitae}
-\begin{table}[ht]
+\begin{table}[!ht]
 \begin{tabular}{ll}
 \textbf{Name:} & \firstname{} \lastname\\\\
 \textbf{Post-Secondary} & The University of Western Ontario\\
 \textbf{Education and}& London, ON\\
-\textbf{Degrees:}& 2009 - 2015 BESc.\\\\
-& The University of Western Ontario\\
-& London, ON\\
-& 2009 - 2015 BSc.\\\\
+\textbf{Degrees:} & \begin{tabular}{lll}
+    2009 - 2015 & BESc. & Computer Engineering \\
+                & BSc. & Computer Science \\
+                \end{tabular} \\
 & The University of Western Ontario\\
 & London, ON\\
 & 2015 - 2017 MESc.\\\\
@@ -463,6 +483,8 @@ This is a really silly abstract.
 & The University of Western Ontario\\
 & 2015 - 2016\\
 \end{tabular}
+\todo[inline, backgroundcolor=green!40]{fix vertical spacing for ``sections''}
+\todo[inline, backgroundcolor=green!40]{align inner table for years}
 \end{table}
 \subsubsection*{Publications:}
 :(
