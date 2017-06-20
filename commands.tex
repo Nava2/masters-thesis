@@ -2,28 +2,59 @@
 \newcommand{\cxxinline}[1]{\mintinline{C++}{#1}}
 \newcommand{\javainline}[1]{\mintinline{java}{#1}}
 
+\newcommand{\uwo}{{W}estern~{U}niversity}
+\newcommand{\hcmodel}{{F}reescale {M68HC12}}
+
 % Cleveref!
 
 \newlist{requirements}{enumerate}{2}
 \setlist[requirements,1]{%
-    label=\textbf{Requirement~\arabic*:~},ref=\arabic*,%
+    label=\textbf{Requirement~\arabic*.~},ref=\arabic*,%
     leftmargin=0pt,labelsep=0pt,%
     align=left,%
-    labelwidth=\widthof{\textbf{Requirement~8:~}},%
-    itemindent=\widthof{\textbf{Requirement~8:~}},%
+    labelwidth=\widthof{\textbf{Requirement~8.~}},%
+    itemindent=\widthof{\textbf{Requirement~8.~}},%
     listparindent=\parindent}
 \setlist[requirements,2]{%
-    label=\textbf{\therequirementsi.\alph*:~},ref=\therequirementsi.\alph*,%
+    label=\textbf{\therequirementsi.\alph*.~},ref=\therequirementsi.\alph*,%
     leftmargin=2em,labelsep=0pt,%
     align=left,%
-    labelwidth=\widthof{\textbf{8.m:~}},%
-    itemindent=\widthof{\textbf{8.m:~}},%
+    labelwidth=\widthof{\textbf{8.m.~}},%
+    itemindent=\widthof{\textbf{8.m.~}},%
     listparindent=\parindent}
 
 \crefname{requirements}{requirement}{requirements}
 \Crefname{requirements}{Requirement}{Requirements}
 \crefalias{requirementsi}{requirements}
 \crefalias{requirementsii}{requirements}
+
+% Propositions, particularly used when quoting ristov 
+\newlist{propositions}{enumerate}{1}
+\setlist[propositions,1]{%
+    label=Proposition~\arabic*.~,ref=\arabic*,%
+    leftmargin=0pt,labelsep=0pt,%
+    align=left,%
+    labelwidth=\widthof{Proposition~8.~},%
+    itemindent=\widthof{Proposition~8.~},%
+    listparindent=\parindent}
+
+\crefname{propositions}{proposition}{propositions}
+\Crefname{propositions}{Proposition}{Propositions}
+\crefalias{propositionsi}{propositions}
+
+% Claims, particularly used when quoting ristov 
+\newlist{observations}{enumerate}{1}
+\setlist[observations,1]{%
+    label=Observation~\arabic*.~,ref=\arabic*,%
+    leftmargin=0pt,labelsep=0pt,%
+    align=left,%
+    labelwidth=\widthof{Observation~8.~},%
+    itemindent=\widthof{Observation~8.~},%
+    listparindent=\parindent}
+
+\crefname{observations}{observation}{observations}
+\Crefname{observations}{Observation}{Observations}
+\crefalias{observationsi}{observations}
 
 % Commands for todo mechanisms
 \newcommand{\todoformatting}[1]{\todo[color=backgroundcolor=green!40]{#1}}
