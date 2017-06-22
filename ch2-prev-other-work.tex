@@ -104,15 +104,11 @@ While the hc12sim project was a success by most metrics, it missed major feature
 \section{Evaluation of current simulation technologies} 
 \label{sec:simulator-survey}
 
-\todo{Better intro to this section}Presented in the following sections are a series of similar works to the space 
+\todo{Better intro to this section}Presented in the following sections are a series of similar projects attempting to tackle the same solution space as the work of this thesis. Each has the requirements from \cref{sec:problem-statement} applied and evaluated. This was done to try and find previous works that could be expanded upon and improved to match this thesis' requirements. \todo{cite a section entirely without repetition}
 
 \subsection{ShelbySim}
 
-\cite{Tappan2009}
-
-ShelbySim is an education-oriented software system for designing, simulating, and evaluating computer-engineering based applications. ShelbySim was designed surrounding a new Java-like programming language including a compiler explicitly built around providing extensive diagnostic information such as logging, tracing, and inspection capabilities. These tools provide students with raw data for quantitative analysis, evaluation and reporting of their designs. 
-
-The software is open-source, though not available, and is written using Java allowing full operating system independent support. Additionally, 3D visualized results are provided for viewing developed components. ShelbySim is broken down into three subcomponents:
+ShelbySim is an education-oriented software system for designing, simulating, and evaluating computer-engineering based applications\cite{Tappan2009, Tappan2009-2}. ShelbySim was designed surrounding a new Java-like programming language including a compiler explicitly built around providing extensive diagnostic information such as logging, tracing, and inspection capabilities. These tools provide students with raw data for quantitative analysis, evaluation and reporting of their designs. The software is open-source, though unavailable, and is written using Java allowing full operating system independent support. Additionally, 3D visualized results are provided for viewing developed components. ShelbySim is broken down into three subcomponents:
 \begin{enumerate}
     \item Software component - a custom programming language (Shelby), a compiler, and an interpretation runtime
     \item Hardware component - filling a similar niche to MultiSim, but with tight integration with Shelby and its underlying tracing. Additional support exists for external component integration
@@ -121,7 +117,9 @@ The software is open-source, though not available, and is written using Java all
 
 Provides evaluation criterion for students components and underlying systems. The simulated components have parameters that are modifiable through switches and sliders (e.g. \{on, off\} or a range from 0 - 100\%). This gives students metrics to evaluate their designs. Additionally, outputs are exported at runtime to Comma Separated Value (CSV) files allowing for more in-depth analysis with external programs such as Microsoft Excel or MATLAB. This gives a flexible and realistic testing environment for student learning. 
 
-\subsubsection{Talking Points}
+\subsubsection{Analysis of Requirements}
+
+For \cref{req:personal}, ShelbySim is open-source and claims to run on all major platforms that the Java Virtual Machine runs on, thus it should work on the required Windows, macOS and GNU/Linux\cite{Oracle2017}. ShelbySim is built as a custom programming language which is similar to Java but is used as an HDL. Given the inherent flexibility of HDL languages, \cref{req:configuration} is met, however these languages fall under a more complicated model than required for this thesis' use case, therein failing \cref{req:pedagogical}. Further, ShelbySim focuses on compiler semantics and hardware configuration over ISA and embedded systems knowledge.  ShelbySim's description does work well to provide quality simulations as required by \cref{req:simulations}. Additionally, ShelbySim produces comma-separated values of events which is useful for analysis later. Lastly, there does not appear to descriptions of a user interface component outside of graphical drawings. This does not concretely fail the modern interface component for \cref{req:modern}, but it does bring into question how student react to a lack of a proper coding environment.
 
 \begin{itemize}
     \item Most software does not focus on pedagogy
