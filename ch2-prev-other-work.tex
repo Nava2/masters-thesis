@@ -117,16 +117,40 @@ ShelbySim is an education-oriented software system for designing, simulating, an
 
 Provides evaluation criterion for students components and underlying systems. The simulated components have parameters that are modifiable through switches and sliders (e.g. \{on, off\} or a range from 0 - 100\%). This gives students metrics to evaluate their designs. Additionally, outputs are exported at runtime to Comma Separated Value (CSV) files allowing for more in-depth analysis with external programs such as Microsoft Excel or MATLAB. This gives a flexible and realistic testing environment for student learning. 
 
-\subsubsection{Analysis of Requirements}
+\subsubsection*{Analysis of Requirements}
 
-For \cref{req:personal}, ShelbySim is open-source and claims to run on all major platforms that the Java Virtual Machine runs on, thus it should work on the required Windows, macOS and GNU/Linux\cite{Oracle2017}. ShelbySim is built as a custom programming language which is similar to Java but is used as an HDL. Given the inherent flexibility of HDL languages, \cref{req:configuration} is met, however these languages fall under a more complicated model than required for this thesis' use case, therein failing \cref{req:pedagogical}. Further, ShelbySim focuses on compiler semantics and hardware configuration over ISA and embedded systems knowledge.  ShelbySim's description does work well to provide quality simulations as required by \cref{req:simulations}. Additionally, ShelbySim produces comma-separated values of events which is useful for analysis later. Lastly, there does not appear to descriptions of a user interface component outside of graphical drawings. This does not concretely fail the modern interface component for \cref{req:modern}, but it does bring into question how student react to a lack of a proper coding environment.
+For \cref{req:personal}, ShelbySim is open-source and claims to run on all major platforms that the Java Virtual Machine runs on, thus it should work on the required Windows, macOS and GNU/Linux\cite{Oracle2017}. ShelbySim is built as a custom programming language which is similar to Java but is used as an HDL. Given the inherent flexibility of HDL languages, \cref{req:configuration} is met, however these languages fall under a more complicated model than required for this thesis' use case, therein failing \cref{req:pedagogical}. Further, ShelbySim focuses on compiler semantics and hardware configuration over ISA and embedded systems knowledge.  ShelbySim's description does work well to provide quality simulations as required by \cref{req:simulations}. Additionally, ShelbySim produces comma-separated values of events which is useful for analysis later. Lastly, there does not appear to descriptions of a user interface component outside of graphical drawings. This does not concretely fail the modern interface component for \cref{req:modern}, but it does bring into question how students may react to a lack of a proper programming environment.
+
+%
+%\begin{itemize}
+%    \item Most software does not focus on pedagogy
+%    \item Industry software hides underlying information (rightly so for them)
+%    \item Visualization gives "less opaque" view of the system
+%    \item Language 
+%    \item Focuses on compiler semantics, low-level detail implementations (e.g. motor characteristics)
+%\end{itemize}
+
+
+\subsection{EDCOMP: Flexible Web-Based Educational System}
+
+EDCOMP is an educational computer system and a web-based simulator that can be used to cover computer architecture fundamentals; computer organization; computer arithmetic; memory hierarchies and organization; and simple input/output relations\cite{Djordjevic2005}. The simulator supports animation of instruction execution and allows students to write their own assembly programs, compile them and view the status of the machine components. All parts have visual components at multiple levels (i.e. module, combinational and sequential circuits). The simulation can be run at several levels per clock cycle, per instruction and for the entire program. Lastly, timing diagrams allow students to see how components are interacting at a lower, discrete level. This software aims to create a system that focuses on pedagogical learning rather than on industry accuracy and lower complexity of the system. EDCOMP focuses heavily on graphical representation to aid in student learning. 
+
+
+\subsubsection*{Analysis of Requirements}
+
+For \cref{req:personal}, EDCOMP is written in Java and was run within a Web browser. However, due to the deprecation of NPAPI\footnote{NPAPI: Netscape Plug-in API. Due to deprecation, documentation for this API does not exist, for a non-academic, historical description see: \url{https://en.wikipedia.org/wiki/NPAPI}.} FireFox\cite{OracleJavaApplet2017}, this means that over 80\% of students would not be able to use this software without configuration \cite{StatCounterBrowsers2017, W3SchoolsBrowsers2017} and security risks\cite{ChromiumBlogNPAPI2013, MozillaBlogNPAPI2016, GoogleChromeHelp2015}. 
+
+
+\subsubsection{Talking Points}
 
 \begin{itemize}
-    \item Most software does not focus on pedagogy
-    \item Industry software hides underlying information (rightly so for them)
-    \item Visualization gives "less opaque" view of the system
-    \item Language 
-    \item Focuses on compiler semantics, low-level detail implementations (e.g. motor characteristics)
+    \item Java-based
+    \item CPUSim is directly compared in this paper
+    \item No source available (yet claims it is..)
+    \item Dead-ware
+    \item Tightly coupled to specified architectures
+    \item Focuses on assembly in these architectures
+    \item Ships with URISC architecture (subleq)
 \end{itemize}
 
 \subsection{CPUSim}
@@ -197,24 +221,6 @@ Based on descriptions of the internal mechanics, it is tightly coupled to the cu
     \item Ships with URISC architecture (subleq)
 \end{itemize}
 
-\subsection{Nikolic}
-
-\cite{Nikolic2009}
-
-Mixture of discussion surrounding architectures and organization -- less on simulation of actual assembly-level programming.  
-
-
-\subsubsection{Talking Points}
-
-\begin{itemize}
-    \item Java-based
-    \item CPUSim is directly compared in this paper
-    \item No source available (yet claims it is..)
-    \item Dead-ware
-    \item Tightly coupled to specified architectures
-    \item Focuses on assembly in these architectures
-    \item Ships with URISC architecture (subleq)
-\end{itemize}
 
 \subsection{A Perspective on the Experiential Learning of Computer Architecture}
 
