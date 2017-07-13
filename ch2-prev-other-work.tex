@@ -4,16 +4,16 @@
 \section{Previous Work: hc12sim}
 \label{sec:review-prev-hc12}
 
-In 2013, the author worked collaboratively with colleague and fellow student Ramesh Raj to build a behaviourally accurate simulator for the M68HC12 processor\footnote{The author's capstone work is outlined in \cite{Brightwell2013}}. This work was completed as part of the capstone project for the author's Computer Engineering degree from \uwo{}. This software was worked on over the course of a year and had the following features: 
+In 2013, the author worked collaboratively with colleague and fellow student Ramesh Raj to build a behaviourally accurate simulator for the \hcmodel{} processor. This work was completed as part of the capstone project for the author's Computer Engineering degree from \uwo{}\footnote{The author's capstone work is outlined in \cite{Brightwell2013}}. This software was produced over the course of 2014-2015 and had the following features: 
 
 \begin{enumerate}
-    \item Included all basic memory elements (e.g. registers, memory layout)
+    \item Included basic memory elements (e.g. registers, RAM, ROM)
     \item Compile-time configurable microinstructions (addressing modes were not configurable)
     \item Real-time simulation speeds for the \hcmodel{}
     \item Debugging of assembly code with runtime viewing of internal hardware components
-    \item Accurate CISC addressing modes 
+    \item Accurate CISC addressing modes as specified by \hcmodel{}
     \item Full assembler creating exact machine code
-    \item Simple IDE for writing M68HC12 assembly code, compiling and simulating it (shown in \cref{fig:hc12ide-invalid-instruction})
+    \item Simple IDE for writing \hcmodel{} assembly code, compiling and simulating it (shown in \cref{fig:hc12ide-invalid-instruction})
 \end{enumerate}
 
 \begin{figure}[!ht]
@@ -25,30 +25,29 @@ In 2013, the author worked collaboratively with colleague and fellow student Ram
 
 \subsection{Software Design}
 
-This project was written in C++ utilizing modern C++11 features such as lambdas, closures and cross-platform libraries (e.g. Qt and Boost\footnote{Available: Qt (\url{https://www.qt.io}) and Boost (\url{https://boost.org/})}). During this work, the primary design goals were: 
+This project was written in C++ utilizing modern C++11 features such as lambdas, closures and cross-platform libraries (e.g. Qt and Boost\footnote{Available: Qt (\url{https://www.qt.io}) and Boost (\url{https://boost.org/})}). The primary design goals for the hc12sim project were:
 
 \begin{enumerate}
-    \item Support all three major platforms: Microsoft Windows, Mac OS X, and GNU/Linux
+    \item Support all three major platforms: Microsoft Windows, macOS, and GNU/Linux
     \item Separate compiler and simulation components
     \item Completely decouple any IDE from simulation
     \item Heavily unit-test all software components for validity
 \end{enumerate}
 \todo{Compare these goals to reqs from \cref{sec:problem-statement}}
 
-These lead into further requirements for any technology used (in order of priority): 
-
+Given these design goals, supporting technologies were assessed against the following requirements (in order of priority): 
 \begin{enumerate}
     \item User interface library available
     \item Access to low-level types
     \item Fast enough for simulation
 \end{enumerate}
 
-While initially writing the software in Java utilizing Java's Swing Toolkit and the Java Standard Library, it was rewritten in C++ due to access of low-level unsigned types, method references and multithreading capabilities.
+While initially writing the software in Java utilizing Java's Swing Toolkit and the Java Standard Library, it was rewritten in C++ due to access of low-level unsigned types, method references and multithreading capabilities. Java's current Java 8 release added these features, however the Java 8 release was not available at the time of creation outside of ``beta'' environments.
 
 \subsubsection*{Instructions}
 \label{sec:hc12sim:instruction-generation}
 
-Due to the M68HC12 having over 200 instructions with multiple addressing modes for each\cite{hc12Manual2006}, the simulation and assembler code put heavy emphasis on generating code to simplify writing and adding instructions. This allowed for generating multiple classes that had all of the meta-information required for all stages of a program (writing, assembly, programming, execution). In order to handle all of the generation required, a custom user interface was created to easily load and store data and generate C++ code. An image of the tool at this time is shown in \cref{fig:hc12sim-instruction-generater-ui}. As shown, the execution code is written in C++ and written beside the encoding of different addressing modes\footnote{See \cite[Table~3-1,~p.~30]{hc12Manual2006} for a table outlining the addressing modes available for the M68HC12}\todo{Should the full table be included from \cite{hc12Manual2006}?}. In addition to the user interface, the generator back-end was built into a command-line tool that allowed the generation to be run at compile time when hooked into build scripts (in this case, CMake\footnote{CMake: \url{https://cmake.org}}). The use of code generation became extremely prevalent in future work. 
+Due to the \hcmodel{} having over 200 instructions with multiple addressing modes for each \cite{hc12Manual2006}, the simulation and assembler libraries put heavy emphasis on generating code to simplify writing and adding instructions. This allowed for generating multiple classes that had all of the meta-information required for all stages of a program (writing, assembly, programming, execution). In order to configure and ensure the quality of the large amount of generation required, a custom user interface was created to easily load and store data and generate C++ code. \Cref{fig:hc12sim-instruction-generater-ui} showcases the interface created for code generation. The primitive interface supported choosing an instructions supported addressing modes and writing the transformations required within the small code window (bottom right of \cref{fig:hc12sim-instruction-generater-ui}). The generator interface did not support any syntax highlighting for the C++ code required and performed ``magic'' code injection upon generation\footnote{See \cite[Table~3-1,~p.~30]{hc12Manual2006} for a table outlining the addressing modes available for the \hcmodel{}}\todo{Should the full table be included from \cite{hc12Manual2006}?}. In addition to the user interface, the generator back-end was built into a command-line tool that allowed the generation to be run at compile time when hooked into build scripts (in this case, CMake\footnote{CMake: \url{https://cmake.org}}). The user interface generated JSON entries similar to that shown in \cref{lst:hc12sim-json-beq}. The ``body'' field is injected into a method header for the execution engine and the other information is used in either compiling or execution as meta-information.
 
 \begin{figure}[h!t]
     \centering
@@ -57,10 +56,34 @@ Due to the M68HC12 having over 200 instructions with multiple addressing modes f
     \label{fig:hc12sim-instruction-generater-ui}
 \end{figure}
 
-\subsubsection*{Hardware Simulation}
-\label{hc12sim:hardware-simulation}
+\begin{listing}[htp]
+    \begin{minted}{json}
+    {
+        "BEQ": {
+            "body": "
+                auto ccr = cpu->CCR();
+                bool _Z = ccr->get(Z);
+                if ( _Z ) {
+                    int8_t rel = math::toSys<int8_t>(resbytes[0]);
+                    cpu->PC()->inc(rel);
+                }
+            ",
+            "cycles": 1,
+            "handlePC": false,
+            "types": {
+              "REL8": "27"
+            }
+      },
+    }
+    \end{minted}
+    \caption{Sample of the JSON output used to generate code within hc12sim. BEQ performs a branch if two values were equal.}
+    \label{lst:hc12sim-json-beq}
+\end{listing}
 
-Physical ``components'' of the simulation were all written as custom classes. For example, the \verb|A| and \verb|B| registers were of \cxxinline{class Register<size_t width>} where the \verb|width| template parameter defined the bit width of the \cxxinline{Register}. Unfortunately, any special behaviours were ``decorated'' on top of the base type creating many different types depending on how the underlying component was used. This created confusing class hierarchies and directly contradicts the advice of the Decorator pattern\cite[p.~175]{go4}. Of particular interest was the design of the \cxxinline{Timer} and \cxxinline{TimerDependant} types which allowed for completely concurrent, event-based timing. An example interaction is shown in \cref{fig:hc12sim-timer-seq}. While these concurrent timing components are fast and well designed, it creates problems with discrete execution as each operates concurrently in separate thread contexts and can not be ``stepped'' through without executing all of the threaded operations simultaneously. In addition, each \cxxinline{TimerDependant} adds a thread of execution adding runtime overhead to simulation while not adding any functionality to the simulation.
+\subsubsection*{Hardware Simulation}
+\label{sec:hc12sim:sec:hardware-simulation}
+
+Physical ``components'' of the simulation were all written as custom classes. For example, the \verb|A| and \verb|B| registers were of \cxxinline{class Register<size_t width>} where the \verb|width| template parameter defined the bit width of the \cxxinline{Register}. Unfortunately, any special behaviours were ``decorated'' on top of the base type creating many different types depending on how the underlying component was used. Unfortunately, the pattern of ``compile-time constant templates'' created massive issues when trying to use these types in polymorphic aggregate containers. For example, if a \cxxinline{Register<8> A;} is defined and a \cxxinline{Register<16> X;}, the type of \cxxinline{A} is not the same as \cxxinline{X} as in C++, templated types are created at instantiation time making the type of a variable a ``new'' type (reuse happens when available) \cite{cppreference:class-template}. This created confusing class hierarchies and directly contradicts the advice of the Decorator pattern \cite[p.~175]{go4} creating large concerns for maintainability. Of particular interest was the design of the \cxxinline{class Timer} and \cxxinline{class TimerDependant} types which allowed for completely concurrent, event-based timing. \Cref{fig:hc12sim-timer-seq} shows a sequence diagram of the generic cycle of a \cxxinline{Timer} and \cxxinline{TimerDependant} interacting. While these concurrent timing components are fast and well designed, it created problems with discrete execution as each component operates concurrently in separate thread contexts and can not be ``stepped'' through without executing all of the threaded operations simultaneously. In addition, each \cxxinline{TimerDependant} added a thread of execution adding runtime overhead to simulation while not adding any functionality to the simulation. Due to the authors' ignorance at the time, neither thread nor fork-join pools were used to reduce the thread ``spin-up'' performance penalty. Further, the synchronization properties of this scheme reduced to becoming near-synchronous execution with the time taken to check locks and mutexes likely costing more time than the savings of parallelism afforded -- not to mention the required knowledge of maintaining a highly parallel code base.
 
 \begin{figure}[!hp]
     \begin{minipage}{.5\linewidth}
@@ -81,13 +104,13 @@ Physical ``components'' of the simulation were all written as custom classes. Fo
             \end{enumerate}
         \end{enumerate}
     \end{minipage}
-    \caption{Sequence of events for \cxxinline{Timer} and \cxxinline{TimerDependant} interaction\cite{Brightwell2013}} 
+    \caption{Sequence of events for \cxxinline{Timer} and \cxxinline{TimerDependant} interaction \cite{Brightwell2013}} 
     \label{fig:hc12sim-timer-seq}
 \end{figure}
 
 \subsubsection*{Execution}
 
-The simulator implemented execution through an \cxxinline{class Executor} that asynchronously executes the execution scheme specified by the M68HC12\cite[Sec.~4,~p.~47]{hc12Manual2006} and implemented in terms of \cite[p.~59]{Vahid2002}. The \cxxinline{Executor} utilized a fetch, decode, fetch (if needed), execute loop for executing all instructions. The actual execution of an instruction was completed by code written in the instruction generation step (see \cref{hc12sim:instruction-generation} for more information). However, the generated code is run within a separate thread context to keep the ``clock'' of the system running at a consistent speed. Of particular note, this simulation could not handle interrupts or pipe-lining. The full sequence of actions of this execution unit is shown in \cref{fig:hc12sim-execunit-sequence}.
+The simulator implemented execution through an \cxxinline{class Executor} that asynchronously executes the execution scheme specified by the \hcmodel{} \cite[Sec.~4,~p.~47]{hc12Manual2006} which was implemented in terms of \cite[p.~59]{Vahid2002}. The \cxxinline{Executor} utilized a fetch, decode, fetch (if needed), execute loop for executing all instructions. The actual execution of an instruction was completed by code written in the instruction generation step (see \cref{sec:hc12sim:instruction-generation} for more information). However, the generated code is run within a separate thread context to keep the ``clock'' of the system running at a consistent speed. Of particular note, this simulation could not handle interrupts or pipe-lining. The full sequence of actions of this execution unit is shown in \cref{fig:hc12sim-execunit-sequence}. Due to the reliance on the timing mechanisms discussed in \cref{sec:hc12sim:sec:hardware-simulation}, the execution engine suffered from the same ``synchronous'' parallelism. Further, if the clock speed was too fast and execution actions moved too slowly, the result was an non-determinant clock skew over time.
 
 \begin{figure}[!ph]
     \centering
@@ -97,17 +120,12 @@ The simulator implemented execution through an \cxxinline{class Executor} that a
     \todofig{Replace with visio diagram}
 \end{figure} 
 
-
-\subsubsection*{Project Iteration}
-
-While the hc12sim project was a success by most metrics, it missed major features such as interrupts and pipe-lining. It is tailored very specifically to the \hcmodel{} processor. Lastly, it does not support attaching peripheral devices (e.g. motors, LEDs). 
-
 \subsection*{Analysis of Requirements}
 \label{sec:review-prev-hc12sim}
 
-The HC12Sim project was very immature and not well implemented in the current state. However, it managed to provide a solution that worked on all platforms when distributed as platform specific binaries. The project was designated as a desktop application and given the technology choice of C++, there is no possibility of using the software outside the desktop without large portions of effort. Unfortunately, building C++ applications in such a way that they can be distributed to cross-platform targets is labour intensive and very difficult without the correct amount of knowledge -- knowledge that was lacking at this state. Binaries worked for some and often only worked with specific unknown environments. Regarding \cref{req:personal}, the project meets the requirement adequately, but does not do enough. The project provided configuration through the JSON mechanism for instructions but this mechanism only worked as a compile-time configuration. If students wanted to change the ISA for the processor, it required rebuilding the project from scratch and testing to see that it works. This was aided by the use of the ``Instruction Generator'' described in \cref{sec:hc12sim:instruction-generation} but does not remove the building required. Further, without any support for hardware configuration the project did not meet this requirement. The project heavily favoured \cref{req:pedagogical} as it was intentional to create a simulator that was behaviourally accurate to the \hcmodel, but only if it allowed students to better understand how it worked.
+The hc12sim project was very immature and not well implemented in the presented state. However, it managed to provide a solution that worked on all platforms when distributed as platform specific binaries. The hc12ide was a desktop application and bound to the technology choice of C++, there is no possibility of using the software outside the desktop without large software porting efforts. Unfortunately, building C++ applications such that they can be distributed to cross-platform targets is labour intensive and very difficult without the correct amount of knowledge -- knowledge that was lacking at the time of authorship. Binaries worked for some and often only worked with specific unknown environmental state requirements (particularly with Windows environments). Regarding \cref{req:personal}, the project meets the requirement adequately, but does not do enough. Configuration of the ISA is provided through the JSON-driven mechanism for instruction generation but this mechanism only worked as a compile-time configuration. If students wanted to change the ISA for their processor, it required rebuilding the entire project and testing to see that it worked manually. This was aided by the use of the ``Instruction Generator'' described in \cref{sec:hc12sim:instruction-generation} but does not remove the fact that building requires a large compiler tool chain. Further, without any support for hardware configuration the project did not meet \cref{req:configuration}. hc12sim heavily favoured \cref{req:pedagogical} as it was intended to create a simulator that was behaviourally accurate to the \hcmodel, but only if it allowed students to better understand how the processor works.
 
-The simulation interface allowed for debugging at an instruction level and setting break points within execution contexts. During an execution, all components could be viewed except for the memory -- a concerning flaw. The project also assembled fully compliant machine code that could potentially be programmed to a real machine. Unfortunately, peripherals and interrupts were not supported. While including these flaws, the HC12Sim project provides a poor match for \cref{req:simulations}. Lastly, while the user interface does not have all of the features of a full IDE, it did provide syntax highlighting and assembler and simulation controls in an easy to use interface. \Cref{req:modern} is adequately met, however it requires updates to make it more modern.
+The simulation interface allowed for debugging at an instruction level and setting break points within execution contexts. During an execution, all component states could be viewed -- except for the memory. The project also assembled fully compliant machine code that could potentially be programmed to a real machine. Unfortunately, peripherals and interrupts were not supported. While including these flaws, the hc12sim project provides a poor match for \cref{req:simulations}. Lastly, while the user interface does not have all of the features of a full IDE, it did provide syntax highlighting, and assembler plus simulation controls in an easy to use interface. \Cref{req:modern} is adequately met, however it requires updates to the editor interface to improve modern facilities.
 
 \begin{table}[h!]
     \centering
@@ -118,28 +136,26 @@ The simulation interface allowed for debugging at an instruction level and setti
     \end{tabular}
 \end{table}
 
-
-
 \section{Evaluation of current simulation technologies} 
 \label{sec:review}
 
-\todo{Better intro to this section}Presented in the following sections are a series of similar projects attempting to tackle the same solution space as the work of this thesis. Each has the requirements from \cref{sec:problem-statement} applied and evaluated. This was done to try and find previous works that could be expanded upon and improved to match this thesis' requirements. Each simulation project is ranked based on the requirements out of five and totalled to create a matrix of requirement matching.
+\todo{Better intro to this section}Presented in the following sections are a series of similar projects attempting to tackle the same solution space as the work of this thesis. Each software tool is evaluated against the requirements from \cref{sec:problem-statement}. This was done to try and find previous works that could be expanded upon and improved to match this thesis' requirements rather than building a new solution in a ``green field.'' Each simulation project is ranked based on the requirements out of five and totalled to create a matrix of requirements.
 
 \subsection{ShelbySim}
 \label{sec:review-shelbysim}
 
-ShelbySim is an education-oriented software system for designing, simulating, and evaluating computer-engineering based applications\cite{Tappan2009, Tappan2009-2}. ShelbySim was designed surrounding a new Java-like programming language including a compiler explicitly built around providing extensive diagnostic information such as logging, tracing, and inspection capabilities. These tools provide students with raw data for quantitative analysis, evaluation and reporting of their designs. The software is open-source, though unavailable, and is written using Java allowing full operating system independent support. Additionally, 3D visualized results are provided for viewing developed components. ShelbySim is broken down into three subcomponents:
+ShelbySim is an education-oriented software system for designing, simulating, and evaluating computer-engineering based applications \cite{Tappan2009, Tappan2009-2}. ShelbySim was designed surrounding a new Java-like programming language including a compiler explicitly built around providing extensive diagnostic information such as logging, tracing, and inspection capabilities. These tools provide students with raw data for quantitative analysis, evaluation and reporting of their designs. The software is open-source, though unavailable, and is written using Java allowing full operating system independent support. Additionally, 3D visualized results are provided for viewing developed components. ShelbySim is broken down into three subcomponents:
 \begin{enumerate}
     \item Software component - a custom programming language (Shelby), a compiler, and an interpretation runtime
     \item Hardware component - filling a similar niche to MultiSim, but with tight integration with Shelby and its underlying tracing. Additional support exists for external component integration
     \item Simulation component - providing a deterministic and stochastic approach for inputs into custom hardware versions
 \end{enumerate} 
 
-Provides evaluation criterion for students components and underlying systems. The simulated components have parameters that are modifiable through switches and sliders (e.g. \{on, off\} or a range from 0 - 100\%). This gives students metrics to evaluate their designs. Additionally, outputs are exported at runtime to Comma Separated Value (CSV) files allowing for more in-depth analysis with external programs such as Microsoft Excel or MATLAB. This gives a flexible and realistic testing environment for student learning. 
+ShelbySim provides evaluation criterion for students components and their underlying systems to aid in marking. The simulated components have parameters that are modifiable through switches and sliders (e.g. \{on, off\} or a range from 0 - 100\%). This gives students metrics to evaluate their designs. Additionally, outputs are exported at runtime to Comma Separated Value (CSV) files allowing for more in-depth analysis with external programs such as Microsoft Excel or MATLAB. This gives a flexible and realistic testing environment for student learning. 
 
 \subsubsection*{Analysis of Requirements}
 
-For \cref{req:personal}, ShelbySim is open-source and claims to run on all major platforms that the Java Virtual Machine runs on, thus it should work on the required Windows, macOS and GNU/Linux. ShelbySim is built as a custom programming language which is similar to Java but is used as an HDL. Given the inherent flexibility of HDL languages, \cref{req:configuration} is met, however these languages fall under a more complicated model than required for this thesis' use case, therein hurting \cref{req:pedagogical}. Further, ShelbySim focuses on compiler semantics and hardware configuration over ISA and embedded systems knowledge.  ShelbySim's description does work well to provide quality simulations as required by \cref{req:simulations}. Additionally, ShelbySim produces comma-separated values of events which is useful for analysis later. Lastly, there does not appear to descriptions of a user interface component outside of graphical drawings. This does not concretely fail the modern interface component for \cref{req:modern}, but it does bring into question how students may react to a lack of a proper programming environment.
+For \cref{req:personal}, ShelbySim is open-source and claims to run on all major platforms that the Java Virtual Machine runs on, thus it should work on the required Windows, macOS and GNU/Linux. ShelbySim is built as a custom programming language which is similar to Java but is used as an HDL. Given the inherent flexibility of HDL languages, \cref{req:configuration} is met, however these languages fall under a more complicated model than required for this thesis' use case, therein hurting \cref{req:pedagogical}. Further, ShelbySim focuses on compiler semantics and hardware configuration over ISA and embedded systems knowledge.  ShelbySim's description does work well to provide quality simulations as required by \cref{req:simulations}. Additionally, ShelbySim produces comma-separated values of events which is useful for analysis later. Lastly, there does not appear to descriptions of a user interface component outside of graphical drawings. This does not concretely fail the modern interface component for \cref{req:modern}, but it does bring into question how students may react to a lack of a proper programming environment. Additionally, there does not appear to be features in place to utilize the custom ISA that a student creates (e.g. assembler).
 
 \begin{table}[h!]
     \centering
@@ -152,89 +168,92 @@ For \cref{req:personal}, ShelbySim is open-source and claims to run on all major
 \subsection{EDCOMP: Flexible Web-Based Educational System}
 \label{sec:review-edcomp}
 
-EDCOMP is an educational computer system and a web-based simulator that can be used to cover computer architecture fundamentals; computer organization; computer arithmetic; memory hierarchies and organization; and simple input/output relations\cite{Djordjevic2005}. The simulator supports animation of instruction execution and allows students to write their own assembly programs, compile them and view the status of the machine components. All parts have visual components at multiple levels (i.e. module, combinational and sequential circuits). The simulation can be run at several levels per clock cycle, per instruction and for the entire program. Further, the simulation supports advanced topics such as interrupts and parallel I/O units. Lastly, timing diagrams allow students to see how components are interacting at a lower, discrete level. This software aims to create a system that focuses on pedagogical learning rather than on industry accuracy and lower complexity of the system. EDCOMP focuses heavily on graphical representation to aid in student learning.
+EDCOMP is an educational computer system and a web-based simulator that can be used to cover computer architecture fundamentals; computer organization; computer arithmetic; memory hierarchies and organization; and simple input/output relations \cite{Djordjevic2005}. EDCOMP is written in Java and runs inside of a Java Applet within a Web browser. The simulator supports animation of instruction execution and allows students to write their own assembly programs, compile them and view the status of the machine components. All parts have visual components at multiple levels (i.e. module, combinational and sequential circuits). The simulation can be run at several levels per clock cycle, per instruction and for the entire program. Further, the simulation supports advanced topics such as interrupts and parallel I/O units. Lastly, timing diagrams allow students to see how components are interacting at a lower, discrete level. This software aims to create a system that focuses on pedagogical learning rather than on industry accuracy and lower complexity of the system. EDCOMP focuses heavily on graphical representation to aid in student learning.
 
 \subsubsection*{Analysis of Requirements}
 
-For \cref{req:personal}, EDCOMP is written in Java and was run within a Web browser inside of a Java Applet. However, due to the deprecation of NPAPI\footnote{NPAPI: Netscape Plug-in API. Due to deprecation, documentation for this API does not exist, for a non-academic, historical description see: \url{https://en.wikipedia.org/wiki/NPAPI}.} in Google Chrome, Chromium-based browsers, and Firefox, this means that likely over 80\% of students would not be able to use this software\cite{StatCounterBrowsers2017, W3SchoolsBrowsers2017, OracleJavaApplet2017, ChromiumBlogNPAPI2013, MozillaBlogNPAPI2016, GoogleChromeHelp2015}. In addition to being unusable with today's browsers, the system is also dated by the use of applets and does not have modern editor features creating a gap between modern technology and students therein failing to meet \cref{req:modern}. The EDCOMP system is not completely configurable\todo{reword please}. It features a CISC-based architecture with configurable components, however the internal connections can not be configured only the size and ``shape'' of components. Thus, the system does not meet \cref{req:configuration}. EDCOMP heavily focuses on learning and teaching and showcases the use of a user interface to improve simulation triggers in a pedagogically focused way. The authors showcased the software by utilizing it within classrooms meeting \cref{req:pedagogical}. Finally, the simulations described are extremely useful and thorough. These simulations showcase powerful techniques in stepping and debugging and also triggering signals in meaningful ways to show students how different components can interact. The quality of these simulations strongly meets \cref{req:simulations}. 
+For \cref{req:personal}, EDCOMP is written in Java and was previously run within a Web browser inside of a Java Applet intending to open access to students with a low barrier to entry. However, due to the deprecation of NPAPI\footnote{NPAPI: Netscape Plug-in API. Due to deprecation, documentation for this API does not exist, for a non-academic historical description see: \url{https://en.wikipedia.org/wiki/NPAPI}.} in Google Chrome, Chromium-based browsers, and Firefox, this means that likely over 80\% of students would not be able to use this software \cite{StatCounterBrowsers2017, W3SchoolsBrowsers2017, OracleJavaApplet2017, ChromiumBlogNPAPI2013, MozillaBlogNPAPI2016, GoogleChromeHelp2015}. In addition to being unusable with today's browsers, the system is also dated by the use of applets and does not have modern editor features creating a gap between modern technology and students therein failing to meet \cref{req:modern}. The EDCOMP system is not completely configurable as it is bound by purposeful reductions in features for pedagogical reasons. It features a CISC-based architecture with configurable components, however the internal connections can not be configured only the size and ``shape'' of components. Thus, the system does not meet \cref{req:configuration}. EDCOMP heavily focuses on learning and teaching and showcases the use of a user interface to improve simulation triggers in a pedagogically focused way. The authors showcased the software by utilizing it within classrooms meeting \cref{req:pedagogical}. Finally, the simulations described are extremely useful and thorough. These simulations showcase powerful techniques in stepping and debugging and also triggering signals in meaningful ways to show students how different components can interact. The quality of these simulations strongly meets \cref{req:simulations}. 
 
 \begin{table}[h!]
     \centering
     \begin{tabular}{lcccccc}
-        \textbf{Requirements} & \textbf{\hyperref[req:personal]{R1}} & \textbf{\hyperref[req:configuration]{R2}} & \textbf{\hyperref[req:pedagogical]{R3}} & \textbf{\hyperref[req:simulations]{R4}} & \textbf{\hyperref[req:modern]{R5}} & \textbf{Total} \\ \hline
-       \textbf{EDCOMP}          & 3                                  & 3                                    & 4                            & 4                                  & 2                             & \textbf{16}    \\ 
+       \textbf{Requirements} & \textbf{\hyperref[req:personal]{R1}} & \textbf{\hyperref[req:configuration]{R2}} & \textbf{\hyperref[req:pedagogical]{R3}} & \textbf{\hyperref[req:simulations]{R4}} & \textbf{\hyperref[req:modern]{R5}} & \textbf{Total} \\ \hline
+       \textbf{EDCOMP \cite{Djordjevic2005}} 
+       & 3 & 3 & 4 & 4 & 0 & \textbf{14} \\ 
     \end{tabular}
 \end{table}
 
 \subsection{p88110: A Graphical Simulator for Computer Architecture and Organization Courses}
 \label{sec:review-p88110}
 
-The p88110 attempts to cover many core topics in Computer Architecture and Organization\cite{Garcia2009}. The authors reflected and have created a ``one-size fits all'' solution to try and replace many heterogeneous simulators used in practice at the time. This software emulates the ISA for the MC88110 microprocessor specifically -- a RISC architecture. The authors intentionally removed components to alleviate the amount of information for students to learn. The user interface includes a view for the current simulation of components, and a simplistic, built-in editor and simulation stepping at the instruction level and breakpoints. The simulator can be modified to execute in serial or parallel (super-scalar) modes. In the parallel mode, the four-stage pipeline of the MC88110 is implemented with static branch prediction and delays. A unique feature is the use of built-in caches for instructions and memory. These include configuration for time-to-read and write. During simulation, cache and branch prediction hit and miss statistics are recorded for student analysis purposes. The authors have implemented this simulator in class assignments and created an automated evaluation tool for reducing overhead for instructors. 
+The p88110 attempts to cover many core topics in Computer Architecture and Organization \cite{Garcia2009}. The authors reflected and have created a ``one-size fits all'' solution to try and replace many heterogeneous simulators used in practice at the time. This software emulates the ISA for the MC88110 microprocessor specifically -- a RISC architecture. The authors intentionally removed components to alleviate the amount of information for students to learn. The user interface includes a view for the current simulation of components, and a simplistic, built-in editor and simulation stepping at the instruction level and adding debugging breakpoints. The simulator can be modified to execute in serial or parallel (super-scalar) modes. In parallel mode, the four-stage pipeline of the MC88110 is implemented with static branch prediction and delays. A unique feature is the use of built-in caches for instructions and memory. These include configuration for time-to-read and write. During simulation, cache and branch prediction hit and miss statistics are recorded for student analysis purposes. The authors have implemented this simulator in class assignments and created an automated evaluation tool for reducing overhead for instructors. 
 
 \subsubsection*{Analysis of Requirements}
 
-The authors claim that the p88110 simulator may be run on personal computers, however given changing technologies and a lack of software description, the author can not validate the software is still able to run on current operating systems implying the system does not meet \cref{req:personal}. p88110 directly emulates the MC88110 system which is a similar system to the \hcmodel and has been shown to be an excellent candidate for pedagogical purposes. \Cref{req:configuration} states that a software must be able to be configured for multiple architectures and while the MC88110 is a great candidate architecture specifically, p88110 is too limited to meet this requirement. The configuration features presented by the p88110 are extremely powerful and should be respected in future developments. p88110 was developed for use within a classroom meeting \cref{req:pedagogical}. Further, p88110 dropped some realistic components to create a simpler architecture for students to learn from -- favouring pedagogy over realistic accuracy. Additionally, the use of an automatic marking tool would reduce the overhead for teaching students and give students instant feedback without requiring instructor interaction. The simulations provided by p81100 are thorough and provide insight into statistical modelling of pipelined and cached architectures. This information is extremely relevant to computer architecture courses. However, the p88110 does not support the use of peripherals or interrupts. \Cref{req:simulations} is not met due to lacking features, though the statistical feedback provides an interesting insight for students to learn from. Lastly, the interface is not modern and supports only simple features found in most editors. The amount of dialogs created shows concern for focus when working with p88110 and does not reduce students cognitive workload therein failing to meet \cref{req:modern}. 
+The authors claim that the p88110 simulator may be run on personal computers, however given changing technologies and a lack of software description, the author can not validate the software is still able to run on current operating systems implying the system does not meet \cref{req:personal}. p88110 directly emulates the MC88110 system which is a similar system to the \hcmodel{} and has been shown to be an excellent candidate for pedagogical purposes. \Cref{req:configuration} states that a software must be able to be configured for multiple architectures and while the MC88110 is a great candidate architecture specifically, p88110 is too limited to meet this requirement. However, the engine configuration features presented by p88110 are extremely powerful and useful. p88110 was developed for use within a classroom meeting \cref{req:pedagogical}. Further, p88110 dropped some realistic components to create a simpler architecture for students to learn from -- favouring pedagogy over realistic accuracy. Additionally, the use of an automatic marking tool would reduce the overhead for teaching students and give students instant feedback without requiring instructor interaction. The simulations provided by p81100 are thorough and provide insight into statistical modelling of pipelined and cached architectures. This information is extremely relevant to computer architecture courses. However, the p88110 does not support the use of peripherals or interrupts. \Cref{req:simulations} is not met due to lacking features, though the statistical feedback provides an interesting insight for students to learn from. Lastly, the interface is not modern and supports only simple features found in most editors. The amount of dialogs created shows concern for focus when working with p88110 and does not reduce students cognitive workload therein failing to meet \cref{req:modern}. 
 
 \begin{table}[h!]
     \centering
     \begin{tabular}{lcccccc}
         \textbf{Requirements} & \textbf{\hyperref[req:personal]{R1}} & \textbf{\hyperref[req:configuration]{R2}} & \textbf{\hyperref[req:pedagogical]{R3}} & \textbf{\hyperref[req:simulations]{R4}} & \textbf{\hyperref[req:modern]{R5}} & \textbf{Total} \\ \hline
-        \textbf{p88110}          & 1                                  & 1                                    & 4                            & 2                                  & 1                             & \textbf{9}     \\
+        \textbf{p88110 \cite{Garcia2009}}
+        & 1 & 1 & 4 & 3 & 1 & \textbf{10} \\
     \end{tabular}
 \end{table}
 
 \subsection{EASE - An Extensible Architecture Simulation Engine}
 \label{sec:review-ease}
 
-Extensible Architecture Simulation Engine (EASE) is a simulation engine focused on custom simulations for classroom use\cite{Skillen2011}. EASE attempts to provide the following features: 
+Extensible Architecture Simulation Engine (EASE) is a simulation engine focused on custom simulations for classroom use \cite{Skillen2011}. EASE attempts to provide the following features: 
 \begin{itemize}
     \item Support for multiple architecture types: RISC, CISC and URISC
     \item Provide a modular mechanism for simple extension
     \item Open-source software
     \item Portable to different platforms
 \end{itemize}
-The authors reviewed the survey in \cite{Nikolic2009} and found the suggested tools were inadequate for teaching simulation architecture courses based on their requirements. Many put too much emphasis on RTL descriptions of the hardware and too little on ISA. EASE provides three ISAs for use, a CISC, RISC and URISC within the project. EASE is written in Java making it cross-platform. It comes with a very simple user interface written in Java Swing. 
+\cite{Skillen2011} reviewed the survey of simulation tools found in \cite{Nikolic2009} and found the suggested tools were inadequate for teaching simulation architecture courses based on their requirements. Many put too much emphasis on RTL descriptions of the hardware and too little on ISA. EASE provides three ISAs for use, a CISC, RISC and URISC within the project. EASE is written in Java making it cross-platform. It comes with a very simple user interface written in Java Swing. 
 
 \subsubsection*{Analysis of Requirements}
 
-EASE is a very immature project without a lot of proven use. Unfortunately, this makes it difficult to gauge how effective it is. EASE focuses on pedagogy as it's major requirement meeting \cref{req:pedagogical}. While the authors mention new architectures may be added through implementation of their \javainline{interface Arch}, students have no way to do this themselves and forces a recompiling of the application to create a new architecture therein failing to meet \cref{req:configuration}. Given that EASE is written with Java all that is required to run the software is a Java runtime making it cross-platform. However, the authors stated the software was available under the GNU Public License v3, but the software has yet to be made available for consumption. Thus, theoretically EASE meets \cref{req:personal} but the author can not prove this. EASE does support step-based execution, however it has no support for debug breakpoints. Further, there is no reference to stepping at the microcode level. Runtime viewing of registers is available, however there is no way to view the memory. These outlined features do not meet \cref{req:simulations}. Lastly, the user interface provided is very simple providing syntax highlighting for a single file and simple debugging controls. The interface does not provide modern editing features that students are accustomed to with most editors -- failing to meet \cref{req:modern}.
+EASE is a very immature project without a lot of proven use. Unfortunately, this makes it difficult to gauge how effective it is. EASE focuses on pedagogy as it's major requirement meeting \cref{req:pedagogical}. While the authors mention new architectures may be added through implementation of their \javainline{interface Arch}, students have no way to do this themselves and forces a recompiling of the application to create a new architecture therein failing to meet \cref{req:configuration}. Given that EASE is written with Java, all that is required to run the software is a Java runtime making it cross-platform. However, \cite{Skillen2011} stated the software was available under the GNU Public License v3, but the software has yet to be made available for consumption. Theoretically EASE meets \cref{req:personal} but the author can not verify this. EASE does support step-based execution, however it has no support for debug breakpoints. Further, there is no reference to stepping at the microcode level. Runtime viewing of registers is available, however there is no way to view the memory. These outlined features do not meet \cref{req:simulations}. Lastly, the user interface provided is very simple providing syntax highlighting for a single file and simple debugging controls. The interface does not provide modern editing features that students are accustomed to with most editors -- failing to meet \cref{req:modern}.
 
 \begin{table}[h!]
     \centering
     \begin{tabular}{lcccccc}
         \textbf{Requirements} & \textbf{\hyperref[req:personal]{R1}} & \textbf{\hyperref[req:configuration]{R2}} & \textbf{\hyperref[req:pedagogical]{R3}} & \textbf{\hyperref[req:simulations]{R4}} & \textbf{\hyperref[req:modern]{R5}} & \textbf{Total} \\ \hline
-        \textbf{EASE}            & 4                                  & 2                                    & 5                            & 3                                  & 2                             & \textbf{16}    \\
+        \textbf{EASE \cite{Skillen2011}}
+        & 4 & 2 & 5 & 3 & 2 & \textbf{16} \\
     \end{tabular}
 \end{table}
 
 \subsection{TinyCPU and TinyCSE: Hardware simulations for education}
 \label{sec:review-tiny-cse}
 
-TinyCPU is a teaching assignment designed to be used in a Masters of Science program in embedded systems to teach students about computer architectures by having them incrementally design a CPU (TinyCPU)\cite{McLoughlin2010}. TinyCPU has been used in a program described to be very similar to \uwo's computer engineering program. TinyCPU runs in Verlilog and is a simple stack-based machine. The full block diagram for TinyCPU is shown in \cref{fig:mcloughlin2010-tinycpu-block-diagram}. The architecture is meant to be extremely simple to mitigate extra information for students to consume. The entire CPU configuration is rigidly bound as:
+TinyCPU is a teaching assignment designed to be used in a Masters of Science program in embedded systems to teach students about computer architectures by having them incrementally design a CPU (TinyCPU) \cite{McLoughlin2010}. TinyCPU has been used in a program described to be very similar to \uwo's computer engineering program. TinyCPU runs in Verlilog and is a simple stack-based machine. The full block diagram for TinyCPU is shown in \cref{fig:mcloughlin2010-tinycpu-block-diagram}. The architecture is meant to be extremely simple to mitigate extra information for students to consume. The entire CPU configuration is rigidly bound as:
 \begin{itemize}
     \item 16-bit word size
     \item 12-bit address space
     \item single ALU
     \item dual bus structure with a data bus (dbus) and address bus (abus)
 \end{itemize}
-The CPU is compiled via Verlilog tooling (e.g. Xilinx ISE) and loaded onto either a hardware or software FPGA to run. The execution model is intentionally simplistic for improving ease of learning (shown in \cref{fig:mcloughlin2010-tinycpu-state-chart}). Given that TinyCPU is written in Verlilog, it works well with existing industry tools such as ModelSim. Lastly, there exists a C compiler and assembler for TinyCPU making a very strong case for modern use cases. 
+The CPU is compiled with a Verlilog tool chain (e.g. Xilinx ISE) and loaded onto either a hardware or software-simulated FPGA to run. The execution model is intentionally simplistic for improving ease of learning (shown in \cref{fig:mcloughlin2010-tinycpu-state-chart}). Given that TinyCPU is written in Verlilog, it works well with existing industry tools such as ModelSim. Lastly, there exists a C compiler and assembler for TinyCPU making a very strong case for modern programming interactions. 
 
 \begin{figure}[t!]
     \centering
     \includegraphics[width=0.7\linewidth]{img/mcloughlin2010-tinycpu-block-diagram}
-    \caption{Block diagram of TinyCPU showing the internal architecture\cite[p.~869]{McLoughlin2010}}
+    \caption{Block diagram of TinyCPU showing the internal architecture \cite[p.~869]{McLoughlin2010}}
     \label{fig:mcloughlin2010-tinycpu-block-diagram}
     \includegraphics[width=0.7\linewidth]{img/mcloughlin2010-tinycpu-execution-state-chart}
-    \caption{State chart of TinyCPU execution path\cite[p.~869]{McLoughlin2010}}
+    \caption{State chart of TinyCPU execution path \cite[p.~869]{McLoughlin2010}}
     \label{fig:mcloughlin2010-tinycpu-state-chart}
 \end{figure}
 
-TinyCSE is an extension to TinyCPU that provides a full system supporting hardware interrupts that can interact with peripheral components like mice and keyboards\cite{Nakamura2013}. TinyCSE adds an I/O space memory mapping controller for interacting with peripherals. This allows I/O components to ``register'' themselves into a position and programs in TinyCSE can read/write to I/O components through memory mapping. Further, TinyCSE adds an interrupt flag that the state machine utilizes to allow for hardware interrupts. These interrupts are extremely important as this is how most hardware devices interact with a CPU. The modified state diagram is shown in \cref{fig:nakamura2013-tinycse-execution-state-chart}. At an architectural level, interrupts are supported via \verb|CALL| and \verb|RETURN| instructions which branch to an interrupt routine and return from an interrupt routine respectively while maintaining the stack.
+TinyCSE is an extension to TinyCPU that provides a full system supporting hardware interrupts that can interact with peripheral components like mice and keyboards \cite{Nakamura2013}. TinyCSE adds an I/O space memory mapping controller for interacting with peripherals. This allows I/O components to ``register'' themselves into a position and programs in TinyCSE can read/write to I/O components through memory mapping. Further, TinyCSE adds an interrupt flag that the state machine utilizes to allow for hardware interrupts. These interrupts are extremely important as this is how most hardware devices interact with a CPU. The modified state diagram is shown in \cref{fig:nakamura2013-tinycse-execution-state-chart}. At an architectural level, interrupts are supported via \verb|CALL| and \verb|RETURN| instructions which branch to an interrupt routine and return from an interrupt routine respectively while maintaining the stack.
 
 \begin{figure}[b!]
     \centering
     \includegraphics[width=0.7\linewidth]{img/nakamura2013-tinycse-execution-state-chart}
-    \caption{TinyCSE execution state diagram modified from \cref{fig:mcloughlin2010-tinycpu-state-chart} to include interrupts (broken lines show changes)\cite[p.~640]{Nakamura2013}}
+    \caption{TinyCSE execution state diagram modified from \cref{fig:mcloughlin2010-tinycpu-state-chart} to include interrupts (broken lines show changes from TinyCPU \cite{mcloughlin2010}) \cite[p.~640]{Nakamura2013}}
     \label{fig:nakamura2013-tinycse-execution-state-chart}
 \end{figure}
 
@@ -246,104 +265,117 @@ For the purposes of analysis, this section will only consider TinyCSE as it is a
     \centering
     \begin{tabular}{lcccccc}
         \textbf{Requirements} & \textbf{\hyperref[req:personal]{R1}} & \textbf{\hyperref[req:configuration]{R2}} & \textbf{\hyperref[req:pedagogical]{R3}} & \textbf{\hyperref[req:simulations]{R4}} & \textbf{\hyperref[req:modern]{R5}} & \textbf{Total} \\ \hline
-        \textbf{TinyCPU/TinyCSE} & 2                                  & 3                                    & 3                            & 4                                  & 3                             & \textbf{15}    \\ 
+        \textbf{TinyCPU/TinyCSE \cite{Nakamura2013, McLoughlin2010}} 
+        & 2 & 3 & 3 & 4 & 3 & \textbf{15} \\ 
     \end{tabular}
 \end{table}
 
 \subsection{CPU Sim}
 \label{sec:review-cpu-sim}
 
-CPU Sim is a Java CPU simulator written for use within a classroom environment\cite{Skrien2001}. CPU Sim allows students to design, modify, and compare various computer architectures at the register-transfer level and higher. Additionally, students may write and debug assembly code for custom architectures. The simulator and IDE are written in Java, with the latter utilizing Oracle's JavaFX user interface. The software is currently available from \cite{Skrien2017} as ``freeware.'' In conversations with Dr. Skrien, he expressed the want to open source CPU Sim in the future to increase availability\cite{Skrien2016}. The user interface is feature rich allowing students to configure a processor with:
+CPU Sim is a Java CPU simulator written for use within a classroom environment \cite{Skrien2001}. CPU Sim allows students to design, modify, and compare various computer architectures at the register-transfer level and higher. Additionally, students may write and debug assembly code for custom architectures. The simulator and IDE are written in Java, with the latter utilizing Oracle's JavaFX user interface. The software is currently available from \cite{Skrien2017} as ``freeware.'' In conversations with Dr. Skrien, he expressed the want to open source CPU Sim in the future to increase availability \cite{Skrien2016}. The user interface is feature rich allowing students to configure a processor with:
 \begin{itemize}
     \item hardware specifications (e.g. RAM word size, length)
     \item hardware inter-connections
     \item processor microcodes
     \item assembly instructions
 \end{itemize} 
-These specifications gives students the ability to configure a nearly custom processor. However, using the current 4.0.10 release, configuration options are missing: clock speed changes, CISC architectures, and peripheral support
-\cite{Skrien2017}. Using Java technologies allows CPU Sim to work with the three major platforms as a desktop application. CPU Sim's IDE provides a modern assembly editor for custom architectures providing syntax highlighting, tabbed editor panes and simple editor commands like find-and-replace. Further, during a simulation, CPU Sim allows students to view memory and register states. \Cref{fig:skrien2017-cpusim-desktop} shows the IDE during a simple simulation with a program written in a custom ISA open for editing. CPU Sim fully supports debug points and step-based execution in it's engine. Though, the execution engine is very simplistic and does not provide any configuration points outside of changing the instruction fetch microcode sequence. Lastly, CPU Sim contains excellent documentation within it's internal help program shown in \cref{fig:skrien2017-cpusim-help}. These features make the software very attractive to instructors teaching embedded systems and computer architectures. 
+These specifications gives students the ability to configure a nearly custom processor. However, using the current 4.0.10 release, configuration options are missing: clock speed changes, CISC-like addressing modes, and peripheral support
+\cite{Skrien2017}. Using Java technologies allows CPU Sim to work with the three major platforms as a desktop application. CPU Sim's IDE provides a modern assembly editor for custom architectures providing syntax highlighting, tabbed editor panes and simple editor commands like find-and-replace. Further, during a simulation, CPU Sim allows students to view memory and register states. \Cref{fig:skrien2017-cpusim-desktop} shows the IDE during a simple simulation with a program written in a custom ISA open for editing. CPU Sim fully supports debug points and step-based execution in it's engine. Unfortunately the execution engine is very simplistic and does not provide any configuration points outside of changing the instruction fetch microcode sequence. 
 
 \begin{figure}[t!]
     \centering
     \includegraphics[width=0.9\linewidth]{img/skrien2017-cpusim-desktop}
-    \caption{CPU Sim 4.0.0 IDE during debugging with Assembly Editor open\cite{Skrien2017}}
+    \caption{CPU Sim 4.0.0 IDE during debugging with Assembly Editor open \cite{Skrien2017}}
     \label{fig:skrien2017-cpusim-desktop}
 \end{figure}
 
-\begin{figure}[b!]
+CPU Sim supports creating custom assembly languages to ``compile'' to the a custom ISA. Assembly instructions are specified as sequences of ``machine instructions.'' Each ``microinstruction'' is a single transfer or operation within the CPU. For example, ``transfer between registers,'' ``read from memory'' or ``branch if condition bit.'' These microinstructions are configured based on hardware specifications. When designing an assembly instruction, the microcode is laid out with a drag-and-drop interface placing ``fields.'' The drag and drop interface is shown in \cref{fig:skrien2017-cpusim-machine-instruction}. The top layout shows the microcode, the bottom is the ``assembly'' layout which designates how the instruction is written in an assembly program. These values can be rearranged independent of each other, though relative ordering of repeated values is maintained. These interfaces allow for adding punctuation and non-encoded values to the assembly layout. This is a very powerful feature as the assembler provided will parse the custom layouts to produce simulation paths.
+
+\begin{figure}[t!]
+    \centering
+    \includegraphics[width=0.7\linewidth]{img/skrien2017-cpusim-machine-instruction}
+    \caption{CPU Sim Machine Instruction configuration interface showing combination of fields to create a microcode and an assembly instruction.}
+    \label{fig:skrien2017-cpusim-machine-instruction}
+\end{figure}
+
+Lastly, CPU Sim contains excellent documentation within it's internal help program shown in \cref{fig:skrien2017-cpusim-help}. The help documentation is very deep and has many images and ``tutorial style'' documentation embedded internally. The author used this documentation exclusively to learn how to use CPU Sim and found it very useful. This documentation in particular makes CPU Sim attractive to prospective instructors due to the reduction in student inquiries as most questions may be found in the program itself. 
+
+\begin{figure}[hb!]
     \centering
     \includegraphics[width=0.7\linewidth]{img/skrien2017-cpusim-help}
-    \caption{CPU Sim 4.0.0 Help Window showing depth of documentation\cite{Skrien2017}}
+    \caption{CPU Sim 4.0.0 Help Window showing depth of documentation \cite{Skrien2017}}
     \label{fig:skrien2017-cpusim-help}
 \end{figure}
 
-
 \subsubsection*{Analysis of Requirements}
 
-CPU Sim is readily available for use by downloading it from \cite{Skrien2017}. The software runs well on Microsoft Windows and Linux. MacOS support is available, however it has some non-critical user interface bugs that make it feel slightly ``foreign'' on macOS (e.g. the menu bar does not reside in the operating system menu bar). This supports \cref{req:personal}. The assembly editor has many modern features which leads well to having students feel as though they are using a modern software. However, when configuring hardware components, the user interface is difficult to navigate and does not always use suitable user interface components to better utilize the available space. \Cref{fig:skrien2017-cpusim-module-registers} shows the module modification interface for Registers. Unfortunately, the interface presented does not scale and for different components, there exists many disjointed user interface components where the same ``expected action'' between two different dialogs is completed a different way. In the author's experience, this lead to confusing amongst those using the software. Unfortunately, these usability concerns hinder both \cref{req:modern,req:pedagogical} severely. 
+CPU Sim is readily available for use by downloading it from \cite{Skrien2017}. The software runs well on Microsoft Windows and Linux. macOS support is available, however it has some non-critical user interface bugs that make it feel slightly ``foreign'' on macOS (e.g. the menu bar does not reside in the operating system menu bar). This strongly supports \cref{req:personal}. The assembly editor has many modern features which leads well to having students feel as though they are using a modern software. However, when configuring hardware components, the user interface is difficult to navigate and does not always use suitable user interface components to better utilize the available space. \Cref{fig:skrien2017-cpusim-module-registers} shows the module modification interface for Registers. Unfortunately, the interface presented does not scale and for different components, there exists many disjointed user interface components where the same ``expected action'' between two different dialogs is completed a different way. In the author's experience, this lead to confusing amongst those using the software. Unfortunately, these usability concerns hinder both \cref{req:modern,req:pedagogical} severely. 
 
-\begin{figure}[h]
+\begin{figure}[bh!]
     \centering
     \includegraphics[width=0.7\linewidth]{img/skrien2017-cpusim-module-registers}
-    \caption{CPU Sim 4.0.0 IDE module specification dialog showing modification of Register components\cite{Skrien2017}}
+    \caption{CPU Sim 4.0.0 IDE module specification dialog showing modification of Register components \cite{Skrien2017}}
     \label{fig:skrien2017-cpusim-module-registers}
 \end{figure}
 
-While usability is hurt, the simplicity of these interfaces improves the pedagogical outcomes by removing non-essential information to support \cref{req:pedagogical}. Dr. Skrien's intention to open source CPU Sim should improve student learning by allowing students to investigate the source code within\cite{Skrien2016,Coppola2004,Koohang2005}. This large amount of configuration available strongly supports \cref{req:configuration}; however due to missing features such as changing how the simulator executes code and the addition of external peripherals CPU Sim is not acceptable for \cref{req:configuration}. Lastly, CPU Sim's simulations are very accurate and the user interface makes it simple to watch memory and components within the simulated engine matching most of \cref{req:simulations} -- though external peripherals are missing.
+While usability is hurt, the simplicity of these interfaces improves the pedagogical outcomes by removing non-essential information to support \cref{req:pedagogical}. Dr. Skrien's intention to open source CPU Sim should improve student learning by allowing students to investigate the source code within \cite{Skrien2016,Coppola2004,Koohang2005}. This large amount of configuration available strongly supports \cref{req:configuration}; however due to missing features such as changing how the simulator executes code and the addition of external peripherals CPU Sim is not acceptable for \cref{req:configuration}. Lastly, CPU Sim's simulations are very accurate and the user interface makes it simple to watch memory and components within the simulated engine matching most of \cref{req:simulations} -- though external peripherals are missing.
 
 \begin{table}[h!]
     \centering
     \begin{tabular}{lcccccc}
         \textbf{Requirements} & \textbf{\hyperref[req:personal]{R1}} & \textbf{\hyperref[req:configuration]{R2}} & \textbf{\hyperref[req:pedagogical]{R3}} & \textbf{\hyperref[req:simulations]{R4}} & \textbf{\hyperref[req:modern]{R5}} & \textbf{Total} \\ \hline
-        \textbf{CPU Sim}         & 5                                  & 4                                    & 4                            & 2                                  & 3                             & \textbf{18}    \\
+        \textbf{CPU Sim \cite{Skrien2001, Skrien2001}}
+        & 5 & 4 & 4 & 2 & 3 & \textbf{18} \\
     \end{tabular}
 \end{table}
 
 \subsection{Emumaker86: A Hardware Simulator for Teaching CPU Design}
 \label{sec:review-emumaker86}
 
-Emumaker86 is an entirely GUI-based hardware simulator for designing CPUs in a Computer Organization course\cite{Black2013}. Emumaker86 is written in Java and is a desktop-based application. Emumaker86 is integrated on top of an existing personal computer simulator giving Emumaker86 full access to PC-compatible peripherals (e.g. video controller, CD drive). Emumaker86 attempts to keep students at a higher level than digital circuit simulators, abstracting away flip-flops and logic gates into registers and ALUs respectively. Emumaker86 breaks CPU design into two main components, 1. Datapath and 2. Control unit. These two are built independently from each other in custom user interfaces. 
+Emumaker86 is an entirely GUI-based hardware simulator for designing CPUs in a Computer Organization course \cite{Black2013}. Emumaker86 is written in Java and is a desktop-based application. Emumaker86 is integrated on top of an existing personal computer simulator giving Emumaker86 full access to PC-compatible peripherals (e.g. video controller, CD drive). Emumaker86 attempts to keep students at a higher level than digital circuit simulators, abstracting away flip-flops and logic gates into registers and ALUs respectively. Emumaker86 breaks CPU design into two main components, 1. Datapath and 2. Control unit. These two are built independently from each other in custom user interfaces. 
 
 The Datapath builder works by students specifying RTL-like structures with digital components. Each of these components are laid out and connected through wires and buses. Any clocked component is connected to the ``system'' clock by design to simplify requirements for students. There are interrupt and I/O ports available to enable peripheral connections. These components can be combined to create sub-components as an abstraction. Each component runs in parallel within the device. All of these components and datapath entities are serialized as XML so they can be saved, distributed and reloaded. 
 
-The control builder is an interface used to specify a state machine with transitions and control unit states. The interface is shown in \cref{fig:emumaker86-control-builder}. Each colour corresponds to a different field, for example blue is the current state label, below it yellow are microcode rows and green are ``Next States.'' State transitions are based on ``conditional bits'' such as ``opcode,'' ``zero,'' or ``shortopcode'' shown in \cref{fig:emumaker86-control-builder}. This represents the control unit as a finite state machine, a common topic in Computer Science and Engineering curricula\cite{cec2016}. 
+The control builder is an interface used to specify a state machine with transitions and control unit states. The interface is shown in \cref{fig:emumaker86-control-builder}. Each colour corresponds to a different field, for example blue is the current state label, below it yellow are microcode rows and green are ``Next States.'' State transitions are based on ``conditional bits'' such as ``opcode,'' ``zero,'' or ``shortopcode.'' This represents the control unit as a finite state machine, a common topic in Computer Science and Engineering curricula \cite{cec2016}. 
 
 \begin{figure}[bp!]
     \centering
     \includegraphics[width=0.7\linewidth]{img/emumaker86-control-builder}
-    \caption{Emubuilder86 Control Builder: State machine definition\cite[p.~325]{Black2013}}
+    \caption{Emubuilder86 Control Builder: State machine definition \cite[p.~325]{Black2013}}
     \label{fig:emumaker86-control-builder}
 \end{figure}
 
 \subsubsection*{Analysis of Requirements}
 
-Enumaker86 meets most, if not all of the requirements of this project. However, it is not without issue. For \cref{req:personal}, a minor concern is that the software runs on Java requiring a desktop environment. Similar to \cite{McLoughlin2010,Nakamura2013}, Emumaker86 uses state machines to represent the control unit. The largest difference is that Emumaker86 allows for the state machine to be changed by users. Allowing students to change how the control unit functions is essential to give students experience designing a controller. Additionally, the ``Datapath'' creation mechanism uses a graphical way of designing the hardware controls while still hiding the internals of supplied components. This meets \cref{req:pedagogical}. Unfortunately, there does not appear to be any assembler mechanism requiring code to be hand-compiled to work on any architecture created (barring an existing architectural tool chain). Given the lack of an assembler, there is no assembly-level debugging. This does not meet \cref{req:simulations}. Lastly, the largest concern is the need for modern features. The interface provided for working with the state machine is extremely hard to read as it utilizes a table-like structure relying on colour coding over modern user interface design paradigms.
+Enumaker86 meets most of the requirements outlined in \cref{sec:problem-statement}. However, it is not without issue. For \cref{req:personal}, a minor concern is that the software runs on Java requiring a desktop environment. Similar to \cite{McLoughlin2010,Nakamura2013}, Emumaker86 uses state machines to represent the control unit. The largest difference is that Emumaker86 allows for the state machine to be changed by users. Allowing students to change how the control unit functions is essential to give students experience designing a controller. Additionally, the ``Datapath'' creation mechanism uses a graphical way of designing the hardware controls while still hiding the internals of supplied components. This meets \cref{req:pedagogical}. Unfortunately, there does not appear to be any assembler mechanism requiring code to be hand-compiled to work on any architecture created (barring an existing architectural tool chain). Given the lack of an assembler, there is no assembly-level debugging. This does not meet \cref{req:simulations}. Lastly, the largest concern is the need for modern features. The interface provided for working with the state machine is extremely hard to read as it utilizes a table-like structure relying on colour coding over modern user interface design paradigms.
 
 \begin{table}[h!]
     \centering
     \begin{tabular}{lcccccc}
         \textbf{Requirements} & \textbf{\hyperref[req:personal]{R1}} & \textbf{\hyperref[req:configuration]{R2}} & \textbf{\hyperref[req:pedagogical]{R3}} & \textbf{\hyperref[req:simulations]{R4}} & \textbf{\hyperref[req:modern]{R5}} & \textbf{Total} \\ \hline
-        \textbf{Emumaker86}      & 4                                  & 5                                    & 5                            & 2                                  & 2                             & \textbf{18}   
+        \textbf{Emumaker86 \cite{Black2013}}
+        & 4 & 5 & 5 & 2 & 2 & \textbf{18} \\ 
     \end{tabular}
 \end{table}
 
 \section{Summary}
 
-Given the results accumulated through objective comparison in \cref{sec:review}, the results were tabulated into \cref{table:simulator-evaluation-summary}. Naively, out of the simulations, CPU Sim\cite{Skrien2001,Skrien2017} and Emumaker86\cite{Black2013} have the largest total match for the requirements. This information was considered when selecting a project, however the raw numbers do not extract enough information. Each simulator project has design ideas that can be combined into a better project to meet the requirements from \cref{sec:problem-statement}. 
+Given the results accumulated through objective comparison in \cref{sec:review}, the results were tabulated into \cref{table:simulator-evaluation-summary}. Naively, out of the simulations, CPU Sim \cite{Skrien2001,Skrien2017} and Emumaker86 \cite{Black2013} have the largest total match for the requirements. This information was considered when selecting a trajectory for the thesis' project, however the raw numbers do not extract enough information. Each simulator project has design ideas that can be combined into a better software to meet the requirements from \cref{sec:problem-statement}. 
 
 \begin{table}[h!]
     \centering
     \begin{tabular}{lcccccc}
         \textbf{Requirements} & \textbf{\hyperref[req:personal]{R1}} & \textbf{\hyperref[req:configuration]{R2}} & \textbf{\hyperref[req:pedagogical]{R3}} & \textbf{\hyperref[req:simulations]{R4}} & \textbf{\hyperref[req:modern]{R5}} & \textbf{Total} \\ \hline
         
-        \textbf{\hyperref[sec:review-prev-hc12sim]{HC12Sim} \cite{Brightwell2013}} 
+        \textbf{\hyperref[sec:review-prev-hc12sim]{hc12sim} \cite{Brightwell2013}} 
         & 3 & 1 & 4 & 2 & 3 & \textbf{13} \\
         \textbf{\hyperref[sec:review-shelbysim]{ShelbySim} \cite{Tappan2009, Tappan2009-2}} 
         & 4 & 4 & 3 & 4 & 0 & \textbf{15} \\
         \textbf{\hyperref[sec:review-edcomp]{EDCOMP} \cite{Djordjevic2005}}
-        & 3 & 3 & 4 & 4 & 2 & \textbf{16} \\
+        & 3 & 3 & 4 & 4 & 0 & \textbf{14} \\
         \textbf{\hyperref[sec:review-p88110]{p88110} \cite{Garcia2009}}
-        & 1 & 1 & 4 & 2 & 1 & \textbf{9}  \\
+        & 1 & 1 & 4 & 3 & 1 & \textbf{10}  \\
         \textbf{\hyperref[sec:review-ease]{EASE} \cite{Skillen2011}}
         & 4 & 2 & 5 & 3 & 2 & \textbf{16} \\
         \textbf{\hyperref[sec:review-tiny-cse]{TinyCPU/TinyCSE} \cite{Nakamura2013,McLoughlin2010}} 
@@ -357,4 +389,10 @@ Given the results accumulated through objective comparison in \cref{sec:review},
     \label{table:simulator-evaluation-summary}
 \end{table}
 
-The HC12Sim project provided a very fast, cross-platform system, but similar to EASE, it was bound to compile-time configuration. The work completed on the HC12Sim project lead the author to develop the idea of runtime-configurable simulations (a known entity in other projects \cite{Skrien2001, Black2013}). This runtime-configurable feature is the paramount feature in any project moving forward. Further, several other projects had distinguishing features that are investigated in feasibility discussions to attempt to create a better simulation software for teaching.
+The hc12sim project provided a very fast, cross-platform system, but similar to EASE, it was bound to compile-time configuration. The work completed on the hc12sim project lead the author to develop the idea of runtime-configurable simulations (a known entity in other projects \cite{Skrien2001, Black2013}). This runtime-configurable feature is the paramount feature in any project moving forward. Further, several other projects had distinguishing features that should be included in any future project. 
+
+The first significant feature is the use of ``event-driven'' simulation that \cite{Nakamura2013, McLoughlin2010, Garcia2009} suggested. Event-driven simulation allows for a simpler approach to maintaining state within a simulation. Event-driven simulation models are further discussed in both \cref{ch:akka-lua-configuration,,ch:event-driven-simulation}. Another feature found to be extremely useful is the use of stochastic model outputs that can be integrated with existing tools. All of \cite{Djordjevic2005, Tappan2009, Tappan2009-2, Nakamura2013, McLoughlin2010, Garcia2009} provide tooling to integrate with existing tools such as ModelSim, Excel or MATLAB. While dependence on industry tools can create problems for pedagogical reasons, allowing for integration points with these tools gives students more experience with industry prevalent tools -- particularly ModelSim and Excel. 
+
+A feature only provided by \cite{Nakamura2013, McLoughlin2010,, Black2013} is the ability to configure the entire execution loop. \cite{Nakamura2013,McLoughlin2010} do this by utilizing Verlilog and having students adjust the state machine directly. \cite{Black2013} takes an entirely different approach having students specify a state machine based on input signals and state of components. \cite{Black2013}'s approach gives student's the most power in configuring a machine and uses a familiar concept of finite state machines \cite{cec2016}. However, the implementation falls flat due to the hard-to-use user interface (shown in \cref{fig:emumaker86-control-builder}). Students are used to seeing machines as \cref{fig:nakamura2013-tinycse-execution-state-chart} displays. A system that gives the power of the ``table-based'' approach with the visual queues from the state chart would give both familiarity and power to students.
+
+Lastly, CPU Sim \cite{Skrien2001} provides two features that appear to be distinct: 1. Strong accompanying documentation, 2. Assembler configuration. Documentation is important for any software to be heavily utilized, particularly if it is to be used by novice users. CPU Sim's assembler configuration allows students to create their own assembly-level language tied into their custom ISA.  
