@@ -41,7 +41,9 @@
 \addbibresource{online.bib}
 \addbibresource{print.bib}
 
-\usepackage{minted}
+\usepackage[chapter]{minted}
+\setminted{linenos}
+
 \usepackage{comment}
 
 \usepackage{csquotes}
@@ -403,6 +405,9 @@ This is a really silly abstract.
 \addcontentsline{toc}{chapter}{List of Tables}
 \listoftables\newpage
 
+\addcontentsline{toc}{chapter}{List of Listings}
+\listoflistings\newpage
+
 \addcontentsline{toc}{chapter}{List of Definitions}
 \include{definitions}
 
@@ -433,8 +438,8 @@ This is a really silly abstract.
 
 \include{ch1-introduction}
 \include{ch2-prev-other-work}
-\include{ch3-akka-lua-configuration}
-\include{ch4-cpusim}
+\include{ch3-scala-akka}
+\include{ch4-lua-configuration}
 \include{ch5-event-driven-exec-engine}
 \include{ch6-micro-reduction}
 \include{ch7-conclusion}
