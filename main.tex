@@ -267,7 +267,7 @@ I would like to acknowledge: Ramesh, Brad, Thomas, Kyle.
 {\begin{titlepage}
    \setcounter{page}{1}
    %% Set the line spacing to 1 for the title page.
-   %\begin{spacing}{1} 
+   \begin{spacing}{1} 
    \begin{large}
    \begin{center}
       \mbox{}
@@ -294,12 +294,13 @@ I would like to acknowledge: Ramesh, Brad, Thomas, Kyle.
       \vspace*{.2in}
    \end{center}
    \end{large}
-%   \end{spacing}
+   \end{spacing}
    \end{titlepage}
 
 }%\maketitle
 
 \newcommand{\makecert}{
+    \begin{spacing}{1} 
    \setcounter{page}{2}
 \vfill
 \begin{center}
@@ -365,10 +366,10 @@ Chair of the Thesis Examination Board
 \end{tabular}
 \end{minipage}
 \end{table}
+\end{spacing}
+} % end cert
 
-}
-
-\linespread{1.5}
+\linespread{2}
 
 %% ***   NOTE   ***
 %% You should put all of your '\newcommand', '\newenvironment', and
@@ -456,7 +457,10 @@ This is a really silly abstract.
 \addcontentsline{toc}{chapter}{Bibliography}
 %% ***   Set the bibliography style.   ***
 
+\begin{singlespace}
 \printbibliography
+\end{singlespace}
+
 %% ***   NOTE   ***
 %% If you don't use bibliography files, comment out the previous line
 %% and use \begin{thebibliography}...\end{thebibliography}.  (In that
@@ -472,6 +476,7 @@ This is a really silly abstract.
 %CV only relevant stuff... not full CV.
 \addcontentsline{toc}{chapter}{Curriculum Vitae}
 \chapter*{Curriculum Vitae}
+\begin{singlespace}
 \begin{table}[!ht]
 \begin{tabular}{ll}
 \textbf{Name:} & \firstname{} \lastname\\\\
@@ -500,6 +505,7 @@ This is a really silly abstract.
 \todo[inline, backgroundcolor=green!40]{fix vertical spacing for ``sections''}
 \todo[inline, backgroundcolor=green!40]{align inner table for years}
 \end{table}
+\end{singlespace}
 \subsubsection*{Publications:}
 :(
 La La
