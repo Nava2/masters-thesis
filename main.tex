@@ -28,6 +28,8 @@
 \usepackage{txfonts}
 \usepackage{tocloft}
 
+\usepackage[doublespacing]{setspace}
+
 % Topic listings that are conditional to draft
 \usepackage[obeyFinal]{todonotes}
 
@@ -42,7 +44,11 @@
 \addbibresource{print.bib}
 
 \usepackage[chapter]{minted}
-\setminted{linenos}
+\setminted{linenos, frame=single}
+
+\usepackage{etoolbox}
+\BeforeBeginEnvironment{minted}{\begin{singlespace}}
+\AfterEndEnvironment{minted}{\end{singlespace}}
 
 \usepackage{comment}
 
@@ -67,6 +73,8 @@
 
 % Converts numbers to words!
 \usepackage{fmtcount}
+
+\interfootnotelinepenalty=10000 
 
 \makeatletter
 \numberwithin{figure}{chapter}

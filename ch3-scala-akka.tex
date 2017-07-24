@@ -1,5 +1,5 @@
 \chapter{procsim.scala, an Scala processor simulator for the modern Web}
-\label{ch:akka-lua-configuration}
+\label{ch:scala-akka}
 
 \newcommand{\scalainline}[1]{\mintinline{scala}{#1}}
 \newcommand{\akkaActor}{\scalainline{Actor}}
@@ -9,20 +9,20 @@
 procsim.scala attempted to try and port work of hc12sim to Scala and Akka\footnote{See \cref{sec:review-prev-hc12} for an extended discussion on the original hc12sim}. In recent years, Scala has emerged as a powerful language used in big data and scalable web applications thanks to Apache Spark\footnote{Apache Spark is available at: \url{https://spark.apache.org/}} and Lightbend Akka\footnote{Lightbend was formerly known as Typesafe. Akka is available at: \url{https://akka.io}} \cite{Karau2015, Alexandrov2014, Singh2015}. Scala is a multi-paradigm programming language supporting functional and object-oriented style programming on both the Java Virtual Machine and within a JavaScript environment such as a web browser \cite{Scala-Lang}. On the JVM, Scala can interoperate with Java programs without any code changes and in a JavaScript environment most Java functionality is available. One of Scala's original use-cases was as a less verbose and more functional version of Java that runs within the same Java infrastructure. Thanks to Scala's implicit parameters \cite{Scala-ImplicitParameters}, custom operator overloading \cite{Scala-Operators} and optional post-fix notation \cite{Scala-MethodInvocations} developers can create Domain-Specific Languages within Scala with ease. For example, \cref{lst:scala-dsl-basic} show cases a DSL that was written to emulate BASIC (a 50 year-old language) showcasing how flexible Scala's syntax can be. In regards to processor simulation, all of the simulators surveyed provide at least one mechanism for loading and saving machine state to a persistent storage (e.g. XML files for \cite{Skrien2001, Black2013}). A DSL-based configuration allows specification of a system without extraneous syntax designed specifically for this purpose. Utilizing a DSL could allow students to specify their machines programmatically\todo{spelling?}{} rather than through a graphical user interface improving the amount of configuration, reuse and flexibility available. This provides an excellent approach to improving \cref{req:configuration}'s configuration requirements.\todo{But at what cost!?}
 
 \begin{listing}[bt!]
-    \begin{minted}{scala}
-    object SquareRoot extends Baysick {
-        def main(args:Array[String]) = {
-            10 PRINT "Enter a number"
-            20 INPUT 'n
-            30 PRINT "Square root of " % "'n is " % SQRT('n)
-            40 END
-            
-            RUN
-        }
+\begin{minted}{scala}
+object SquareRoot extends Baysick {
+    def main(args:Array[String]) = {
+        10 PRINT "Enter a number"
+        20 INPUT 'n
+        30 PRINT "Square root of " % "'n is " % SQRT('n)
+        40 END
+        
+        RUN
     }
-    \end{minted}
-    \caption{An example DSL source written in Scala to emulate BASIC called ``Baysick'' \cite{FogusBaysick}}
-    \label{lst:scala-dsl-basic}
+}
+\end{minted}
+\caption{An example DSL source written in Scala to emulate BASIC called ``Baysick'' \cite{FogusBaysick}}
+\label{lst:scala-dsl-basic}
 \end{listing}
 
 Akka is a Scala framework that provides an implementation of the Actor model \cite{Agha1985} that was originally written by Haller and Odersky in \cite{Haller2009} for the Scala Library. \cite{Haller2009}'s original implementation makes use of an event and message-driven programming model to lower thread counts and alleviate lock contentions compared to traditional threading models. \Cref{fig:doyle2014-akka-actor-model} shows a simple diagram of actors sending messages bi-directionally between each other. Each actor has a conceptual ``mailbox'' that they can store and process messages from. The initial actor implementation by \cite{Haller2009} was expanded to become Akka which is now sponsored by Lightbend. Akka's major revisions to \cite{Haller2009} includes additional abstractions to remove locational knowledge such that actors ``live'' wherever they are best suited. Additionally, Akka's scheduling mechanisms for control \akkaActor{} execution patterns in the idealistic and a deterministic way \cite{TypesafeAkka2015}. For example, two \akkaActor{} instances can communicate with each other regardless of their physical location on the same node of a distributed system or completely geographically separated by a network -- an individual actor neither knows nor cares where a message comes from or is sent to. Further, Akka provides fault tolerance through supervisor semantics utilizing the ``let-it-crash'' paradigm for faults popularized by the Erlang programming language in telecommunication systems since 1985 \cite{Armstrong2010}. These features on top of the actor model create a very scalable technology that maps simply to microservice-driven architectures. While Akka's main goal is to create microservice architectures and scalable applications, the author intended to utilize this model to instead implement an event-driven simulation model.
@@ -48,45 +48,46 @@ Scala.js is a ``compiler back-end'' for the Scala compiler that transpiles Scala
 
 \section{Implementation of procsim.scala}
 
-\subsection{VHDL-like DSL implementation and runtime-configured instructions}
+\subsection{VHDL-like DSL configuration and runtime-based instructions}
+\label{sec:sec:procsim-scala:configuration}
 
 The first goal of procsim.scala was to introduce a DSL for defining modules and instructions within Scala. By creating a DSL that mimics VHSIC Hardware Descriptor Language (VHDL), a commonly used HDL language at \uwo{}, for students to define instructions within their processors. The intention was to have all modules pre-built and configurable but instructions are specified by students to give a transparent look into microcoding for a processor architecture. Given the compile-time configuration presented by the original hc12sim project in \cref{sec:hc12sim:instruction-generation}, it was our intention to allow students to have the same level of reconfigurability at runtime instead. The largest benefit to runtime over compile-time configuration is removal of the requirement to install a large compiler tool-chain and wait for the rest of a large application to compile -- in the order of 10 to 40 minutes depending on hardware utilized\footnote{On an Intel\textregistered{} i7-3770k, a clean build of the hc12sim project takes approximately 10 minutes, incremental builds were faster depending on the files modified.}. 
 
 The author achieved runtime-configuration of a system by utilizing Scala's built-in reflection toolbox \cite{Scala-Reflection}. The Scala language defines \textquote[\cite{Scala-Reflection}]{Reflection [as] the ability of a program to inspect, and possibly even modify itself.} Self modification of running code is the primary feature required for runtime configuration of a model without utilizing separate compiler tool-chains and processes. Scala's reflection tools allow for a developer to write code as a \mintinline{scala}{String} and execute the result, storing any and all state produced by the ``sub-program.'' This feature would allow students to specify code in a configuration editor interface and have the software provide Scala-based compilation feedback and JVM-level performance. Two listings are provided: \cref{lst:procsim-scala:concrete-instruction-def,,lst:procsim-scala:reify-instruction-def}, each shows the definition of the same simple instruction. The syntax used for assignment is meant to mimic the syntax used in VHDL to ``connect'' two modules. \Cref{lst:procsim-scala:concrete-instruction-def} utilizes a normal Scala class to define these operations, but \cref{lst:procsim-scala:reify-instruction-def} uses runtime-reification to parse a \scalainline{String}, producing a result with the same functionality as \cref{lst:procsim-scala:concrete-instruction-def}. In small micro-benchmarks, an initial overhead for parsing the \scalainline{String} and compiling it to run within the JVM at runtime was found, however there appears to be no performance penalty to execute code found within a reified construct. These test benches utilized primitive timing mechanisms and accounted for the JVM's JIT warm-up time. These micro-benchmarks proved that it is possible to have complete runtime-based, and compiled configurations within a Scala application without utilizing a secondary compiler tool-chain. The examples shown have the ability to be expanded to mimic the capabilities found in simulators like TinyCSE \cite{Nakamura2013, McLoughlin2010}, reducing the overall knowledge required but still giving students the feeling of ``hands-on'' instruction modification meeting configuration \cref{req:configuration}.
 
 \begin{listing}[ht!]
-    \begin{minted}{scala}
-    import net.navatwo._
-    
-    class Concrete extends Instruction {
-        def exec(cpu: CPU) = {
-            import cpu._
-            A <= 5     // set A = 5
-            B <= A + 1 // set B = A + 1 (6)
-        }
+\begin{minted}{scala}
+import net.navatwo._
+
+class Concrete extends Instruction {
+    def exec(cpu: CPU) = {
+        import cpu._
+        A <= 5     // set A = 5
+        B <= A + 1 // set B = A + 1 (6)
     }
-    val cIns = new Concrete
-    \end{minted}
-    \caption{Simple instruction that initializes values in registers defined through a Scala class definition.}
-    \label{lst:procsim-scala:concrete-instruction-def}
+}
+val cIns = new Concrete
+\end{minted}
+\caption{Simple instruction that initializes values in registers defined through a Scala class definition.}
+\label{lst:procsim-scala:concrete-instruction-def}
 \end{listing}
 
-\begin{listing}[hb!]
-    \begin{minted}{scala}
-    import scala.reflect.runtime.{universe => u}
-    val tb = mirror.mkToolBox()
-    val tree = tb.parse("import net.navatwo._; " +
-        "new Instruction { " +
-            "def exec(cpu: CPU) = {" +
-            "import cpu._;" +
-                "A <= 5; " +
-                "B <= A + 1;" +
-            "}" +
-        "}; ")
-    val sIns = tb.eval(tree).asInstanceOf[Instruction]
-    \end{minted}
-    \caption{String-based reified instruction that mimics \cref{lst:procsim-scala:concrete-instruction-def}'s functionality.}
-    \label{lst:procsim-scala:reify-instruction-def}
+\begin{listing}[h!]
+\begin{minted}{scala}
+import scala.reflect.runtime.{universe => u}
+val tb = mirror.mkToolBox()
+val tree = tb.parse("import net.navatwo._; " +
+    "new Instruction { " +
+        "def exec(cpu: CPU) = {" +
+        "import cpu._;" +
+            "A <= 5; " +
+            "B <= A + 1;" +
+        "}" +
+    "}; ")
+val sIns = tb.eval(tree).asInstanceOf[Instruction]
+\end{minted}
+\caption{String-based reified instruction that mimics \cref{lst:procsim-scala:concrete-instruction-def}'s functionality.}
+\label{lst:procsim-scala:reify-instruction-def}
 \end{listing}
 
 \subsection{Akka-based Components}
@@ -97,7 +98,7 @@ The second challenge was utilizing the Akka framework to produce hardware module
 \end{displaycquote}
 This quote is both ironic and informative as when considering hardware simulation, each module should be developed as an individual entity. Each has input and output connections and only cares about signals on input connections. Instead of considering the system sequentially, we consider the system as a massively parallel system in which all modules processes signals concurrently. In Akka, all messages are passed to all \akkaActor{} instances and it becomes a design problem of filtering and producing data for other \akkaActor{} instances within an \akkaActor's system. The author considered all hardware modules as \akkaActor{} instances and in doing so, all modules can process information asynchronously within an Akka scheduler provided. Akka's schedulers may run sequentially or concurrently, it is decided by the scheduling algorithm but Akka forces developers to treat everything as asynchronous to improve performance and reduce changes required should an \akkaActor{} move to a distributed environment later \cite{TypesafeAkka2015}. While there is no intention of ever moving a hardware simulation to multiple distributed nodes, the concepts of immutable messaging and decoupling mutability and behaviour into \akkaActor{} instances reduces the development choices in a positive way. 
 
-Akka's \akkaActor{} works by sending messages between \akkaActor{} instances. In the context of Akka, a message is an envelope around state. Most often, this is a \mintinline{scala}{case class} in Scala. As stated previously, a message has only immutable state. In the context of hardware simulation, a clock pulse might be represented as a message shown in \cref{lst:procsim-scala:clock-pulse}. This message only contains the time that the message occurred, represented as a \scalainline{Instant}\footnote{\scalainline{Instant} is part of the \scalainline{java.time} library: \url{https://docs.oracle.com/javase/8/docs/api/java/time/Instant.html}}. In order for another module to listen for this pulse, it must implement the \scalainline{Actor.receive} method which is a \scalainline{PartialFunction[Any, Unit]}. The \scalainline{def receive} method is usually implemented as a \scalainline{PartialFunction[]} using pattern matching \cite{Scala-PatternMatching} on message classes like \cref{lst:procsim-scala:clock-pulse}. \Cref{lst:procsim-scala:clock-pulse-actor} shows a \akkaActor{} that listens for our previously defined \scalainline{ClockPulse} message. In order to send a message to an \akkaActor{}, once an \akkaActor{} is created the \scalainline{!} operator sends the message: \scalainline{actor ! ClockPulse(Instant.now())}. The simplicity of these interactions allowed for very straight-forward communication protocols between modules and the paradigms enforced by Akka eased development efforts for new modules. \todo{Elaborate on the modules implemented?}
+Akka's \akkaActor{} works by sending messages between \akkaActor{} instances. In the context of Akka, a message is an envelope around state. Most often, this is a \mintinline{scala}{case class} in Scala. As stated previously, a message has only immutable state. In the context of hardware simulation, a clock pulse might be represented as a message shown in \cref{lst:procsim-scala:clock-pulse}. This message only contains the time that the message occurred, represented as a \scalainline{Instant}\footnote{\scalainline{Instant} is part of the \scalainline{java.time} library: \url{https://docs.oracle.com/javase/8/docs/api/java/time/Instant.html}{}}. In order for another module to listen for this pulse, it must implement the \scalainline{Actor.receive} method which is a \scalainline{PartialFunction[Any, Unit]}. The \scalainline{def receive} method is usually implemented as a \scalainline{PartialFunction[]} using pattern matching \cite{Scala-PatternMatching} on message classes like \cref{lst:procsim-scala:clock-pulse}. \Cref{lst:procsim-scala:clock-pulse-actor} shows a \akkaActor{} that listens for our previously defined \scalainline{ClockPulse} message. In order to send a message to an \akkaActor{}, once an \akkaActor{} is created the \scalainline{!} operator sends the message: \scalainline{actor ! ClockPulse(Instant.now())}. The simplicity of these interactions allowed for very straight-forward communication protocols between modules and the paradigms enforced by Akka eased development efforts for new modules. \todo{Elaborate on the modules implemented?}
 
 \begin{listing}
     \mint{Scala}|case class ClockPulse(time: Instant)|
@@ -106,18 +107,18 @@ Akka's \akkaActor{} works by sending messages between \akkaActor{} instances. In
 \end{listing}
 
 \begin{listing}
-    \begin{minted}{scala}
-    class ClockedActor extends Actor {
-        override def receive = {
-            case ClockPulse(time) => 
-                println(s"Pulsed at $time")
-            
-            case _ => // do nothing
-        }
+\begin{minted}{scala}
+class ClockedActor extends Actor {
+    override def receive = {
+        case ClockPulse(time) => 
+            println(s"Pulsed at $time")
+        
+        case _ => // do nothing
     }
-    \end{minted}
-    \caption{\akkaActor{} that listens for \scalainline{ClockPulse} messages and prints the time.}
-    \label{lst:procsim-scala:clock-pulse-actor}
+}
+\end{minted}
+\caption{\akkaActor{} that listens for \scalainline{ClockPulse} messages and prints the time.}
+\label{lst:procsim-scala:clock-pulse-actor}
 \end{listing}
 
 

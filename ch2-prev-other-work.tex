@@ -57,27 +57,27 @@ Due to the \hcmodel{} having over 200 instructions with multiple addressing mode
 \end{figure}
 
 \begin{listing}[htp]
-    \begin{minted}{json}
-    {
-        "BEQ": {
-            "body": "
-                auto ccr = cpu->CCR();
-                bool _Z = ccr->get(Z);
-                if ( _Z ) {
-                    int8_t rel = math::toSys<int8_t>(resbytes[0]);
-                    cpu->PC()->inc(rel);
-                }
-            ",
-            "cycles": 1,
-            "handlePC": false,
-            "types": {
-              "REL8": "27"
+\begin{minted}{json}
+{
+    "BEQ": {
+        "body": "
+            auto ccr = cpu->CCR();
+            bool _Z = ccr->get(Z);
+            if ( _Z ) {
+                int8_t rel = math::toSys<int8_t>(resbytes[0]);
+                cpu->PC()->inc(rel);
             }
-      },
-    }
-    \end{minted}
-    \caption{Sample of the JSON output used to generate code within hc12sim. BEQ performs a branch if two values were equal.}
-    \label{lst:hc12sim-json-beq}
+        ",
+        "cycles": 1,
+        "handlePC": false,
+        "types": {
+          "REL8": "27"
+        }
+  },
+}
+\end{minted}
+\caption{Sample of the JSON output used to generate code within hc12sim. BEQ performs a branch if two values were equal.}
+\label{lst:hc12sim-json-beq}
 \end{listing}
 
 \subsubsection*{Hardware Simulation}
