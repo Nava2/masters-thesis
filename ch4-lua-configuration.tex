@@ -3,7 +3,7 @@
 
 \newcommand{\cmakeinline}[1]{\mintinline{CMake}{#1}}
     
-After concluding work on procsim.scala (\cref{ch:scala-akka}), this author considered taking the lessons learned from the Scala project and attempted to apply them to the original hc12sim project \cite{Brightwell2013}. Unfortunately, the hc12sim simulator was dated, poorly designed and poorly organized due to inexperienced student work. A large portion of effort was placed in modernizing and correcting the hc12sim software to be well tested, build in a cross-platform environment and ease development and maintenance. Following these improvements, the software was renamed procsim as it was intended to be a general purpose simulation framework rather than tied to the \hcmodel{}. From working with Scala-based configurations in \cref{sec:sec:procsim-scala:configuration}, the author believed that runtime-configuration was extremely important in defining processors for students. The author chose to expand the hc12sim project and replace the JSON-based, compile-time configuration capabilities with runtime-based configurations utilizing an embedded scripting language. Within the C++ programming ecosystem, there exists many different scripting environments that can be embedded with varying degrees of difficulty, feature capabilities and execution speeds. The author investigated utilization of several scripting environments before settling on utilizing Lua \cite{LuaHomepage} with bindings provided through sol2, a wrapper between C++ and Lua API calls \cite{Solv2.11.7}. Once Lua was selected, the author designed configuration schemas built to execute in a Lua sandbox with timing and other hardware-level considerations abstracted away from the configuration definitions as much as possible.
+After concluding work on procsim.scala (\cref{ch:scala-akka}), this author considered taking the lessons learned from the Scala project and attempted to apply them to the original hc12sim project \cite{Brightwell2013}. Unfortunately, the hc12sim simulator was dated, poorly designed and poorly organized due to inexperienced student work. A large portion of effort was placed in modernizing and correcting the hc12sim software to be well tested, build in a cross-platform environment and ease development and maintenance. Following these improvements, the software was renamed procsim as it was intended to be a general purpose simulation framework rather than tied to the \hcmodel{}. From working with Scala-based configurations in \cref{sec:sec:procsim-scala:configuration}, the author believed that runtime-configuration was extremely important in defining processors for students. The author chose to expand the hc12sim project and replace the JSON-based, compile-time configuration capabilities with runtime-based configurations utilizing an embedded scripting language. Within the C++ programming ecosystem, there exists many different scripting environments that can be embedded with varying degrees of difficulty, feature capabilities and execution speeds. The author investigated utilization of several scripting environments before settling on utilizing Lua \cite{Lua:Homepage} with bindings provided through sol2, a wrapper between C++ and Lua API calls \cite{Github:ThePhD:sol2}. Once Lua was selected, the author designed configuration schemas built to execute in a Lua sandbox with timing and other hardware-level considerations abstracted away from the configuration definitions as much as possible.
 
 \section{Creating procsim: Modernizing hc12sim}
 
@@ -59,7 +59,7 @@ end # end vagrant file
 
 \subsubsection{Building with cross-platform tools}
 
-CMake \cite{Kitware:CMake} is a cross-platform meta-build system. A meta-build system provides a ``front-end'' language for defining a project's build and then generates a build program for other build systems to consume. CMake provides support for many different build systems, each is supported through a CMake ``generator''. The generators required to build on the Windows, macOS and Linux were ``Unix Makefiles'' for GNU \verb|make| \cite{GNU:Make} on Linux and macOS, ``Xcode'' for macOS's IDE Xcode \cite{Apple:Xcode}, and ``Visual Studio 14 2015 [Win64]'' for MSVC 2015 \cite{CMake:Generators}. On Unix environments, \verb|make| is generally available however and a newer build tool, \verb|ninja| \cite{NinjaBuild}, is preferred as builds are faster and provides the same familiar behaviours as \verb|make|. As stated, CMake provides a cross-platform meta-build system, however this meant writing cross-platform build scripts for the procsim project. In the original hc12sim project \cite{Brightwell2013}, CMake was utilized however it was poorly organized and added large coupling file dependencies. For example, changing a single file caused the entire build to trigger rather than just dependencies. At first, this was thought to be caused by CMake not properly structuring file dependencies, however it was soon found to be due to poor header isolation and deep, nested coupling. The author separated all headers to try and isolate concerns of what a header ``does'' and remove inter-dependencies as much as possible. Reorganization of the procsim library coupled with improved build tools and the addition of OBJECT library files \cite{CMake:add_library:ObjectLibraries} significantly reduced build time and allowed for less time spent compiling the procsim project. 
+CMake \cite{Kitware:CMake} is a cross-platform meta-build system. A meta-build system provides a ``front-end'' language for defining a project's build and then generates a build program for other build systems to consume. CMake provides support for many different build systems, each is supported through a CMake ``generator''. The generators required to build on the Windows, macOS and Linux were ``Unix Makefiles'' for GNU \verb|make| \cite{GNU:Make} on Linux and macOS, ``Xcode'' for macOS's IDE Xcode \cite{Apple:Xcode}, and ``Visual Studio 14 2015 [Win64]'' for MSVC 2015 \cite{CMake:Generators}. On Unix environments, \verb|make| is generally available however and a newer build tool, \verb|ninja| \cite{NinjaBuild}, is preferred as builds are faster and provides the same familiar behaviours as \verb|make|. As stated, CMake provides a cross-platform meta-build system, however this meant writing cross-platform build scripts for the procsim project. In the original hc12sim project \cite{Brightwell2013}, CMake was utilized however it was poorly organized and added large coupling file dependencies. For example, changing a single file caused the entire build to trigger rather than just dependencies. At first, this was thought to be caused by CMake not properly structuring file dependencies, however it was soon found to be due to poor header isolation and deep, nested coupling. The author separated all headers to try and isolate concerns of what a header ``does'' and remove inter-dependencies as much as possible. Reorganization of the procsim library coupled with improved build tools and the addition of OBJECT library files \cite{CMake:add_library} significantly reduced build time and allowed for less time spent compiling the procsim project. 
 
 As previously discussed, compilers come with consequential differences in support for new and current standards. In order to try and utilize features appropriately it is often helpful to ``test'' compilers support of features. CMake provides this functionality through cmake-compiler-features \cite{CMake:compile-features} but CMake's built-in support lags heavily behind current C++ standards (including C++14 and 17 at the time of writing). Fortunately, compatibility \cite{CMakeCompatibility} is a library used to enhance compiler and STL feature detection. The author worked with M\"uller to improve compatibility features and generation of header files that will include a ``shim'' on top of the current STL to add features where possible. ``Shims'' can only be added for STL features as syntax elements are not extensible in C++. The use of compatibility allows the procsim project to build more easily on the three major platforms. 
 
@@ -151,7 +151,7 @@ Utilizing these arguments, the function creates appropriate CMake targets and ad
 
 The last function used in \cref{lst:lua:cmake-test-declaration} is \cmakeinline{create_test()} which has three distinct incantations. The first creates a single test suite from Catch-based test sources (\cite{CatchLib}). These sources are aggregated and compiled to an \cmakeinline{OBJECT} library. This library is concatenated to the current \cmakeinline{PROJECT}'s test executable. By generating \cmakeinline{OBJECT} libraries, these smaller units of compilation can be combined and reused intelligently saving large amounts of compile time as previously discussed. The second use of \cmakeinline{create_test(test PROJECT)} generates a \cmakeinline{PROJECT}-based test executable and ``check'' target that runs the executable. This test executable includes all previously defined \cmakeinline{OBJECT} libraries in the current ``project.'' This executable is used to debug and execute tests for the given project, it is currently not possible to run a smaller test individually. Additionally, the generated executable is registered with CMake's CTest which creates build-script targets to run test executables providing dashboards and other useful tools \cite{CMake:CTest}. The last use case is \cmakeinline{create_test(target ALL)}. The \cmakeinline{ALL} request generates a test executable that includes every test suite created in a multi-project build into a single executable -- a convenience executable. As multi-project programs develop, it is useful to be more and less granular depending on the context at the time of use. While intuitively it appears as though large amounts of executables create large amounts of compilation units creating a very slow build time, due to the use of \cmakeinline{OBJECT} libraries created at definition, adding more test executables only adds incremental link time due to linking static objects -- a marginal increase of time for the convenience provided. The full test output from the procsim project is shown in \cref{lst:lua:ctest-output}. The output is easy to read and should errors occur, catch provides assertion errors and suites will continue summarizing errors later.
 
-\begin{listing}[hb]
+\begin{listing}[hb!]
 \begin{verbatim}
 1>--- Build started: Project: RUN_TESTS, Configuration: Debug x64 ---
 1>  Test project S:/research/procsim/build-windows
@@ -192,23 +192,215 @@ All of these build improvements worked towards improving software maintainabilit
 
 \section{Utilizing runtime configurations through scripting}
 
-procsim.scala had a VHDL-like
+procsim.scala had a VHDL-like syntax for defining instructions within a CPU simulation. Providing the same facilities within a non-managed language like C++ is not possible without the use of a scripting engine. When researching possible solutions to this problem, several scripting languages stood out: Python \cite{Python:Homepage}, JavaScript through Google's V8 \cite{Google:V8} or Mozilla's SpiderMonkey \cite{MDN:SpiderMonkey}, Lua \cite{Lua:Homepage}, or reusing Scala through the Java Native Interface (JNI) \cite{Oracle:JNI}. In addition to native tools provided for integration by each of the scripting languages listed, Simple Wrapper and Interface Generator (SWIG) \cite{SWIG:Homepage} provides a cross-language framework for wrapping software to multiple scripting engines. 
 
 
 \subsection{Scripting language selection}
-\lipsum[1]
 
-% JavaScript via V8, Python via Boost.Python, SWIG and .. well anything, Lua + Luacppinterface/sol/sol2
+Previously, several scripting languages were evaluated against each other for candidacy as the configuration specification language. First, Python \cite{Python:Homepage} was considered. Python is a mature, stable, dynamically typed language with wide use in the industry, scientific and academic communities \cite{StackOverflowSurvey2016}. Python was considered due to it's exposed foreign function interface (FFI) interface which allows for C functions to be called from Python or C functions to call into Python. Python's language supports overriding operators \cite{Python:Operators}, object-oriented programming \cite{Python:Classes} and low-level bitwise operations \cite{Python:BuiltinTypes}. These features are all excellent to have in implementing low-level hardware simulations and configurations. For working with the Python engine, the Python community provides a library called CFFI that utilizes python's FFI interface to call into and from Python. CFFI's purpose is to provide a bridge layer between Python and C. Any library wishing to utilize CFFI for interacting with the Python engine requires all functions be exposed as C functions. The procsim project was written utilizing C++11 syntax and does not lend well to a C-based API. Thus utilizing CFFI would become tedious for this implementation. An alternate to the CFFI library is Boost.Python \cite{Boost1.53.0:Python} which provides binding mechanisms for working with complex classes in C++ and having them work within the Python virtual machine. Boost.Python provides a very simple and easy to use syntax for defining types. Further, Boost.Python respects \cxxinline{constructor} and \cxxinline{destructor} semantics of any types passed into Python. \Cref{lst:lua:python-example} showcases a simple type exposed into Python. Given the simplicity of exposing data into Python, and the ubiquitous nature of the language, it lends itself well to a pedagogical application (\cref{req:pedagogical}) and will feel modern to students coming from Software Engineering contexts (\cref{req:modern}). Unfortunately, the largest compelling argument against Python is that to run Python scripts, one must install a Python virtual machine adding an extra dependency that is external to the project. This makes distribution more difficult for personal computers, though not all as some operating systems come with python pre-installed (e.g. most Linux distributions and macOS).
 
+\begin{listing}[hp!]
+\begin{minted}{C++}
+// Simple Structure
+struct World
+{
+    World(std::string msg): msg(msg) {} 
+    void set(std::string msg) { this->msg = msg; }
+    std::string greet() { return msg; }
+    std::string msg;
+};
+\end{minted}
 
+\begin{minted}{C++}
+#include <boost/python.hpp>
+using namespace boost::python;
+
+// Define a python module
+BOOST_PYTHON_MODULE(hello)
+{
+    class_<World>("World", init<std::string>())
+        .def("greet", &World::greet)
+        .def("set", &World::set)
+        ;
+}
+\end{minted}
+
+\begin{minted}{python}
+>>> import hello
+>>> planet = hello.World('hello')
+>>> planet.greet()
+'hello'
+>>> planet.set('howdy')
+>>> planet.greet()
+'howdy'
+\end{minted}
+\caption{Example of exposing a C++ class to Python \cite{Boost1.53.0:Python}.}
+\label{lst:lua:python-example}
+\end{listing}
+
+JavaScript is by far the most popular language in use in modern applications \cite{StackOverflowSurvey2016}. JavaScript provides many of the same features as Python, but does not have as ``strong'' of a type system. JavaScript provides many coercions of types into other types making it difficult to reason at times compared to Python (e.g. \mintinline{JavaScript}{{} + [] === 0} for reasons outside the scope of this document). While providing a modern interface for students (\cref{req:modern}), it also creates a regrettable pedagogical experience due to the extremely high-level nature of the language for low-level implementations (\cref{req:pedagogical}). In order to embed JavaScript within an application, it requires a JavaScript Virtual Machine to be embedded. The two current leading JavaScript engines are Google's V8 \cite{Google:V8} and Mozilla's SpiderMonkey \cite{MDN:SpiderMonkey}. SpiderMonkey provides a C++ API to embed functions and values into the engine. This C++ API is very similar to the API provided by Python's CFFI, however it provides slightly stronger type safety than a traditional C API utilizing \cxxinline{void*} arguments. When looking to integrate the SpiderMonkey VM into procsim, one of the unforunate consequences of the library is that the entire virtual machine is bound to a single thread of execution \cite{MDN:SpiderMonkey:UserGuide}. JavaScript itself is a single-threaded language which is largely inconsequential for configuration declaration. Though due to SpiderMonkey itself being bound to a single thread, it may become too difficult to efficiently produce threaded software when accessing SpiderMonkey. The most commonly used JavaScript engine available is Google's V8 engine \cite{Google:V8} as it powers Node.js, Chromium and Electron-based applications. Embedding V8 is a difficult task as it requires more code calls to bind components and building the library itself is complicated \cite{Google:V8:Embedding}. To have users utilize v8 within procsim, the entire engine would need to be shipped with the application. Providing a working ``drop-in'' source for v8 or SpiderMonkey is unfortunately not feasible. As such, utilizing v8 or SpiderMonkey is not feasible for this project as an embedded scripting language.
+
+Java and Scala both require the Java Virtual Machine to execute software. This massive requirement is not one to be taken lightly as it is several hundred mebibytes in size. The DSL created within the procsim.scala project utilized a VHDL-like syntax that this author believed to be beneficial to reducing the pedagogical load on students. In order to access Scala software in an embedded context, software wrappers must be written to utilize the Java Native Interface (JNI) \cite{Oracle:JNI}. The JNI is notoriously frustrating to write software for because C/C++ is not a managed language and the JVM is a managed VM making memory guarantees frustrating to correctly implement. Simplified Wrapper and Interface Generator (SWIG) provides an excellent wrapper definition tool to generate bindings for C++ classes into the JNI \cite{SWIG:Homepage}. SWIG allows developers to write generator files using a C++-like syntax which includes extra meta-information that is added to appease the Java Virtual Machine. SWIG uses ``directives'' to annotate existing C/C++ code to generate efficient JNI code that can then be compiled into a C/C++ application as any other software \cite{SWIG:Java}. SWIG does not support method references which could prove problematic when implementing. In addition, working with SWIG wrappers it non-trivial as classes become more complicated. SWIG has not updated over time to keep up with C++ standards and does not directly support many semantics such as \cxxinline{std::unique_ptr} and method references. With the additional overhead of utilizing the JVM, reusing the older procsim.scala DSL is not feasible as an embedded scripting language -- Java is not meant to be embedded.
+
+Lastly, the Lua programming language was considered as it is by design an embedded scripting language \cite{Lua:Homepage}. The Lua community directly states: \textquote[\cite{Lua:Homepage}]{Lua is a powerful, efficient, lightweight, embeddable scripting language. It supports procedural programming, object-oriented programming, functional programming, data-driven programming, and data description.} These features match the features previously defined by Python. Lua puts data description as a first order citizen allowing for extremely descriptive dictionaries of heterogeneous data \cite{Ierusalimschy:PIL}. Similar to JavaScript's Object, Lua provides traditional object-oriented programming through an associative array known as a Table \cite{Ierusalimschy:PIL}. \Cref{lst:lua:project-example} shows a simple dictionary-like description of a ``project entry'' that the \url{https://lua.org} site uses to display known projects. Creating instances like this in Lua is trivial and through libraries like tableshape \cite{Github:leafto:tableshape} add type checking to make sure a table will conform to a schema or ``shape.'' Interacting with Lua's VM is done through direct calls to Lua's C API or by utilizing libraries or generators. SWIG provides a poor wrapper for Lua, as it is not heavily supported. The Lua wrapping libraries that provided the best C++ integration at the time were sol \cite{Github:Rapptz:Sol} and luacppinterface \cite{Github:davidsiaw:luacppinterface} which provided competing wrappers for Lua. Both sol and luacppinterface provided tested interfaces for working with the Lua VM from C++, however sol provided more modern bindings around C++ semantics. Lua's syntax is very similar to other C-style languages and is commonly utilized in games world-wide showcasing the modern nature of Lua (\cref{req:modern}). Lua's configuration style is extremely simple to utilize and with the ability to override all operators, configurations can be declared programmatically and have similar semantics to Scala's DSL with slightly less syntax flexibility (\cref{req:configuration}). Lastly, Lua is the near best performing scripting language after JavaScript and provides a very simple interaction point thanks to wrapping libraries. 
+
+\begin{listing}[b!]
+\begin{minted}{Lua}
+entry {
+    title = "Tecgraf",
+    org = "Computer Graphics Technology Group, PUC-Rio",
+    url = "http://www.tecgraf.puc-rio.br/",
+    contact = "Waldemar Celes",
+    description = [[
+        TeCGraf is Lua's birthplace,
+        and the language has been used there since 1993.
+        Currently, more than thirty programmers in TeCGraf use
+        Lua regularly; they have written more than two hundred
+        thousand lines of code, distributed among dozens of
+        final products.]]
+}
+\end{minted}
+\caption{Table used to describe project information for the Lua.org site \cite{Ierusalimschy:PIL}}
+\label{lst:lua:project-example}
+\end{listing}
+
+After consideration of the four different scripting languages, it was dropped to a choice between Lua and Python. Boost.Python's long history of use coupled with existing Boost usage in the procsim project made Python an enticing option. In addition, Python's feature set is very complete for most of the use cases for the procsim scripting language. A large issue with Python was that Boost.Python proved to be non-trivial to cross-compile on multiple platforms and imposed a direct coupling to the Python runtime. Further, to have simple configurations the use of \mintinline{python}{dict} literals is required which provides less type guarantees than Lua's equivalent with tables coupled to tableshape \cite{Python:BuiltinTypes, Ierusalimschy:PIL, Github:leafto:tableshape}. Further, Python's garbage collection can become difficult to work with in a non-managed language as it was not built with embedding in mind. Lua's focus on embedded scripting interfaces; its wide-spread use in games and industrial software as a scripting interface; the simplicity to build the C-based JIT or interpreted VM; and data description capabilities drove the decision to utilize Lua for configuration. 
+
+\subsection{Lua integration}
+
+Once Lua was chosen as a scripting language, the task of integrating the language into the existing object model arose. As stated previously, there existed two main projects under consideration for wrapping C++ API into a scripting engine: luacppinterface \cite{Github:davidsiaw:luacppinterface} and sol \cite{Github:Rapptz:Sol}. When first attempting to implement a scripting interface, luacppinterface was used because it was simpler than sol. However, due to simplicity and the design of luacppinterface binding large \cxxinline{class} instances became overly complicated and migration to sol occurred. sol provided a C++11-based interface to wrap classes and functions and expose them to a Lua environment.
+
+When working with sol, several bugs were found in the implementation of the wrapper. Of significant importance was that sol in its current state would not allow passing a Lua table to the constructor of a C++ class \cite{Github:Rapptz:Sol:74}. I raised the issue and with several weeks of remaining open, the author of the library never responded. However, another GitHub user by the name of ThePhD revived the project under sol2 (herein referred to as sol) \cite{Github:ThePhD:sol2}. sol was updated to include support for C++14 features and heavily relied on inline variadic template functions to provide extremely efficient zero-cost bindings to Lua in a clean elegant syntax \cite{Github:ThePhD:sol2:benchmarks, Github:ThePhD:sol2:cxx-in-lua}. In \cref{lst:lua:sol2-example:player,lst:lua:sol2-example:usage,,lst:lua:sol2-example:bindings} sol2's capabilities are shown to simply bind the \cxxinline{class player} into Lua and utilize it within a simple toy script. Binding class properties is provided by utilizing \cxxinline{sol::property(...)} and \cxxinline{sol::readonly(...)} allowing a pattern very similar to Java Bean properties \cite{Oracle:JavaTutorial:JavaBeans}. The flexibility of overriding the operations allows for the creation of new ``syntax-like'' changes that alter the traditional behaviour of Lua operations as done with procsim.scala.
+
+\begin{listing}[hp]
+\begin{minted}{C++}
+class player {
+public:
+    int bullets;
+    
+    player(): player(3) 
+    { }
+    
+    player(int ammo)
+        : bullets(ammo), hp(10)
+    { }
+    
+    bool shoot () {
+        if (bullets < 1) 
+            return false;
+    
+        --bullets;
+        return true;
+    }
+    
+    void set_hp(int value) {
+        hp = value;
+    }
+    
+    int get_hp() const {
+        return hp;
+    }
+    
+private:
+    int hp;
+};
+\end{minted}
+\caption{\cxxinline{class player} that holds two fields, one for hitpoints (\cxxinline{hp}) and one for bullets a player has (adapted from \cite{Github:ThePhD:sol2:cxx-in-lua}).}
+\label{lst:lua:sol2-example:player}
+\end{listing}
+
+\begin{listing}[hp]
+\begin{minted}{Lua}
+-- player_script.lua
+
+-- call single argument integer constructor
+p1 = player.new(2)
+
+-- p2 is still here from being
+-- set with lua["p2"] = std::make_shared<player>(0);
+-- in cpp file
+local p2shoots = p2:shoot()
+assert(not p2shoots) -- had 0 ammo
+
+-- set variable property setter
+p1.hp = 545;
+-- get variable through property getter
+print(p1.hp);
+
+local did_shoot_1 = p1:shoot()
+print(did_shoot_1)
+print(p1.bullets)
+local did_shoot_2 = p1:shoot()
+print(did_shoot_2)
+print(p1.bullets)
+local did_shoot_3 = p1:shoot()
+print(did_shoot_3)
+
+-- can read
+print(p1.bullets)
+-- would error: is a readonly variable, cannot write
+-- p1.bullets = 20
+\end{minted}
+\caption{Utilize the \cxxinline{class player} within a Lua script (adapted from \cite{Github:ThePhD:sol2:cxx-in-lua}).}
+\label{lst:lua:sol2-example:usage}
+\end{listing}
+
+\begin{listing}[hp]
+\begin{minted}{C++}
+#include <sol.hpp>
+
+int main () {
+    sol::state lua;
+    
+    // Register usertype metatable
+    lua.new_usertype<player>( "player",
+        // 2 constructors
+        sol::constructors<player(), player(int)>(),
+        
+        // member function that returns a variable
+        "shoot", &player::shoot,
+        
+        // gets or set the value using member variable syntax
+        "hp", sol::property(&player::get_hp, &player::set_hp),
+        
+        // can only read from, not write to
+        "bullets", sol::readonly( &player::bullets )
+    );
+    
+    // set a variable "p2" with a new "player" with 0 ammo
+    // using an std::shared_ptr<>
+    lua["p2"] = std::make_shared<player>(0);
+    
+    // run the example script
+    lua.script_file("player_script.lua");
+    
+    const std::shared_ptr<player> p1 = lua["p1"];
+    std::cout << p1->hp << std::endl; // prints 545
+}
+\end{minted}
+\caption{Required bindings to allow utilization of \cxxinline{class player} from Lua (adapted from \cite{Github:ThePhD:sol2:cxx-in-lua}).}
+\label{lst:lua:sol2-example:bindings}
+\end{listing}
+
+Working with sol was not entirely without problems. Because the library was new, this author worked closely with the new author of sol, ``ThePhD,'' to implement features and verify behaviours across multiple platforms (a requirement deeply discussed within \cref{sec:lua:sec:cross-platform-development}). This author implemented tests and benchmarks on the macOS platform as ``ThePhD'' did not have access to the platform. This author worked to add continuous integration support for sol through Travis-CI \cite{TravisCI} to confirm the libraries support on platforms required for the procsim project \cite{Github:ThePhD:sol2:pr:17, Github:ThePhD:sol2:pr:18}. The contributions surrounding continuous integration improvements were re-purposed configurations from procsim provided as open-source contribution to the sol project. Within the procsim project, the development heavily tracked the cutting-edge of sol development. The project was frequently wrought with software bugs that were reported or fixed by this author. 
 
 \subsection{Configuration versus Simulation entities}
 
-The original hc12sim project shared all components between both configuration and simulation. This meant less lines of code to understand and generally made the software ``easier'' to write. However, as modules grow in size, they become more complicated to maintain. Something found in work for \cref{ch:scala-akka} was that immutable objects produce easier to reason and better performing software.
+The original hc12sim project shared all components between both configuration and simulation. This meant less lines of code to understand and generally made the software ``easier'' to write. However, as modules grow in size, they become more complicated to maintain. Something found in work for \cref{ch:scala-akka} was that immutable objects produce easier to reason and better performing software. When beginning to create bindings for the simulation entities, it became increasingly obvious that a lot of the information provided to users to reduce the cognitive load needed to specify a configuration was not required at runtime of a simulation. These values also needed to be configurable within the scripting interface but, once set, could be immutable within a simulation context.
 
+For example, when defining a \verb|Register| component, there are a multitude of values that are used when configuring an instance: 
+\begin{itemize}
+\item name - A logical name
+\item clock - The clock that this Register is bound to (Registers are sequential)
+\item readCount - Number of clock ticks this takes to read a value (required to ``slow'' down execution)
+\item writeCount - Number of clock ticks to write a value to the Register
+\item access - What type of access this register supports
+\end{itemize}
+When writing a configuration, the it is likely easier to define a \verb|clock| by its name or by a literal definition. At simulation time, the clock name does not matter, but having a reference to it matters. Further, the name of any component is useful to students but it provides no use to the simulation itself. This idea of ``higher-level configuration'' that is transformed into a ``lower-level'' representation directly mimics a compiler's approach when compiling high-level code to the compiler's intermediate representation. The intermediate representation removes superfluous information in exchange for a smaller but easier to optimize representation of the programs state which is how simulation entities should be represented.
 
-\subsection{Lua integration}
-\lipsum[1]
+% We removed half of these parameters from the ts version -- they have no use when you are treating everything
+% as I/O connections, they just aren't necessary. Want a read-only register? Don't connect something to D.
+
 
 \section{Lua-based Configuration}
 
@@ -232,13 +424,13 @@ The original hc12sim project shared all components between both configuration an
     \label{lst:lua:x86-example-3}
 \end{listing*}
 
-\lipsum[2-4]
+\lipsum[2]
 
 \section{Side-effect-based execution}
-\lipsum[1]
+\lipsum[4]
 
 \section{Technology challenges}
-\lipsum[1]
+\lipsum[3]
 
 \section{``Lessons learned''}
 \lipsum[1]
