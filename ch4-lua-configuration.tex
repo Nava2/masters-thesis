@@ -404,7 +404,14 @@ When writing a configuration, the it is likely easier to define a \verb|clock| b
 
 \section{Lua-based Configuration}
 
-\lipsum[1]
+To limit the scope of a system's configuration, procsim only exposes the following components: 
+\begin{itemize}
+    \item Registers,
+    \item Memory banks (ROM, RAM),
+    \item Clocks,
+    \item and Arithmetic operations
+\end{itemize}
+The simplification of the model allows for reduction of complexity in an attempt to reduce the cognitive load for students when creating their own processors, similar to the approach taken by \cite{Skrien2001,Garcia2009}. 
 
 \begin{listing}[hp!]
     \inputminted{lua}{./listings/x86_example.1.lua}

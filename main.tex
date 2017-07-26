@@ -4,7 +4,7 @@
 % With thanks to Mr. (soon to be Dr.) Will Robertson.
 
 
-\documentclass[12pt, twoside]{report}
+\documentclass[12pt, twoside, final]{report}
 %% Decomment next line to use PostScript fonts
 %%\UsePackage{times}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -300,8 +300,8 @@ I would like to acknowledge: Ramesh, Brad, Thomas, Kyle.
 }%\maketitle
 
 \newcommand{\makecert}{
-    \begin{spacing}{1} 
-   \setcounter{page}{2}
+\begin{spacing}{1} 
+\setcounter{page}{2}
 \vfill
 \begin{center}
 \large
@@ -387,10 +387,10 @@ Chair of the Thesis Examination Board
 \begin{preliminary}
 
 %% This generates the title page from the information given above.
-\maketitle
-\addcontentsline{toc}{chapter}{Certificate of Examination}
-\makecert
-\newpage
+%\maketitle
+%\addcontentsline{toc}{chapter}{Certificate of Examination}
+%\makecert
+%\newpage
 %\addcontentsline{toc}{chapter}{Co-Authorship Statement}
 %\coauthor{\makecoauthor}  %comment this out if none
 %\newpage
