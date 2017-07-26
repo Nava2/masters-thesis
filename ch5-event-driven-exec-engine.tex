@@ -1,6 +1,0 @@
-\chapter{Reactive Event-driven Simulation Model}
-\label{ch:event-driven-simulation}
-
-\subsubsection{Design considerations\cite{Nakamura2013}}
-
-Utilizes a simple dual-BUS architecture for address and data. Uses memory-mapped ``I/O space'' controller for a port-mapped I/O scheme. An interrupt controller is built consisting of a single register, \verb|intr| that stores information about what device interrupted. The authors used a simplified interrupt model in which only one interrupt is supported at a given time. The addition of the interrupt support required the addition of ``RETURN'' and ``CALL'' instructions to support subroutines. Any interrupt implementation must have these machine instructions specified to give the controller the ability to change execution flow whilst maintaining state of the machine. 
