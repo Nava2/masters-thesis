@@ -42,9 +42,12 @@
 
 \addbibresource{online.bib}
 \addbibresource{print.bib}
+%
+%\usepackage{algorithm}
+%\usepackage[noend]{algpseudocode}
 
 \usepackage[chapter]{minted}
-\setminted{linenos, frame=single}
+\setminted{linenos, frame=single, autogobble=true}
 
 \usepackage{etoolbox}
 \BeforeBeginEnvironment{minted}{\begin{singlespace}}

@@ -2,6 +2,7 @@
 \label{ch:lua-config}
 
 \newcommand{\cmakeinline}[1]{\mintinline{CMake}{#1}}
+\newcommand{\luainline}[1]{\mintinline{Lua}{#1}}
     
 After concluding work on procsim.scala (\cref{ch:scala-akka}), this author considered taking the lessons learned from the Scala project and attempted to apply them to the original hc12sim project \cite{Brightwell2013}. Unfortunately, the hc12sim simulator was dated, poorly designed and poorly organized due to inexperienced student work. A large portion of effort was placed in modernizing and correcting the hc12sim software to be well tested, build in a cross-platform environment and ease development and maintenance. Following these improvements, the software was renamed procsim as it was intended to be a general purpose simulation framework rather than tied to the \hcmodel{}. From working with Scala-based configurations in \cref{sec:sec:procsim-scala:configuration}, the author believed that runtime-configuration was extremely important in defining processors for students. The author chose to expand the hc12sim project and replace the JSON-based, compile-time configuration capabilities with runtime-based configurations utilizing an embedded scripting language. Within the C++ programming ecosystem, there exists many different scripting environments that can be embedded with varying degrees of difficulty, feature capabilities and execution speeds. The author investigated utilization of several scripting environments before settling on utilizing Lua \cite{Lua:Homepage} with bindings provided through sol2, a wrapper between C++ and Lua API calls \cite{Github:ThePhD:sol2}. Once Lua was selected, the author designed configuration schemas built to execute in a Lua sandbox with timing and other hardware-level considerations abstracted away from the configuration definitions as much as possible.
 
@@ -72,6 +73,7 @@ Within Jenkins, Vagrant was used to create virtual machines that acted as ``slav
 Over the course of the procsim project, the build process became more and more complicated requiring improvements in automating the build process. When writing unit tests, the original hc12sim project utilized Boost.Test \cite{Boost1.53.0:Test} for creating and running unit tests. Unfortunately, Boost.Test required library distribution which made working on platforms without software distribution systems difficult (e.g. Windows or macOS). In order to remove the final thread of Boost binary dependence, the author replaced Boost.Test with Catch \cite{CatchLib}. Catch is a header-only C++ testing framework built on top of modern C++. The single-header configuration removed the final binary dependency. Catch provides a Behaviour-Driven Development (BDD) interface that allows developers to describe the behaviour of their system within their tests creating easily understandable and clearly organized tests \cite{Solis2011}. Catch improved the mechanisms used to test and provided an easier to maintain testing suite. Catch's test runner requires that all tests are defined through C-style macros and the executable must include Catch's main through \verb|main| the \cxxinline{CATCH_CONFIG_MAIN} macro \cite{CatchLib:Tutorial}. When defining many tests, it is often useful to organize them in meaningful ``suites'' of test executables. With any testing framework, when creating multiple executables it is advantageous to share object resources to reduce compiling time -- particularly in \cxxinline{template} or \cxxinline{constexpr} heavy software.
 
 \subsection{Improving developer work flows within CMake}
+\label{sec:lua:sec:cross-platform-development:sec:cmake-flows}
 
 In \cref{sec:lua:sec:cross-platform-development}, CMake was discussed as the build tool for the procsim project. CMake utilizes \cmakeinline{OBJECT} libraries to allow multiple ``targets'' to share compiled object files and statically link against the same objects as required. These \cmakeinline{OBJECT} libraries are not the same as shared objects or DLLs and should not be treated as the same. An \cmakeinline{OBJECT} library is a CMake abstraction on top of compiled compilation units that must be statically linked into some other object. These shared \cmakeinline{OBJECT} libraries were very useful in unit test files as a common object used between each executable ``suite'' is the \verb|main| test runner. Manually specifying all of these suite instances to get individual suites and manually maintain a global ``test all'' suite was frustrating. The author developed a series of CMake macros \cite{CMake:macro} and functions \cite{CMake:function} to reduce the required commands to define tests and library files. \Cref{lst:lua:cmake-test-declaration} shows a simple shared library defined utilizing the build infrastructure described. Three functions are used to define four distinct targets: 
 \begin{enumerate}
@@ -411,33 +413,171 @@ To limit the scope of a system's configuration, procsim only exposes the followi
     \item Clocks,
     \item and Arithmetic operations
 \end{itemize}
-The simplification of the model allows for reduction of complexity in an attempt to reduce the cognitive load for students when creating their own processors, similar to the approach taken by \cite{Skrien2001,Garcia2009}. 
+The simplification of the model allows for reduction of complexity in an attempt to reduce the cognitive load for students when creating their own processors, similar to the approach taken by \cite{Skrien2001,Garcia2009}. This trade-off removes excessive components in favour of simplifying interfaces to try and improve pedagogical outcomes (\cref{req:pedagogical}). The canonical example of a Turing-complete machine is URISC popularized by \cite{Mavaddat1988} and \cref{lst:lua:urisc-example-1,lst:lua:urisc-example-2} defines the URISC machine within the procsim configuration language.
 
 \begin{listing}[hp!]
-    \inputminted{lua}{./listings/x86_example.1.lua}
-    \caption{Sample configuration showcasing a simple x86-like processor}
-    \label{lst:lua:x86-example-1}
+    \inputminted[escapeinside=||, lastline=42]{lua}{./listings/urisc.lua}
+    \caption{Configuration of the URISC processor from \cite{Mavaddat1988}.}
+    \label{lst:lua:urisc-example-1}
 \end{listing}
 
 \begin{listing*}[hp!]
-    \inputminted[firstnumber=last]{lua}{./listings/x86_example.2.lua}
-    \caption{(Continued) Sample configuration showcasing a simple x86-like processor}
-    \label{lst:lua:x86-example-2}
+    \inputminted[escapeinside=||, firstline=45]{lua}{./listings/urisc.lua}
+    \caption{(Continued) Configuration of the URISC processor from \cite{Mavaddat1988}.}
+    \label{lst:lua:urisc-example-2}
 \end{listing*}
 
-\begin{listing*}[hp!]
-    \inputminted[firstnumber=last]{lua}{./listings/x86_example.3.lua}
-    \caption{(Continued) Sample configuration showcasing a simple x86-like processor}
-    \label{lst:lua:x86-example-3}
-\end{listing*}
+Because procsim's configurations are written in Lua, they are completely programmatic. In \cref{lst:lua:urisc-example-1} on L4, a simple variable is defined that is used throughout the processor definition. While defining a numerical value of 4 is trivial, this potential expands to allow for definitions that include loops and other control flow statements to simplify definition of large sets of configurations or iteratively built configurations. This mechanic defines why these configurations are so powerful, the sample provided is shamefully inadequate. 
 
-\lipsum[2]
+Moving further into the examples, all objects use a static \luainline{new} method that accepts a Lua table of configuration values. This approach was utilized to mimic JavaScripts colloquially named ``option object'' of parameters to make it as obvious as possible what parameters are use for what parts. For each table-based function, the keys/values are validated against the expected results -- invalid or missing keys / bad value types throw informative exceptions. All instances within the configuration schema inherit from \cxxinline{class ConfObj} which defines that every instance must have a name. These names are utilized to lookup references in other referenced modules. From these names, the ``compilation'' of the configuration utilizes a two-phase compilation pattern that runs across the entire structure and creates a list of known references. These references are then utilized to create a simple topological ordering such that every modules is built before it is required to be used. 
 
-\section{Side-effect-based execution}
-\lipsum[4]
+Breaking down each component type, first is definition of a \luainline{Clock}, repeated in \cref{lst:lua:urisc:clock}. \luainline{Clock} modules must have a \luainline{period} or \luainline{frequency} -- defining one implies the other. These each have useful ``helper'' functions that allow for defining relative values. For \luainline{period}, the helper functions: \luainline{seconds()}, \luainline{millis()}, \luainline{micros()} and \luainline{nanos()} define times relative to nanoseconds. For \luainline{frequency} the style of functions exist based on Hertz. These \luainline{Clock} modules generate instances that produce ``tick'' operations based on the \luainline{period}/\luainline{frequency} and allow synchronous modules to listen for events. 
 
-\section{Technology challenges}
-\lipsum[3]
+\begin{listing}[h!]
+    \inputminted[escapeinside=||, firstline=10, lastline=13]{lua}{./listings/urisc.lua}
+    \caption{Clock configuration for the processors main clock (cut from \cref{lst:lua:urisc-example-1}).}
+    \label{lst:lua:urisc:clock}
+\end{listing}
 
-\section{``Lessons learned''}
-\lipsum[1]
+In procsim, a \luainline{Register} is a simple memory unit that stores a single value. The \luainline{PC} definition is shown in \cref{lst:lua:urisc:register}. The \luainline{width} parameter is bit-width of the \luainline{Register}'s stored value. \luainline{access} is a set of enumeration values that are used to define ``getter'' and ``setter'' methods for the ``value'' of a \luainline{Register}. If the \luainline{access} parameter is \luainline{Access.ReadWrite} then the value may be set or read. However, if the \luainline{access} for an example \luainline{Register} \luainline{R} is \luainline{Access.Write} then the following instruction code will not compile in the Lua interpreter: \luainline{local r_plus_1 = R + 1}. By setting the \luainline{access} to \luainline{Access.Write} the value can not be read from the register -- effectively disconnecting the \verb|Q| signal in traditional \luainline{Register} diagrams. procsim achieves this behaviour by not binding a ``setter'' or any arithmetic operations for the \luainline{Register} type bound through sol to the property for \luainline{proc.R} parameter utilized when defining an \luainline{Instruction} execution. The \luainline{readCount} and \luainline{writeCount} parameters define how many clock ``ticks'' it takes to read or write to the \luainline{Register} respectively. These values are utilized by the execution engine to schedule the triggering of events.
+
+\begin{listing}[h!]
+    \inputminted[escapeinside=||, firstline=17, lastline=23]{lua}{./listings/urisc.lua}
+    \caption{Register configuration for the program counter (cut from \cref{lst:lua:urisc-example-1}).}
+    \label{lst:lua:urisc:register}
+\end{listing}
+
+The second last module type available are \luainline{Memory} units. \luainline{Memory} are either read-only or read-write like \luainline{Register} values. \Cref{lst:lua:urisc:memory} shows the RAM definition for the URISC architecture. Parameters are identical to a \luainline{Register} except that they additionally have a \luainline{length} parameter that defines the length of a \luainline{Memory} in units of \luainline{width} (the word width). In the sample, the memory is 16K words wide -- below the address space available to the 16-bit addressing scheme for the URISC architecture. With a RAM, depending on the type of memory being modelled, it is often useful to have the \luainline{clock} parameter be slower than the processor clock. This models the exponentially different time taken to read from a \luainline{Register} rather than cache or worse off-chip RAM.
+
+\begin{listing}[h!]
+    \inputminted[escapeinside=||, firstline=35, lastline=42]{lua}{./listings/urisc.lua}
+    \caption{Memory unit configuration for the program counter (cut from \cref{lst:lua:urisc-example-1}).}
+    \label{lst:lua:urisc:memory}
+\end{listing}
+
+The last module defined is the processor itself through the \luainline{Proc.new()} function. The \luainline{clock} parameter defines the clock utilized by the processor itself. This value is not shared amongst internal modules unless explicitly named by another module. The \luainline{registers = {}} parameter defines a table of \luainline{Register} values that live within the \luainline{Proc}. The \luainline{memory = {}} table defines a sparse-matrix representation of the processor's memory mapping. Within the \luainline{memory} map, any memory unit may be defined at an ``address'' specified. In the URISC machine, there are no memory mapped registers, however \cref{lst:lua:memory-mapped} displays a processor with three \luainline{Register} values mapped to the first three addresses with a RAM mapped starting at address \verb|0x0010|. The \luainline{instructions} table provides a look-up table of instruction information including information in how an \luainline{Instruction} would be executed. The table provides naming information describing how a \luainline{Instruction} is compiled in object code and how the instruction will execute itself.
+
+\begin{listing}[hp!]
+    \inputminted[escapeinside=||]{lua}{./listings/memory-mapping.lua}
+    \caption{Processor utilizing memory mapping functionality.}
+    \label{lst:lua:memory-mapped}
+\end{listing}
+
+\section{Instruction definition}
+
+The \luainline{Instruction} definition is more complicated than any other module and where the best benefits are found for a programmatic configuration arises. Within the \luainline{proc:instructions} table, the \luainline{name} of the \luainline{Instruction} is calculated based on the value of the key the \luainline{Instruction} is assigned to. 
+
+\subsection{Opcode and Operand encoding}
+
+procsim allows for easily defining complex encodings for opcode and operand values. \luainline{Instruction:code} specifies the opcode of an \luainline{Instruction}. The \luainline{Code} definition describes values encoded within an opcode a traditional microarchitecture. \Cref{lst:lua:urisc:encoding} shows a cut of the encoding definition for the URISC \verb|SUBLEQ| \luainline{Instruction}. Within the \luainline{Instruction:code} parameter, the \luainline{Code} construct defines an opcode. The first parameter of \luainline{Code} is a constant value with bits that are constant in all encodings of the current instruction -- both high and low values are saved. The second parameter is a table of ``fields'' that are encoded within the opcode itself. Any key passed into the table will be extracted from the opcode at decoding time and passed into the execution handler attached as an ``operand field'' -- the \luainline{Instruction:op} parameter mimics this behaviour. With both the constant opcode and the table of fields, the code will calculate the constant bits of the opcode encoding. Once all \luainline{Instruction} values are defined, the configuration engine computes a discriminant decoding schema. When defining a field, there are several helper functions in use. Line 51 of \cref{lst:lua:urisc:encoding} includes the helper function, \luainline{u16(15)} which creates an unsigned 16-bit field at index 15\footnote{While Lua unfortunately uses a 1-based indexing scheme like MATLAB or FORTRAN, procsim uses zero-based indexes} indexed from the least-significant bit to the most-significant bit. 
+
+\begin{listing}[h!]
+    \inputminted[escapeinside=||, firstline=48, lastline=59]{lua}{./listings/urisc.lua}
+    \caption{Encoding of the opcode and operands of the \texttt{SUBLEQ} \luainline{Instruction} (cut from \cref{lst:lua:urisc-example-1}).}
+    \label{lst:lua:urisc:encoding}
+\end{listing}
+
+The decoding scheme from a table of \luainline{Instruction}s is computed by computing individual discriminants per instruction and then cross-checking each discriminant against other instructions in a pair-wise fashion. To check if two discriminants are ambiguous, mask each ``constant'' opcode with another's ``constant mask'' and vice versa and if the resultant values are equal, the constant values are equal \todo{Replace the following enumerate w/ algo}. If an ambiguous opcode is found within the \luainline{Instruction} table an exception is thrown alerting the user which instructions have ambiguous conflicts and which constant bit values are shared. Unfortunately, this verification algorithm operates in a $\text{O}(n^2)$ complexity as each operation must be compared to another. A solution utilizing a radix-based sort could reduce the search space for each constant operand -- though the complexity of each step within this computation is of trivial time, two bitwise operations, making the trade-off between readable and fast code not worthwhile. This specification scheme for encoding allows for extremely flexible ISA design but also provides a mechanism to allow users to find mistakes. By using this simplistic specification system and providing feedback for students, students will have an easier time learning why certain ISA design schemes do not work. 
+
+\begin{enumerate}
+    \item For every instruction, compute the discriminant mask for the instruction
+    \begin{enumerate}
+        \item for each field
+        \begin{enumerate}
+            \item $fmask \leftarrow fmask | (mask(field.width) << field.index)$
+        \end{enumerate}
+        \item $opMask \leftarrow ~fmask$
+        \item $descriminant \leftarrow op \text{\&} opMask$
+    \end{enumerate}
+    \item $[op, opmask, i] \leftarrow opset()$
+    \begin{enumerate}
+        \item $[op2, opmask2] \leftarrow opset.slice(i+1)$
+        \begin{enumerate}
+            \item $combinedMask \leftarrow opmask \text{\&} opmask2 $
+            \item $\text{if} ((op \text{\&} opmask2 = op2 \text{\&} opmask))$
+            \begin{enumerate}
+                \item throw exception, operations have ambiguous op codes
+            \end{enumerate}
+        \end{enumerate}
+    \end{enumerate}
+\todo[inline]{algorithmx}
+\end{enumerate}
+
+Operands for an \luainline{Instruction} are specified within the \luainline{Instruction:op} parameter. The \luainline{Instruction:op} accepts a table of key-field specifications that is identical to the one utilized by the \luainline{Code} constructor. Unlike the \luainline{Instruction:code} parameter, there is no verification for operand values. Keys within the \luainline{Instruction:code} and \luainline{Instruction:op} tables are checked for uniqueness and an exception is thrown if any keys are non-unique. The table values are ``joined'' and their widths are computed and the total size of the operand is stored for encoding into machine code. As with \luainline{Instruction:code}, the keys are extracted and from the compiled encodings and passed to the execution function. 
+
+\subsection{Instruction execution: Side-effect-based execution}
+\label{sec:lua:sec:instructions:sec:exec}
+
+The intention of the \luainline{Instruction:exec} function is to provide the schema for how an \luainline{Instruction} executes within the context of the processor and operands passed. This section discusses design but does not provide implementation details as they were not completed due to issues discussed in future sections. When students provide a \luainline{Instruction:exec} method, they are not writing the function that will directly execute within the engine. procsim.scala discussed utilizing an event-based execution schema that behaved through message passing; the \luainline{Instruction:exec} method describes a sequence of events that will register within an event queue when the \luainline{Instruction} is called. When defining the syntax, this author attempted to simplify the logic behind defining \luainline{Instructions} by converting normal Lua-operations (e.g. arithmetic) into events instead. \Cref{lst:lua:urisc:exec} defines the very simple \texttt{SUBLEQ} instruction used in the URISC architecture. This mechanism performs a process akin to compilation on the execution method by executing the function itself and utilizing side-effect operations for each Lua statement. This process allows the engine to compile in a sequential mechanism and hopefully have a higher than normal chance for student's specifications to behave identically. This does not provide a fully-asynchronous behaviour like VHDL, but does allow an execution engine to decide how events are executed. The following sub-sections describe the Lua statements found within \cref{lst:lua:urisc:exec} and how they compile to events scheduled within procsim.  
+
+\begin{listing}[h!]
+    \inputminted[escapeinside=||, firstline=61, lastline=71]{lua}{./listings/urisc.lua}
+    \caption{Execution definition for the \texttt{SUBLEQ} \luainline{Instruction} (cut from \cref{lst:lua:urisc-example-1}).}
+    \label{lst:lua:urisc:exec}
+\end{listing}
+
+\subsubsection*{Assignment}
+
+An assignment statement, \luainline{proc.R = operand.A} is identical to scheduling the following actions: 
+\begin{enumerate}
+    \item Read the rvalue \cite{cppreference:ValueCategories} of the assignment onto a BUS
+    \begin{itemize}
+        \item if the rvalue is an operand, this value is read from the decoding sequence and written to the lvalue \cite{cppreference:ValueCategories} location.
+        \item Assignment statements may be rewritten depending on order of encoding operations if and only if the assignment has no side-effects, an error is thrown otherwise
+    \end{itemize}
+    \item Write the value from the BUS into the lvalue specified
+\end{enumerate}
+Dealing with \luainline{local} variables is done by utilizing the result of any operations or assignments. These values are not traditional \texttt{integer} values, they describe ``locational'' values. For example, after an assignment, the result of an operation is a ``BusValue'' that states what is currently on the data bus if and only if the assignment is not a direct module lookup. For example, consider the following \luainline{local} assignments: 
+\begin{minted}{lua}
+-- Create an alias, B is proc.B
+local B = proc.B
+
+-- Create a `BusValue' that has the value of the operation B + A
+local C = proc.B + proc.A
+
+-- Use the value on the databus as the address into memory
+-- And store the value of that address in that location
+proc.memory[C] = C -- 'result' of this is a `BusValue' of C, still
+proc.X = proc.A + proc.B -- 'result' of this is a `BusValue' of A + B
+\end{minted}
+Implicitly created ``BusValue'' semantics allow for code reuse within implementation definitions while remaining behaviourally accurate. \luainline{local} defined variables provide a simple way for students to write ``high-level'' code to simplify their implementations.
+
+\subsubsection*{Memory Access}
+
+Memory access, \luainline{proc.memory[B]}: Memory access reads a memory location or writes to it depending on whether the access is an lvalue or rvalue. On line 65, the memory access is used as an lvalue, thus the following occurs:
+\begin{enumerate}
+    \item Address, \texttt{B}, is written to the address bus
+    \item Memory reads address \texttt{B} and writes input from data bus to \texttt{*B}
+\end{enumerate}
+If the memory access was an rvalue, instead of reading from the data bus, writing would occur. 
+    
+\subsubsection*{Arithmetic Operations}
+
+Arithmetic operations, \luainline{operand.B - proc.R}: All arithmetic operations happen through a single ALU within the procsim model. In the context of line 65, when performing the subtraction the appropriate bit flags are assigned by default to the \luainline{proc:C}, \luainline{proc:N}, and \luainline{proc:Z}. For multiplication or division operations, \luainline{proc:O} is also set. In the case of URISC, a manual ``buffer'' register of \luainline{proc:R} is utilized as the ``right-hand side'' of it's adder. In the ALU for procsim, both left and right side of a binary operation have ``buffer'' registers that can be assigned (and schedule events for these assignments following the assignment schema!). An expanded set of events for the subtraction in Line 65 would be: 
+\begin{enumerate}
+    \item Assign \luainline{proc.R} to the right-hand-side ``buffer'' of the ALU
+    \item Assign \luainline{operand.B} to the left-hand-side ``buffer'' of the ALU
+    \item Assign the ALU operation selection signal to ``subtract'' (add after two's complement of right-hand-side)
+    \item If and only if the value is assigned to an lvalue,
+    \begin{enumerate}
+        \item Assign the result of the subtraction result to the data bus
+        \item Store the data bus line value to the location of the lvalue
+    \end{enumerate}
+\end{enumerate}
+
+\section{Project design and technical flaws}
+
+\subsection{Compiler strain}
+
+While utilizing Lua gave a massive boost in power, speed and functionality of runtime configuration over the previous procsim project, it has large costs to developer productivity. Unfortunately, with the amount of software bugs found in the sol library and time spent fixing them, it was a slow process to implement features within the library. Given that sol utilizes high-level variadic template functions to implement its features, this causes most compilers to begin to exponentially increase the time taken to compile \cite{Github:ThePhD:sol2:issue:126, Github:ThePhD:sol2:issue:295, Github:ThePhD:sol2:compilation}. These compilation issue drove compilation times from under 10 minute for a clean build to over 40 minutes as more and more Lua accesses were added. The work completed in \cref{sec:lua:sec:cross-platform-development:sec:cmake-flows} was started with the goal to try and appease these compiler constraints as reductions in objects to compile would reduce the over-all compiling times -- linking times were inconsequentially affected by sol's combinatorial explosion. In addition to changing how the software was built, as little information was placed into headers as possible when declaring Lua wrappers. This approach allowed for hiding implementations and forcing the compilers to reuse template instantiations as best as possible. However, the times were still unable to lowered below approximately 20 minutes for a clean build. Since this occuring, ``ThePhD'' has added a feature known as \cxxinline{simple_usertype<T>} which provides a runtime-binding mechanism that severely reduces code size and memory contention in most compilers \cite{Github:ThePhD:sol2:simple-usertype}. At the time, the \cxxinline{simple_usertype<T>} has significant performance penalties at runtime that have since been removed. 
+
+\subsection{Loss of pedagogical gains}
+
+As mentioned in \cref{sec:lua:sec:instructions:sec:exec}, side-effect-based compilation was not fully implemented. As the features were developed, it became obvious that the ``high-level'' software approach produced a significant hiding of the hardware utilization happening behind the scenes. In revisiting other tools such as CPU Sim \cite{Skrien2001}, this author realized that the ``lifting of the black box'' was not being lifted but merely having several layers taken off. The model of side-effect-based compilation is extremely powerful and useful as a productivity tool, but it does not benefit students as it hides a lot of wiring details from students. Students do not need to consider design topics surrounding control signals or control unit algorithms. This is particularly evidenced by comparing the model in \cref{lst:lua:urisc-example-1,,lst:lua:urisc-example-2} with \cref{fig:mavaddat1988-urisc-control-unit}. The control unit displayed by \cref{fig:mavaddat1988-urisc-control-unit} is not inherently complicated, but it provides a significant design challenge for students to implement it themselves. The procsim configuration does not have any of these signals included and implicitly provides many of them. This author believes this to be a direct counter to the pedagogical \cref{req:pedagogical}. The schema and ease of use of the procsim configurations is very high-level and these mechanics should be applied in future work, however they provide too many implicit data points to allow students to get their ``hands dirty'' -- a concern echoed by many \cite{Skrien2001,Garcia2009,Ackovska2014,Black2013}.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\linewidth]{img/mavaddat1988-urisc-control-unit}
+    \caption{Control unit for the 16-bit URISC architecture from \cite[p.~331]{Mavaddat1988}.}
+    \label{fig:mavaddat1988-urisc-control-unit}
+\end{figure}
