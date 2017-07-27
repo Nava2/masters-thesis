@@ -281,67 +281,69 @@ The \luainline{Instruction} definition is more complicated than any other module
 
 procsim allows for easily defining complex encodings for opcode and operand values. \luainline{Instruction:code} specifies the opcode of an \luainline{Instruction}. A \luainline{Code} definition describes values encoded within an opcode a traditional microarchitecture. \Cref{lst:lua:urisc:encoding} shows a cut of the encoding definition for the URISC \texttt{SUBLEQ} \luainline{Instruction}. Within the \luainline{Instruction:code} parameter, the \luainline{Code} construct defines an opcode. The first parameter of \luainline{Code}'s constructor is a constant value with bits that remain constant in all encodings of the current instruction -- both high and low values are saved. The second parameter is a table of ``fields'' that are encoded within the opcode itself. Any key passed into the table will be extracted from the opcode at decoding time and passed into the execution handler attached as an ``operand field.'' With both the constant opcode and the table of fields, \luainline{Code.new{}} calculates the constant bits of the opcode encoding. Once all \luainline{Instruction} values are defined for a \luainline{Proc}, the configuration engine computes a discriminant decoding schema. When defining a field, there are several helper functions in use. Line 51 of \cref{lst:lua:urisc:encoding} includes the helper function, \luainline{u16(15)} which creates an unsigned 16-bit field at index 15\footnote{While Lua uses a 1-based indexing scheme like MATLAB or FORTRAN, procsim uses zero-based indexes to match C.} indexed from the least-significant bit to the most-significant bit. The naming scheme for the primitive field definitions are named using the Rust programming languages names for primitive types as they are unambiguous in their context and short \cite{Rust:PrimitiveTypes:Numeric}.
 
-\begin{listing}[h!]
+\begin{listing}[hb]
     \inputminted[escapeinside=||, firstline=48, lastline=59]{lua}{./listings/urisc.lua}
     \caption{Encoding of the opcode and operands of the \texttt{SUBLEQ} \luainline{Instruction} (cut from \cref{lst:lua:urisc-example-1}).}
     \label{lst:lua:urisc:encoding}
 \end{listing}
 
-The decoding scheme for a processor specification is computed from the table of \luainline{Instruction}s in \luainline{Proc:instructions} by computing individual discriminants per instruction and then cross-checking each discriminant against other instructions in a pair-wise fashion. To check if two discriminants are ambiguous, mask each ``constant'' opcode with another's ``constant mask'' and vice versa and if the resultant values are equal, the constant values are equal implying there is an ambiguous opcode specified. If an ambiguous opcode is found within the \luainline{Instruction} table an exception is thrown alerting the user which instructions have ambiguous conflicts and which constant bit values are shared. Unfortunately, this verification algorithm operates in a $\text{O}(n^2)$ complexity as each operation must be compared to another. A solution utilizing a radix-based sort could reduce the search space for each constant operand to make the algorithm $\text{O}(n \log n)$ \cite{Goodrich2014} -- though the complexity of each step within this computation is of trivial time due to consisting of two bitwise operations, making the trade-off between readable and fast code not worthwhile. This specification scheme for encoding allows for extremely flexible ISA design but also provides a mechanism to allow students to find and recover from mistakes. By using this simplistic specification system and providing feedback for students, students will have an easier time learning why certain ISA design schemes do not work. 
+The decoding scheme for a processor specification is computed from the table of \luainline{Instruction}s in \luainline{Proc:instructions} by computing individual discriminants per instruction and then cross-checking each discriminant against other instructions in a pair-wise fashion. To check if two discriminants are ambiguous, mask each ``constant'' opcode with another's ``constant mask'' and vice versa and if the resultant values are equal, the constant values are equal implying there is an ambiguous opcode specified. \Cref{alg:lua:opcode-verification} details the full computation used to verify ambiguous opcode specifications. If an ambiguous opcode is found within the \luainline{Instruction} table an exception is thrown alerting the user which instructions have ambiguous conflicts and which constant bit values are shared. Unfortunately, this verification algorithm operates in a $\text{O}(n^2)$ complexity as each operation must be compared to another. A solution utilizing a radix-based sort could reduce the search space for each constant operand to make the algorithm $\text{O}(n \log n)$ \cite{Goodrich2014} -- though the complexity of each step within this computation is of trivial time due to consisting of two bitwise operations, making the trade-off between readable and fast code not worthwhile. This specification scheme for encoding allows for extremely flexible ISA design but also provides a mechanism to allow students to find and recover from mistakes. By using this simplistic specification system and providing feedback for students, students will have an easier time learning why certain ISA design schemes do not work. 
 
-\begin{enumerate}
-    \item For every instruction, compute the discriminant mask for the instruction
-    \begin{enumerate}
-        \item for each field
-        \begin{enumerate}
-            \item $fmask \leftarrow fmask | (mask(field.width) << field.index)$
-        \end{enumerate}
-        \item $opMask \leftarrow ~fmask$
-        \item $descriminant \leftarrow op \text{\&} opMask$
-    \end{enumerate}
-    \item $[op, opmask, i] \leftarrow opset()$
-    \begin{enumerate}
-        \item $[op2, opmask2] \leftarrow opset.slice(i+1)$
-        \begin{enumerate}
-            \item $combinedMask \leftarrow opmask \text{\&} opmask2 $
-            \item $\text{if} ((op \text{\&} opmask2 = op2 \text{\&} opmask))$
-            \begin{enumerate}
-                \item throw exception, operations have ambiguous op codes
-            \end{enumerate}
-        \end{enumerate}
-    \end{enumerate}
-\todo[inline]{algorithmx}
-\end{enumerate}
 
-%\begin{algorithm}
-%    \caption{Proposed Trust-based Cross-layer Malicious Packet Loss Detection Algorithm}
-%    \label{Trust-based Cross-layer IDS}
-%    \begin{algorithmic}[1]
-%        \Statex \textbf{Input}: No. of forwarded packets and No. of received packets,
-%        N=No. of nodes in the network, M=No. of neighbor nodes to node I, node k drops the packets
-%        \Statex \textbf{Output}: Malicious Node Detection
-%        \Statex \textbf {Step 1: \emph{Derive a suspicious list}}
-%        \For{$i=0$  to $N$}
-%        \For{$j=0$  to $M$ $and$ $j \neq i$}
-%        \State Check neighbor table for node $i$
-%        \State Calculate Trust $T_{i}^{j}$ for all neighbor nodes
-%        \If {$0 < T^{j}_{i} < Threshold$}
-%        \Return \State {Put node $j$ in the not trusted list}
-%        \ElsIf {$T^{j}_{i} > Threshold$}
-%        \Return \State {Put node $j$ in the suspicious list}
-%        \Else \Return \State {Eliminate the node from neighbor nodes}
-%        \EndIf
-%        \EndFor
-%        \EndFor 
-%        \Statex \textbf {Step 1: \emph{Detect malicious node}}
-%        \While {$No.~of~recieved~packets~by~j \neq No.~of~forwarded~packets~by~i$} 
-%        \If {node $k$ is in supicious list}
-%        \Return \State {node $k$ is malicious}
-%        \Else \Return \State {Eliminate trust value of node $k$} 
-%        \EndIf
-%        \EndWhile
-%    \end{algorithmic}
-%\end{algorithm}
+\begin{algorithm}
+    \caption{ISA opcode verification algorithm to find ambiguous opcode definitions}
+    \label{alg:lua:opcode-verification}
+    \begin{algorithmic}[1]
+        \Statex \textbf{Input}: $ins$ = Array of Instruction definitions
+        \Statex \textbf{Output}: Array of Instruction definition pairs with ambiguous opcode values.
+        
+        \Statex \textbf{Step 1: \emph{Compute a discriminant mask for each Instruction}}
+        
+        \State Define a buffer for computed discriminants and masks
+        \State $insBuffer \gets \left[\right]$
+        \ForAll{$i \in ins$}
+            
+            \State Build a mask for field location in the opcode
+            \State $fieldMask \gets 0$
+            \\
+            \ForAll{$field \in i.fields$}
+                \State Compute the field's bit mask
+                \State $currentMask \gets \left( \text{mask}\left( field.width \right) \ll field.index \right)$
+                \\
+                \State Mask the current field's mask with the overall field mask
+                \State $fieldMask \gets field.mask \mathrel{|} currentMask$
+            \EndFor
+            \\
+            \State Compute the constant bits of the opcode, bits that are not part of fields
+            \State $opcodeMask \gets \textbf{not}~fieldMask$
+            \State $discriminant \gets ins.opcode$
+            \\
+            \State Store the discriminant and mask
+            \State $insBuffer.push\left( \left[ins, disciminant, opcodeMask \right] \right)$
+        \EndFor
+        
+        \Statex\textbf{Step 2: \emph{Use the computed masks to search for ambiguities}}
+        \State $ambiguous \gets \left[\right]$
+        \State Perform a cross-validation of Instruction values
+        \ForAll{$[computed1,~index] \in insBuffer$ }
+            \ForAll{$computed2 \in insBuffer\left[index+1:\right]$}
+                
+                \State Unpack the computed values
+                \State $[ins1,~ discriminant1,~ opcodeMask1] \gets computed1$
+                \State $[ins2,~ discriminant2,~ opcodeMask2] \gets computed2$
+                \\
+                \State Compute a combined opcode mask
+                \State $cMask \gets opcodeMask1 \mathrel{\&} opcodeMask2$
+                \If{$\left(discriminant1 \mathrel{\&} cMask\right) = \left(discriminant2 \mathrel{\&} cMask\right)$}
+                    \State The two opcodes are ambiguous if equal
+                    \State $ambiguous.push\left(\left[ins1, ins2, cMask\right]\right)$
+                \EndIf
+            \EndFor
+        \EndFor
+        
+        \Return{ $ambiguous$ }
+    \end{algorithmic}
+\end{algorithm}
 
 Operands for an \luainline{Instruction} are specified within the \luainline{:op} parameter table. \luainline{:op} accepts a table of key to field specifications that behaves identically to the parameter in \luainline{Code.new()}. Unlike the \luainline{:code} parameter, there is no verification for operand values. Keys within the \luainline{:code} and \luainline{:op} tables are checked for uniqueness and an exception is thrown if any keys are non-unique. The table values are ``joined'' and their widths are computed and the total size of the operand is stored for encoding into machine code. As with \luainline{:code}, the keys are extracted and from the compiled encodings and passed to the execution function. 
 
@@ -414,7 +416,7 @@ Arithmetic operations, e.g. \luainline{operand.B - proc.R}, happen through a sin
 
 \subsection{Compiler strain}
 
-While utilizing Lua gave a massive boost in power, speed and functionality of runtime configuration over the previous hc12sim project, it has large costs to developer productivity. Unfortunately, with the amount of software bugs found in the sol library and time spent fixing them, it was a slow process to implement features within the library. Given that sol utilizes high-level variadic template functions and SFINAE compile-time calculations and method resolution techniques \cite{cppreference:SFINAE} to implement most of its features, sol causes most compilers to begin to exponentially increase the time taken to compile \cite{Github:ThePhD:sol2:issue:126, Github:ThePhD:sol2:issue:295, Github:ThePhD:sol2:compilation}. sol's inherent compilation growth caused compilation times for procsim to grow from under 10 minute for a clean build to over 40 minutes as more Lua wrapped functionality was added. More over, the use of templated and SFINAE mechanics caused compiler errors that were near impossible to decipher due to the raw amount of template instantiations present making small errors take massive amounts of time to decipher often resulting in a ``try it and see'' approach to fixing compiler errors. The work completed in \cref{sec:cross-platform:sec:cross-platform-development:sec:cmake-flows} was started with the goal to try and appease these compiler constraints as reductions in objects to compile would reduce the over-all compiling times -- linking times were inconsequentially affected by sol's combinatorial explosion. In addition to changing how the software was built, as little information was placed into headers as possible when declaring Lua wrappers. This approach allowed for hiding implementations and forcing the compilers to reuse template instantiations as best as possible. However, the times were still unable to lowered below approximately 20 minutes for a clean build. ``ThePhD'' has since created a feature known as \cxxinline{simple_usertype<T>} which provides a runtime-binding mechanism that severely reduces code size and memory contention in most compilers \cite{Github:ThePhD:sol2:simple-usertype}. At the time, the \cxxinline{simple_usertype<T>} had significant performance penalties at runtime that have since been removed. The performance penalties of \cxxinline{simple_usertype<T>} were severe enough to impede use within the procsim library.
+While utilizing Lua gave a massive boost in power, speed and functionality of runtime configuration over the previous hc12sim project, it has large costs to developer productivity. Unfortunately, with the amount of software bugs found in the sol library and time spent fixing them, it was a slow process to implement features within the library. Given that sol utilizes high-level variadic template functions and SFINAE compile-time calculations and method resolution techniques \cite{cppreference:SFINAE} to implement most of its features, sol causes most compilers to begin to exponentially increase the time taken to compile \cite{Github:ThePhD:sol2:issue:126, Github:ThePhD:sol2:issue:295, Github:ThePhD:sol2:compilation}. sol's inherent compilation growth caused compilation times for procsim to grow from under 10 minute for a clean build to over 40 minutes as more Lua wrapped functionality was added. More over, the use of templated and SFINAE mechanics caused compiler errors that were near impossible to decipher due to the raw amount of template instantiations present making small errors take massive amounts of time to decipher often resulting in a ``try it and see'' approach to fixing compiler errors. The work completed in \cref{sec:cross-platform:sec:cmake-flows} was started with the goal to try and appease these compiler constraints as reductions in objects to compile would reduce the over-all compiling times -- linking times were inconsequentially affected by sol's combinatorial explosion. In addition to changing how the software was built, as little information was placed into headers as possible when declaring Lua wrappers. This approach allowed for hiding implementations and forcing the compilers to reuse template instantiations as best as possible. However, the times were still unable to lowered below approximately 20 minutes for a clean build. ``ThePhD'' has since created a feature known as \cxxinline{simple_usertype<T>} which provides a runtime-binding mechanism that severely reduces code size and memory contention in most compilers \cite{Github:ThePhD:sol2:simple-usertype}. At the time, the \cxxinline{simple_usertype<T>} had significant performance penalties at runtime that have since been removed. The performance penalties of \cxxinline{simple_usertype<T>} were severe enough to impede use within the procsim library.
 
 \subsection{Loss of pedagogical gains for high- versus low-level constructs}
 

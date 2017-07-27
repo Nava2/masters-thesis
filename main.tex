@@ -43,8 +43,6 @@
 \addbibresource{online.bib}
 \addbibresource{print.bib}
 
-\usepackage{algorithm, algpseudocode}
-
 \usepackage[chapter]{minted}
 \setminted{linenos, frame=single, autogobble=true}
 
@@ -53,6 +51,9 @@
 \AfterEndEnvironment{minted}{\end{singlespace}}
 \BeforeBeginEnvironment{displayquote}{\begin{singlespace}}
 \AfterEndEnvironment{displayquote}{\end{singlespace}}
+
+% MUST be defined after {minted}
+\usepackage{algorithm, algpseudocode}
 
 \usepackage{comment}
 
