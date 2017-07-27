@@ -42,9 +42,8 @@
 
 \addbibresource{online.bib}
 \addbibresource{print.bib}
-%
-%\usepackage{algorithm}
-%\usepackage[noend]{algpseudocode}
+
+\usepackage{algorithm, algpseudocode}
 
 \usepackage[chapter]{minted}
 \setminted{linenos, frame=single, autogobble=true}
@@ -52,6 +51,8 @@
 \usepackage{etoolbox}
 \BeforeBeginEnvironment{minted}{\begin{singlespace}}
 \AfterEndEnvironment{minted}{\end{singlespace}}
+\BeforeBeginEnvironment{displayquote}{\begin{singlespace}}
+\AfterEndEnvironment{displayquote}{\end{singlespace}}
 
 \usepackage{comment}
 
@@ -452,8 +453,9 @@ This is a really silly abstract.
 \include{ch1-introduction}
 \include{ch2-prev-other-work}
 \include{ch3-scala-akka}
-\include{ch4-lua-configuration}
-\include{ch5-conclusion}
+\include{ch4-cross-platform}
+\include{ch5-lua}
+\include{ch6-conclusion}
 
 %% This adds a line for the Bibliography in the Table of Contents.
 \addcontentsline{toc}{chapter}{Bibliography}
