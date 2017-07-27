@@ -4,7 +4,7 @@
 % With thanks to Mr. (soon to be Dr.) Will Robertson.
 
 
-\documentclass[12pt, twoside, final]{report}
+\documentclass[12pt, twoside]{report}
 %% Decomment next line to use PostScript fonts
 %%\UsePackage{times}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -381,13 +381,12 @@ Chair of the Thesis Examination Board
 %% "\input{filename}" to input it here.
 \input{commands}
 
-
-
 \makeatother
 \begin{document}
 
 %% This sets the page style and numbering for preliminary sections.
 \begin{preliminary}
+\begin{singlespace}
 
 %% This generates the title page from the information given above.
 %\maketitle
@@ -409,7 +408,8 @@ This is a really silly abstract.
 \vfill
 \textbf{Keywords:} Time series analysis, data mining
 \newpage
-\tableofcontents\newpage
+\tableofcontents
+\newpage
 \newpage
 \addcontentsline{toc}{chapter}{List of Figures}
 \listoffigures
@@ -434,6 +434,7 @@ This is a really silly abstract.
 \todototoc
 \listoftodos
 \fi
+\end{singlespace}
 \end{preliminary}
 %% End of the preliminary sections: reset page style and numbering.
 
