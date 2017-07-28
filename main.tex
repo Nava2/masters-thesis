@@ -49,8 +49,10 @@
 \usepackage{etoolbox}
 \BeforeBeginEnvironment{minted}{\begin{singlespace}}
 \AfterEndEnvironment{minted}{\end{singlespace}}
-\BeforeBeginEnvironment{displayquote}{\begin{singlespace}}
-\AfterEndEnvironment{displayquote}{\end{singlespace}}
+\BeforeBeginEnvironment{displayquote}{\begin{spacing}{1.5}}
+\AfterEndEnvironment{displayquote}{\end{spacing}}
+\BeforeBeginEnvironment{textquote}{\begin{spacing}{1.5}}
+\AfterEndEnvironment{textquote}{\end{spacing}}
 
 % MUST be defined after {minted}
 \usepackage{algorithm, algpseudocode}
@@ -388,7 +390,7 @@ Chair of the Thesis Examination Board
 
 %% This sets the page style and numbering for preliminary sections.
 \begin{preliminary}
-\begin{singlespace}
+\begin{spacing}{1.5}
 
 %% This generates the title page from the information given above.
 %\maketitle
@@ -436,7 +438,7 @@ This is a really silly abstract.
 \todototoc
 \listoftodos
 \fi
-\end{singlespace}
+\end{spacing}
 \end{preliminary}
 %% End of the preliminary sections: reset page style and numbering.
 
