@@ -17,7 +17,7 @@ return {
             PC = Register.new {
                 width = wordWidth,
                 access = Access.ReadWrite,
-                clock = "cpu",
+                clock = "cpu", -- Previously defined
                 readCount = 1,
                 writeCount = 1
             },
@@ -30,7 +30,7 @@ return {
                 writeCount = 1
             },
         },
-
+        -- Define a memory mapping
         memory = {
             0x0000 = Memory.new {
                 width = wordWidth,
@@ -41,20 +41,20 @@ return {
                 writeCount = 1
             },
         }
-
+        -- Instruction table specification
         instructions = {
             -- SUBLEQ
             SUBLEQ = Instruction.new {
                 -- AAAA BBBB PPPP
-                code = Code.new(0, -- no constant
+                code = Code.new(0, -- no constant values
                     {
-                        A = u16(15),
+                        A = u16(15), -- A operand
                     }),
 
                 -- Word width is 16, so operands need to be
                 -- defined outside the opcode
                 op = {
-                    B = u16(31), -- B
+                    B = u16(31), -- B operand
                     P = u16(15)  -- JUMP address
                 },
 

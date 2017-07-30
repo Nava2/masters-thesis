@@ -17,7 +17,7 @@ local X = Register.new {
 
 return {
     proc = Proc.new {
-        name = "memor-mapped",
+        name = "memory-mapped",
         clock = Clock.new {
             name = "cpu",
             period = millis(1),
@@ -30,6 +30,7 @@ return {
             X = X
         },
 
+        -- Memory map for addressable registers
         memory = {
             0x0000 = A,
             0x0001 = B,
