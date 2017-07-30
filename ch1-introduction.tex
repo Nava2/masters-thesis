@@ -73,7 +73,7 @@ At \uwo{}, students in all programs in Electrical \& Computer Engineering must t
         Low           & \%       & 0.0                      & 8.9                      & 5.4                       \\ 
         Total         & \#       & 59                       & 90                       & 149                       \\ \hline
     \end{tabular}
-    \caption{ECE 3375 Course ``Level of enthusiasm before taking the course'' as reported by undergraduate students \cite{evals:ece3375-2013, evals:ece3375-2014}} 
+    \caption{ECE 3375 Course ``Level of enthusiasm before taking the course'' as reported by undergraduate students \cite{evals:ece3375-2013, evals:ece3375-2014}.} 
     \label{table-course-enthusiasm-ece3375}
     \todofig{Update with 2015/2016 data if provided}
 \end{table}
@@ -83,17 +83,16 @@ At \uwo{}, students in all programs in Electrical \& Computer Engineering must t
     \centering
     \begin{subfigure}{.8\linewidth}
         \centering
-        \includegraphics[width=.8\linewidth]{img/course-sentiment-ece-3375}
+        \includegraphics[width=.85\linewidth]{img/course-sentiment}
         \caption{Overall Course Sentiment}
         \label{fig:ece-3375-course-sentiment}
     \end{subfigure}
     
     \begin{subfigure}{.8\linewidth}
         \centering
-        \includegraphics[width=.8\linewidth]{img/lab-sentiment-ece-3375}
+        \includegraphics[width=.85\linewidth]{img/lab-sentiment}
         \caption{Lab Sentiment}
         \label{fig:ece-3375-lab-sentiment}
-        \todofig{Fix chart formatting, names}
     \end{subfigure}
     
     \caption{ECE 3375 - Course Sentiment Analysis\cite{evals:ece3375-2013, evals:ece3375-2014}}
@@ -188,8 +187,7 @@ While the formalization is accurate, \textquote[\cite{Skillen2011}]{striking the
 
 \begin{figure}[!hp]
     \centering
-    \includegraphics[width=.8\linewidth]{img/stack-overflow-os-share}
-    \todofig{Make this a stacked bar graph}
+    \includegraphics[width=.7\linewidth]{img/stack-overflow-os-share}
     
     \begin{table}[H]
         \centering
@@ -219,18 +217,43 @@ As stated within the Computer Engineering Curricula 2016:
 
 Lastly, over-arching \Cref{req:modern} is to attempt to reduce the overhead gap of working with new tools by reducing differences in features for students. Reducing the overall cognitive load by integrating similar styles and controls to existing tools within interfaces will reduce the cognitive load for students which should in turn improve learning outcomes \cite{Chalmers2003, Mavaddat1988}.
 
-\section{List of Contributions}
+\section{Contributions}
 
-This thesis provides the following contributions:
-\begin{listing}
-    \item Designed an asynchronous actor-based model for simulation of a custom processor architecture using distributed computing framework Akka
+This thesis is presented in an additional \numberstringnum{\numexpr\totvalue{chapter} - 1\relax} chapters. This thesis discusses technical topics regarding: existing and future pedagogical simulation technologies; development of web applications on modern platforms; building cross-platform native applications; and integration of scripting languages as configuration engines within a native application. We summarize the contributions to each in the following sections.
+
+\subsection{Survey of other and previous works}
+
+Within this section, we provide a quantitative survey of existing simulator technologies in use today analysed against the requirements outlined in \cref{sec:problem-statement}.
+
+\subsection{procsim.scala: a Scala-based event-driven processor simulator for the modern web}
+
+We investigate utilizing Scala and it's compiler back-end Scala.js to build a massively parallel processor simulator for the modern web. Within this investigation, we showcase the following contributions: 
+
+\begin{itemize}
+    \item A design for an asynchronous actor-based model for simulation of a custom processor architecture using distributed computing framework Akka
     \item A runtime, compiled VHDL-like DSL for specification of instructions within a custom ISA on top of Scala in the Java Virtual Machine and Scala.js
-    \item Constructed automated platform-specific testing infrastructure using Virtual Machines provisioned with Vagrant and Oracle VirtualBox automated with Jenkins' Pipeline architecture
-    \item Developed a collection of project-based CMake scripts to isolate build targets while improving build times, reducing manual configuration and modularizing test specification
-    \item Designed a runtime configuration specification for custom processor architectures through Lua scripts
-    \item Implemented state-machine-like representation of a processor instruction execution specified through ``compiling'' a Lua function to microinstructions
-\end{listing}
+\end{itemize}
+
+\subsection{Developing cross-platform C++ applications}
+
+We discuss an anecdotal account of refactoring the hc12sim project into a modern C++ environment. We discuss topics involving: developing a multi-platform project and providing adequate quality assurance, improving CMake through custom build scripts, and improving application build times through optimization of build artefact selection. The contributions outlined within this section are: 
+
+\begin{itemize}
+    \item An automated platform-specific testing infrastructure using Virtual Machines provisioned with Vagrant and Oracle VirtualBox automated with Jenkins' Pipeline architecture
+    \item A collection of project-based CMake scripts to isolate build targets while improving build times, reducing manual configuration and modularizing test specification
+\end{itemize}
+
+\subsection{Lua-based configuration-driven processor simulation}
+
+We discuss the use of scripting engines in a native C++ application and their integration points; utilizing Lua as a scripting language within an application; implementation of an application while developing integration tools in parallel; and the pedagogical gains of a high-level language utilized for teaching low-level concepts. We provide the following contributions:
+
+\begin{itemize}
+    \item A design for a runtime configuration specification for custom processor architectures through Lua scripts
+    \item A state-machine-like representation of a processor instruction execution specified through ``compiling'' a Lua function to microinstruction events
+\end{itemize}
 
 \section{Outline} 
 
-This thesis is presented in an additional \numberstringnum{\numexpr\totvalue{chapter} - 1\relax} chapters. \Cref{ch:prev-other-work} presents work completed prior to this thesis as part of an undergraduate capstone project known as hc12sim. Further, \cref{ch:prev-other-work} includes a survey of existing simulation solutions evaluated against the requirements in \cref{sec:problem-statement}. In \cref{ch:scala-akka} we discuss a the development of a Scala-based processor running on top of the Akka distributed actor framework within a web browser environment through Scala.js. In \cref{ch:cross-platform}, we discuss the steps taken to develop a cross-platform C++ application through continuous integration tools and consistent Virtual Machine specification through Vagrant. Additionally, \cref{ch:cross-platform} discusses a custom set of CMake scripts to automate specification of project components within a multi-project build environment that improves isolation of targets  and flexible build mechanisms. In \cref{ch:lua}, we develop a C++-based simulator built from the original hc12sim project covered in \cref{sec:review-prev-hc12}. We define a configuration specification based on Lua, an embedded scripting language, and a mechanism for specification of instruction execution that utilizes Lua's scripting engine. Lastly, \cref{ch:conclusion} provides conclusions and recommendations for future work. 
+\todo[inline]{Is the previous section better and more direct?}
+
+In \cref{ch:scala-akka} we discuss a the development of a Scala-based processor running on top of the Akka distributed actor framework within a web browser environment through Scala.js. In \cref{ch:cross-platform}, we discuss the steps taken to develop a cross-platform C++ application through continuous integration tools and consistent Virtual Machine specification through Vagrant. Additionally, \cref{ch:cross-platform} discusses a custom set of CMake scripts to automate specification of project components within a multi-project build environment that improves isolation of targets  and flexible build mechanisms. In \cref{ch:lua}, we develop a C++-based simulator built from the original hc12sim project covered in \cref{sec:review-prev-hc12}. We define a configuration specification based on Lua, an embedded scripting language, and a mechanism for specification of instruction execution that utilizes Lua's scripting engine. Lastly, \cref{ch:conclusion} provides conclusions and recommendations for future work. 

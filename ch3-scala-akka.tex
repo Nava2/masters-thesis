@@ -1,4 +1,4 @@
-\chapter{procsim.scala: a Scala-based processor simulator for the modern web}
+\chapter{procsim.scala: a Scala-based event-driven processor simulator for the modern web}
 \label{ch:scala-akka}
 
 \newcommand{\scalainline}[1]{\mintinline{scala}{#1}}
@@ -55,42 +55,61 @@ The first goal of procsim.scala was to introduce a DSL for defining modules and 
 
 The author achieved runtime-configuration of a system by utilizing Scala's built-in reflection toolbox \cite{Scala-Reflection}. Scala defines reflection as \textquote[\cite{Scala-Reflection}]{the ability of a program to inspect, and possibly even modify itself.} Self modification of running code is the primary feature required for runtime configuration of a model without utilizing separate compiler tool-chains and processes. Scala's reflection tools allow for a developer to write code as a \mintinline{scala}{String} and execute the result, storing any and all state produced by the ``sub-program.'' This feature allows students to specify code in a configuration editor interface and have the software provide Scala-based compilation feedback and JVM-level performance. Two listings are provided: \cref{lst:procsim-scala:concrete-instruction-def,,lst:procsim-scala:reify-instruction-def}, each shows the definition of the same simple instruction. The syntax used for assignment is meant to mimic the syntax used in VHDL to ``connect'' two modules. \Cref{lst:procsim-scala:concrete-instruction-def} utilizes a normal Scala class to define these operations, but \cref{lst:procsim-scala:reify-instruction-def} uses runtime-reification to parse a \scalainline{String}, producing a result with the same functionality as \cref{lst:procsim-scala:concrete-instruction-def}. In small micro-benchmarks, an initial overhead for parsing the \scalainline{String} and compiling it to run within the JVM at runtime was found, however there appears to be no performance penalty to execute code found within a reified construct. These test benches utilized primitive timing mechanisms and accounted for the JVM's JIT warm-up time. Micro-benchmarks proved that it is possible to have complete runtime-based, and compiled configurations within a Scala application without utilizing a secondary compiler tool-chain. The examples shown have the ability to be expanded to mimic the capabilities found in simulators like TinyCSE \cite{Nakamura2013, McLoughlin2010}, reducing the overall knowledge required but still giving students the feeling of ``hands-on'' instruction modification meeting configuration \cref{req:configuration}.
 
-\begin{listing}[ht!]
-    \todo[inline]{Fix sub-listing and references}
-\begin{minipage}{0.45\textwidth}
-    \begin{minted}{scala}
-    import net.navatwo._
-    
-    class Concrete extends Instruction {
-    def exec(cpu: CPU) = {
-    import cpu._
-    A <= 5     // set A = 5
-    B <= A + 1 // set B = A + 1 (6)
-    }
-    }
-    val cIns = new Concrete
-    \end{minted}
-    \caption{Simple instruction that initializes values in registers defined through a Scala class definition.}
-    \label{lst:procsim-scala:concrete-instruction-def}
-\end{minipage}
-\begin{minipage}{0.45\textwidth}
-    \begin{minted}{scala}
-    import scala.reflect.runtime.{universe => u}
-    val tb = mirror.mkToolBox()
-    val tree = tb.parse("import net.navatwo._; " +
-    "new Instruction { " +
-    "def exec(cpu: CPU) = {" +
-    "import cpu._;" +
-    "A <= 5; " +
-    "B <= A + 1;" +
-    "}" +
-    "}; ")
-    val sIns = tb.eval(tree).asInstanceOf[Instruction]
-    \end{minted}
-    \caption{String-based reified instruction that mimics \cref{lst:procsim-scala:concrete-instruction-def}'s functionality.}
-    \label{lst:procsim-scala:reify-instruction-def}
-\end{minipage}
-\end{listing}
+
+\begin{figure}[!h]
+    \begin{minipage}{0.5\textwidth}
+        \centering
+        \begin{minted}[breaklines, breakafter=.]{scala}
+        import net.navatwo._
+        
+        
+        
+        
+        class Concrete extends Instruction {
+            def exec(cpu: CPU) = {
+                import cpu._
+                A <= 5    
+                B <= A + 1
+            }
+        }
+        val cIns = new Concrete
+        \end{minted}
+        \captionof{listing}{Normal definition of Instruction.}
+        \label{lst:procsim-scala:concrete-instruction-def}
+    \end{minipage}
+    \begin{minipage}{0.5\textwidth}
+        \begin{minted}[breaklines, linenos=false, breakafter=.]{scala}
+        import scala.reflect.runtime.{ universe => u }
+        val tb = mirror.mkToolBox()
+        val tree = tb.parse(
+            "import net.navatwo._;" +
+            "new Instruction {" +
+                "def exec(cpu: CPU) = {" +
+                    "import cpu._;" +
+                    "A <= 5;" +
+                    "B <= A + 1;" +
+                "}" +
+            "};")
+        val sIns = tb.eval(tree).asInstanceOf[Instruction]
+        \end{minted}
+        \captionof{listing}{Reified definition of Instruction.}
+        \label{lst:procsim-scala:reify-instruction-def}
+    \end{minipage}
+\end{figure}
+
+%
+%\begin{listing}[ht!]
+%%\begin{minipage}{0.45\textwidth}
+%    \begin{subfigure}{0.45\linewidth}
+%        
+%    \end{subfigure}
+%%\end{minipage}
+%%\begin{minipage}{0.45\textwidth}
+%    \begin{subfigure}
+%        
+%    \end{subfigure}
+%%\end{minipage}
+%\end{listing}
 
 \subsection{Akka-based Components}
 

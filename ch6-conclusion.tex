@@ -1,10 +1,51 @@
 \chapter{Conclusion}
 \label{ch:conclusion}
 
-% Yeah, I think we all know what goes here.
+This thesis examined the topic of education for Computer and Software Engineering students on the subject of embedded systems and Instruction Set Architectures. While ultimately unsuccessful in developing a working solution, we have provided a series of known working and invalid approaches to solving the problem outlined in \cref{sec:problem-statement}. We proposed a framework of requirements for a solution to work in the modern laboratory and investigated two major solutions. The first implementation used Scala and the distributed framework Akka to develop a massively asynchronous solution to representing an ISA. In addition, this project investigated the use of a Scala program as a configuration definition. We then implemented a set of novel test and build infrastructure components to better build cross-platform C++ applications. Lastly, we used the knowledge gained from the first and second projects to iterate on an existing project and create a Lua-based configuration system for the desktop. The last chapter included a ``compiler''-like implementation of state-machine representations of a microinstruction and showcased a configuration language capable of defining a full Turing-complete machine. In this chapter, we will summarize the main conclusions from each chapter and use the lessons learned to propose future goals for this research question. 
+
+\section{Scala-based event-driven processor simulator}
+
+\Cref{ch:scala-akka} proposed a web application known as procsim.scala built on the Scala.js platform using Akka and Akka.js to simulate a custom, massively parallel processor in a synchronous environment. We outlined a DSL language for specifying a microinstruction's execution state through in a full programming language environment.
+
+From the procsim.scala project, we proposed several novel concepts for further investigation. First, we utilized Scala to generate a DSL language that was easier for students familiar with 
 
 \section{Contributions}
-\label{sec:contributions}
+
+\todo{Fill this out.. :)}
+
+This thesis is presented in an additional \numberstringnum{\numexpr\totvalue{chapter} - 1\relax} chapters. This thesis discusses technical topics regarding: existing and future pedagogical simulation technologies; development of web applications on modern platforms; building cross-platform native applications; and integration of scripting languages as configuration engines within a native application. We summarize the contributions to each in the following sections.
+
+\subsection{Survey of other and previous works}
+
+Within this section, we provide a quantitative survey of existing simulator technologies in use today analysed against the requirements outlined in \cref{sec:problem-statement}.
+
+\subsection{procsim.scala: a Scala-based event-driven processor simulator for the modern web}
+
+We investigate utilizing Scala and it's compiler back-end Scala.js to build a massively parallel processor simulator for the modern web. Within this investigation, we showcase the following contributions: 
+
+\begin{itemize}
+    \item A design for an asynchronous actor-based model for simulation of a custom processor architecture using distributed computing framework Akka
+    \item A runtime, compiled VHDL-like DSL for specification of instructions within a custom ISA on top of Scala in the Java Virtual Machine and Scala.js
+\end{itemize}
+
+\subsection{Developing cross-platform C++ applications}
+
+We discuss an anecdotal account of refactoring the hc12sim project into a modern C++ environment. We discuss topics involving: developing a multi-platform project and providing adequate quality assurance, improving CMake through custom build scripts, and improving application build times through optimization of build artefact selection. The contributions outlined within this section are: 
+
+\begin{itemize}
+    \item An automated platform-specific testing infrastructure using Virtual Machines provisioned with Vagrant and Oracle VirtualBox automated with Jenkins' Pipeline architecture
+    \item A collection of project-based CMake scripts to isolate build targets while improving build times, reducing manual configuration and modularizing test specification
+\end{itemize}
+
+\subsection{Lua-based configuration-driven processor simulation}
+
+We discuss the use of scripting engines in a native C++ application and their integration points; utilizing Lua as a scripting language within an application; implementation of an application while developing integration tools in parallel; and the pedagogical gains of a high-level language utilized for teaching low-level concepts. We provide the following contributions:
+
+\begin{itemize}
+    \item A design for a runtime configuration specification for custom processor architectures through Lua scripts
+    \item A state-machine-like representation of a processor instruction execution specified through ``compiling'' a Lua function to microinstruction events
+\end{itemize}
+
 
 \section{Future Work}
 \label{sec:future-work}

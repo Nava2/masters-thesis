@@ -46,6 +46,8 @@
 \usepackage[chapter]{minted}
 \setminted{linenos, frame=single, autogobble=true}
 
+\newcounter{sublisting}[listing]
+
 \usepackage{etoolbox}
 \BeforeBeginEnvironment{minted}{\begin{singlespace}}
 \AfterEndEnvironment{minted}{\end{singlespace}}
@@ -178,53 +180,7 @@
 \flushbottom
 
 \setcounter{tocdepth}{3} % Number the subsubsections 
-\def\normalspacing{1.5} % default line spacing
-
-\newcommand\isco[1]{%
-  \edef\@tempa{#1}%
-  \def\@tempb{}%
-  \ifx\@tempa\@tempb
-	\else \\\underline{Co-Supervisor:}\vspace{0.35in}\\\dots\dots\dots\dots\dots\dots\dots\\{#1}\\
-  \fi
-}
-
-\newcommand\isjoint[1]{%
-  \edef\@tempa{#1}%
-  \def\@tempb{}%
-  \ifx\@tempa\@tempb
-	\else \\\underline{Joint Supervisor:}\vspace{0.35in}\\\dots\dots\dots\dots\dots\dots\dots\\{#1}\\
-  \fi
-}
-
-\newcommand\isalt[1]{%
-  \edef\@tempa{#1}%
-  \def\@tempb{}%
-  \ifx\@tempa\@tempb
-	\else \\\underline{Alternate Supervisor:}\vspace{0.35in}\\\dots\dots\dots\dots\dots\dots\dots\\{#1}\\
-  \fi
-}
-
-\newcommand\isdefinedsig[1]{%
-  \edef\@tempa{#1}%
-  \def\@tempb{}%
-  \ifx\@tempa\@tempb
-	\else \\ \dots\dots\dots\dots\dots\dots\dots\\{#1}\\
-  \fi
-}
-\newcommand\isdefinedspinetitle[1]{%
-  \edef\@tempa{#1}%
-  \def\@tempb{}%
-  \ifx\@tempa\@tempb
-	\else (Spine title: #1)\\
-  \fi
-}
-\newcommand\coauthor[1]{%
-  \edef\@tempa{#1}%
-  \def\@tempb{}%
-  \ifx\@tempa\@tempb
-	\else \newpage \Large Co-Authorship Statement\normalsize\\\indent\\#1\\
-  \fi
-}
+\def\normalspacing{2.0} % default line spacing
 
 \newcommand\acknowlege[1]{%
   \edef\@tempa{#1}%
@@ -269,112 +225,6 @@ I would like to acknowledge: Ramesh, Brad, Thomas, Kyle.
 \newlistof{myappendices}{app}{\listappendixname}
 \newcommand{\myappendices}[1]{%
 \addcontentsline{app}{myappendices}{#1}\par}
-
-\renewcommand{\maketitle}
-{\begin{titlepage}
-   \setcounter{page}{1}
-   %% Set the line spacing to 1 for the title page.
-   \begin{spacing}{1} 
-   \begin{large}
-   \begin{center}
-      \mbox{}
-      \vfill
-      {\MakeUppercase{\titl}}\\
-      \isdefinedspinetitle{\spinetitle}
-      (Thesis format: \thesisformat)\\
-      \vfill
-      by \\
-      \vfill
-      {\firstname} \underline{\lastname}\\
-      \vfill
-      Graduate Program in {\department}\\
-      \vfill
-		A thesis submitted in partial fulfillment\\
-		of the requirements for the degree of\\
-		\degree\\
-		\vfill
-		The School of Graduate and Postdoctoral Studies\\
-		The University of Western Ontario\\
-		London, Ontario, Canada\\
-		\vfill
-      {\copyright} {\authorname} {\gyear}  \\
-      \vspace*{.2in}
-   \end{center}
-   \end{large}
-   \end{spacing}
-   \end{titlepage}
-
-}%\maketitle
-
-\newcommand{\makecert}{
-\begin{spacing}{1} 
-\setcounter{page}{2}
-\vfill
-\begin{center}
-\large
-THE UNIVERSITY OF WESTERN ONTARIO\\
-School of Graduate and Postdoctoral Studies\\
-\vfill
-\textbf{CERTIFICATE OF EXAMINATION}
-\end{center}
-
-\vfill
-\begin{table}[ht]
-\begin{minipage}[t]{0.5\linewidth} %tabular instead?
-\begin{tabular}{l}
-\underline{Supervisor:}\vspace{0.35in}
-\isdefinedsig{\super}
-\isco{\superc}
-\isjoint{\superj}
-\isalt{\supera}
-\\
-\underline{Supervisory Committee:}\vspace{0.35in}
-\isdefinedsig{\sco}\vspace{0.15in}
-\isdefinedsig{\sct}
-\end{tabular}
-\vfill
-\end{minipage}
-\hspace{0.5in}
-\begin{minipage}[t]{0.5\linewidth}
-\begin{tabular}{l}
-\underline{Examiners:} \\\vspace{.5cm}
-\isdefinedsig{\examo}\\
-\isdefinedsig{\examt}\\
-\isdefinedsig{\examth}\\
-\isdefinedsig{\examf}
-\end{tabular}
-\vfill
-\end{minipage}
-\vfill
-\end{table}
-\vfill
-\begin{center}
-The thesis by \\ \vfill
-\textbf{\firstname{} \middlename{} \underline{\lastname}}\\
-\vfill
-entitled:\\\vfill
-\textbf{\titl}\\\vfill
-is accepted in partial fulfilment of the \\
-requirements for the degree of\\
-\degree\\
-\end{center}
-\begin{table}[ht]
-\begin{minipage}[t]{0.5\linewidth}
-\begin{tabular}{l}
-\dots\dots\dots\dots\dots\\
-Date
-\end{tabular}
-\end{minipage}
-\hspace{0.5in}
-\begin{minipage}[t]{0.5\linewidth}
-\begin{tabular}{l}
-\dots\dots\dots\dots\dots\dots\dots\dots\dots\dots\\
-Chair of the Thesis Examination Board
-\end{tabular}
-\end{minipage}
-\end{table}
-\end{spacing}
-} % end cert
 
 \linespread{2}
 
@@ -474,11 +324,11 @@ This is a really silly abstract.
 %% case, you should probably put the bibliography in a separate file
 %% and \include or \input it here).
 
-%Appendices.
-\begin{appendices}
-\include{appa-software-testing}
-\include{appb-sentiment-charts}
-\end{appendices}
+%%Appendices.
+%\begin{appendices}
+%\include{appa-software-testing}
+%\include{appb-sentiment-charts}
+%\end{appendices}
 
 %CV only relevant stuff... not full CV.
 \addcontentsline{toc}{chapter}{Curriculum Vitae}
@@ -513,8 +363,8 @@ This is a really silly abstract.
 \todo[inline, backgroundcolor=green!40]{align inner table for years}
 \end{table}
 \end{singlespace}
-\subsubsection*{Publications:}
-:(
-La La
+%\subsubsection*{Publications:}
+%:(
+%La La
 \end{document}
 
