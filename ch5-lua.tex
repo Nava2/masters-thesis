@@ -265,9 +265,7 @@ Because procsim's configurations are written in Lua, they are fully Lua complian
 
 Moving further into the URISC example in \cref{lst:lua:urisc-example-1,lst:lua:urisc-example-2}, all objects use a static \luainline{new} method that accepts a Lua table of configuration values. This approach was utilized to mimic JavaScript's colloquially named ``option object'' of parameters to make parameter values as obvious as possible by using explicit keys. For each table-based function, the keys and values are validated against an expected schema -- invalid or missing keys or bad value types throw informative exceptions for students to recover from. All instances within the configuration schema inherit from \cxxinline{class ConfObj} which defines that every instance must have a name. These names are utilized to lookup references in other referenced modules. From these names, the ``compilation'' of the configuration utilizes a two-phase compilation pattern inspired by a typical assembler pattern. The first phase runs across the entire structure and creates a list of required references attempting to verify any named reference has an associated configuration object. This table of references are sorted using a topological ordering such that every module is built before it is required. 
 
-\subsubsection{Clock}
-
-Breaking down each component type, first is definition of a \luainline{Clock}, repeated in \cref{lst:lua:urisc:clock}. \luainline{Clock} modules must have a \luainline{:period} or \luainline{:frequency}\footnote{In Lua, the object method invocation syntax is: \luainline{object:method} which passes \texttt{object} as the \texttt{this} parameter. For the remainder of this document, the \texttt{this} parameter is omitted for brevity and is implied when prefaced by \texttt{:}.} -- defining one implies the other. These each have useful ``helper'' functions that allow for defining relative values. For \luainline{:period}, the helper functions: \luainline{seconds()}, \luainline{millis()}, \luainline{micros()} and \luainline{nanos()} define times relative to nanoseconds. For \luainline{:frequency} the style of functions exist based on Hertz (e.g. \luainline{MHz()}, or \luainline{KHz()}). These \luainline{Clock} modules generate instances that produce ``tick'' operations based on the \luainline{:period} and allow synchronous modules to listen for events. 
+\paragraph{Clock.} Breaking down each component type, first is definition of a \luainline{Clock}, repeated in \cref{lst:lua:urisc:clock}. \luainline{Clock} modules must have a \luainline{:period} or \luainline{:frequency}\footnote{In Lua, the object method invocation syntax is: \luainline{object:method} which passes \texttt{object} as the \texttt{this} parameter. For the remainder of this document, the \texttt{this} parameter is omitted for brevity and is implied when prefaced by \texttt{:}.} -- defining one implies the other. These each have useful ``helper'' functions that allow for defining relative values. For \luainline{:period}, the helper functions: \luainline{seconds()}, \luainline{millis()}, \luainline{micros()} and \luainline{nanos()} define times relative to nanoseconds. For \luainline{:frequency} the style of functions exist based on Hertz (e.g. \luainline{MHz()}, or \luainline{KHz()}). These \luainline{Clock} modules generate instances that produce ``tick'' operations based on the \luainline{:period} and allow synchronous modules to listen for events. 
 
 \begin{listing}[h!]
     \inputminted[escapeinside=||, firstline=10, lastline=13]{lua}{./listings/urisc.lua}
@@ -275,9 +273,7 @@ Breaking down each component type, first is definition of a \luainline{Clock}, r
     \label{lst:lua:urisc:clock}
 \end{listing}
 
-\subsubsection{Register}
-
-In procsim, a \luainline{Register} is a simple memory unit that stores a single value. The \luainline{PC} definition is shown in \cref{lst:lua:urisc:register}. The \luainline{:width} parameter represents the bit-width of the \luainline{Register}'s stored value. \luainline{access} is a set of enumeration values that are used to define ``getter'' and ``getter'' methods for the ``value'' of a \luainline{Register}. If the \luainline{:access} parameter is \luainline{Access.ReadWrite} then the value may be set or read. Alternately if the \luainline{access} for an example \luainline{Register} \luainline{R} is \luainline{Access.Write} then the following instruction code will not compile in the Lua interpreter: \luainline{local r_plus_1 = proc.R + 1}. By setting the \luainline{:access} to \luainline{Access.Write} the value can not be read from the register -- effectively disconnecting the \verb|Q| signal in traditional \luainline{Register} diagrams. procsim achieves this behaviour by not binding a ``setter'' or any arithmetic operations for the \luainline{Register} type bound through sol to the property for \luainline{proc.R} parameter utilized when defining an \luainline{Instruction} execution (see \cref{sec:lua:sec:instructions:sec:exec}). The \luainline{:readCount} and \luainline{:writeCount} parameters define how many clock ``ticks'' it takes to read or write to the \luainline{Register} respectively. These values are utilized by the execution engine to schedule the triggering of events.
+\paragraph{Register.} In procsim, a \luainline{Register} is a simple memory unit that stores a single value. The \luainline{PC} definition is shown in \cref{lst:lua:urisc:register}. The \luainline{:width} parameter represents the bit-width of the \luainline{Register}'s stored value. \luainline{access} is a set of enumeration values that are used to define ``getter'' and ``getter'' methods for the ``value'' of a \luainline{Register}. If the \luainline{:access} parameter is \luainline{Access.ReadWrite} then the value may be set or read. Alternately if the \luainline{access} for an example \luainline{Register} \luainline{R} is \luainline{Access.Write} then the following instruction code will not compile in the Lua interpreter: \luainline{local r_plus_1 = proc.R + 1}. By setting the \luainline{:access} to \luainline{Access.Write} the value can not be read from the register -- effectively disconnecting the \verb|Q| signal in traditional \luainline{Register} diagrams. procsim achieves this behaviour by not binding a ``setter'' or any arithmetic operations for the \luainline{Register} type bound through sol to the property for \luainline{proc.R} parameter utilized when defining an \luainline{Instruction} execution (see \cref{sec:lua:sec:instructions:sec:exec}). The \luainline{:readCount} and \luainline{:writeCount} parameters define how many clock ``ticks'' it takes to read or write to the \luainline{Register} respectively. These values are utilized by the execution engine to schedule the triggering of events.
 
 \begin{listing}[th!]
     \inputminted[escapeinside=||, firstline=17, lastline=23]{lua}{./listings/urisc.lua}
@@ -285,9 +281,7 @@ In procsim, a \luainline{Register} is a simple memory unit that stores a single 
     \label{lst:lua:urisc:register}
 \end{listing}
 
-\subsubsection{Memory Unit}
-
-The second last module type available are \luainline{Memory} units. \luainline{Memory} are either read-only or read-write like \luainline{Register} values. \Cref{lst:lua:urisc:memory} shows the RAM definition for the URISC architecture. Parameters are identical to a \luainline{Register} except that they additionally have a \luainline{:length} parameter that defines the length of a \luainline{Memory} in units of \luainline{:width} (the word width). In the sample, the memory is 16KiB ``words'' wide. With a RAM, depending on the type of memory being modelled, it is often useful to have the \luainline{:clock} parameter be slower than the processor clock. This models the exponentially different time taken to read from a \luainline{Register} rather than cache or off-chip memory.
+\paragraph{Memory.} The second last module type available are \luainline{Memory} units. \luainline{Memory} are either read-only or read-write like \luainline{Register} values. \Cref{lst:lua:urisc:memory} shows the RAM definition for the URISC architecture. Parameters are identical to a \luainline{Register} except that they additionally have a \luainline{:length} parameter that defines the length of a \luainline{Memory} in units of \luainline{:width} (the word width). In the sample, the memory is 16KiB ``words'' wide. With a RAM, depending on the type of memory being modelled, it is often useful to have the \luainline{:clock} parameter be slower than the processor clock. This models the exponentially different time taken to read from a \luainline{Register} rather than cache or off-chip memory.
 
 \begin{listing}[h!]
     \inputminted[escapeinside=||, firstline=35, lastline=42]{lua}{./listings/urisc.lua}
@@ -295,9 +289,7 @@ The second last module type available are \luainline{Memory} units. \luainline{M
     \label{lst:lua:urisc:memory}
 \end{listing}
 
-\subsubsection{Proc}
-
-The second last module defined is the processor itself through the \luainline{Proc.new()} function. The \luainline{:clock} parameter defines the clock utilized by the processor itself. This value is not shared amongst internal modules unless explicitly named by another module. The \luainline{:registers} table defines \luainline{Register} values that live ``on-chip'' within the created \luainline{Proc}. The \luainline{:memory} table defines a sparse-matrix representation of the processor's memory mapping. Any inline defined \luainline{Memory} or \luainline{Register} components are given the name of the key in the table they are specified in. This is a small convenience for students to not replicate information which risks typographic mistakes. Within the \luainline{:memory} map, any memory unit may be defined at an ``address'' specified. In the URISC machine, there are no memory mapped registers, however \cref{lst:lua:memory-mapped} displays a small processor with three \luainline{Register} values mapped to the first three addresses and a RAM mapped starting at address \luainline{0x0004}. Specification of \luainline{:memory} mappings take into account the width of the memory elements specified and will do partial reads or writes depending on what is required. The current implementation does not support memory elements smaller than the word size. The \luainline{:instructions} table provides a look-up table of instruction information including execution patterns for an \luainline{Instruction}. \luainline{Instruction} definitions are discussed in the next section, \cref{sec:lua:sec:instructions}.
+\paragraph{Proc.} The second last module defined is the processor itself through the \luainline{Proc.new()} function. The \luainline{:clock} parameter defines the clock utilized by the processor itself. This value is not shared amongst internal modules unless explicitly named by another module. The \luainline{:registers} table defines \luainline{Register} values that live ``on-chip'' within the created \luainline{Proc}. The \luainline{:memory} table defines a sparse-matrix representation of the processor's memory mapping. Any inline defined \luainline{Memory} or \luainline{Register} components are given the name of the key in the table they are specified in. This is a small convenience for students to not replicate information which risks typographic mistakes. Within the \luainline{:memory} map, any memory unit may be defined at an ``address'' specified. In the URISC machine, there are no memory mapped registers, however \cref{lst:lua:memory-mapped} displays a small processor with three \luainline{Register} values mapped to the first three addresses and a RAM mapped starting at address \luainline{0x0004}. Specification of \luainline{:memory} mappings take into account the width of the memory elements specified and will do partial reads or writes depending on what is required. The current implementation does not support memory elements smaller than the word size. The \luainline{:instructions} table provides a look-up table of instruction information including execution patterns for an \luainline{Instruction}. \luainline{Instruction} definitions are discussed in the next section, \cref{sec:lua:sec:instructions}.
 
 \begin{listing}[hp!]
     \inputminted[escapeinside=||]{lua}{./listings/memory-mapping.lua}
@@ -314,7 +306,7 @@ The \luainline{Instruction} definition is more complicated than any other module
 
 procsim allows for easily defining complex encodings for opcode and operand values. \\* \luainline{Instruction:code} specifies the opcode of an \luainline{Instruction}. A \luainline{Code} definition describes values encoded within an opcode a traditional microarchitecture. \Cref{lst:lua:urisc:encoding} shows a cut of the encoding definition for the URISC \texttt{SUBLEQ} \luainline{Instruction}. Within the \luainline{:code} parameter, the \luainline{Code} construct defines an opcode. The first parameter of \luainline{Code}'s constructor is a constant value with bits that remain constant in all encodings of the current instruction -- both high and low values are. The second parameter is a table of ``fields'' that are encoded within the opcode when compiled. Any key passed into the table will be extracted from the opcode at decoding time and passed into the execution handler attached as an ``operand field.'' With both the constant opcode and the table of fields, \luainline{Code.new{}} calculates the constant bits of the opcode encoding. Once all \luainline{Instruction} values are defined for a \luainline{Proc}, the configuration engine computes a discriminant decoding schema for runtime. When defining a field, there are several helper functions in use. Line 51 of \cref{lst:lua:urisc:encoding} includes the helper function, \luainline{u16(15)} which creates an unsigned 16-bit field at index 15\footnote{While Lua uses a 1-based indexing scheme like MATLAB or FORTRAN, procsim uses zero-based indexes to match C.}--indexed from the least-significant bit to the most-significant bit. The naming scheme for the primitive field helper functions are named using the Rust programming language's names for primitive types as they are short and unambiguous in their context \cite{Rust:PrimitiveTypes:Numeric}.
 
-\begin{listing}[hb]
+\begin{listing}[hb!]
     \inputminted[escapeinside=||, firstline=48, lastline=59]{lua}{./listings/urisc.lua}
     \caption{Encoding of the opcode and operands of the \texttt{SUBLEQ} \luainline{Instruction} (cut from \cref{lst:lua:urisc-example-1}).}
     \label{lst:lua:urisc:encoding}
@@ -323,7 +315,7 @@ procsim allows for easily defining complex encodings for opcode and operand valu
 The decoding scheme for a processor specification is computed from the table of \\* \luainline{Instruction}s in \luainline{Proc:instructions} by computing individual discriminants per instruction and then cross-checking each discriminant against other instructions in a pair-wise fashion. To check if two discriminants are ambiguous, mask each ``constant'' opcode with another's ``constant mask'' and vice versa and if the resultant values are equal, the constant values are equal implying there is an ambiguous opcode specified. \Cref{alg:lua:opcode-verification} details the full computation used to verify ambiguous opcode specifications. If an ambiguous opcode is found within the instruction table an exception is thrown alerting the user which instructions have ambiguous conflicts and which constant bit values are shared. Unfortunately, this verification algorithm operates in a $\text{O}(n^2)$ complexity as each operation must be compared to another. A solution utilizing a radix-based sort could reduce the search space for each constant operand to make the algorithm $\text{O}(n \log n)$ \cite{Goodrich2014} -- though the complexity of each step within this computation is of trivial time due to consisting of two bitwise operations, making the trade-off between readable and fast code inconsequential. This specification scheme for encoding allows for extremely flexible ISA design but also provides a mechanism to allow students to find and recover from mistakes. By using this simplistic specification system and providing feedback for students, students will have an easier time learning why certain ISA design schemes do not work. 
 
 
-\begin{algorithm}
+\begin{algorithm}[hp!]
     \caption{ISA opcode verification algorithm to find ambiguous opcode definitions}
     \label{alg:lua:opcode-verification}
     \begin{algorithmic}[1]
@@ -392,21 +384,45 @@ The intention of the \luainline{Instruction:exec()} function is to provide the s
 \end{listing}
 
 \subsubsection*{Assignment}
+\label{sec:lua:sec:instructions:sec:exec:sec:Assignment}
 
-An assignment statement, e.g. \luainline{proc.R = operand.A} is identical to scheduling the following actions: 
-\begin{enumerate}
-    \item Read the rvalue \cite{cppreference:ValueCategories} of the assignment onto a BUS
-    \begin{itemize}
-        \item if the rvalue is an operand, this value is read from the decoding sequence and written to the lvalue \cite{cppreference:ValueCategories} location.
-        \item Assignment statements may be rewritten depending on order of encoding operations if and only if the assignment has no side-effects in the state machine
-    \end{itemize}
-    \item Write the value from the BUS into the lvalue specified (i.e. \luainline{proc.R})
-\end{enumerate}
-Dealing with \luainline{local} variables is done by utilizing the result of any operations or assignments. These values are not traditional \texttt{integer} values, they describe ``locational'' values. For example, after an assignment, the result of an operation is a ``BusValue'' that states what is currently on the data bus if and only if the assignment is not a direct module lookup. For example, consider the following \luainline{local} assignments: 
+An assignment statement, e.g. \luainline{proc.R = operand.A} is scheduled using \cref{alg:lua:assignment}. The right-hand side arguments is known as the \texttt{rval} which is treated as an rvalue in C++ terminology \cite{cppreference:ValueCategories}. The left-hand size argument is the value assigned to and is known as \texttt{lval} mimicking lvalue in C++ \cite{cppreference:ValueCategories}. When working with assignments, this event-based architecture allows a simulation engine to reorder assignments depending on how the execution will progress. This flexibility allows for implementations of optimization patterns at a future time. 
+
+\begin{algorithm}[h!]
+    \caption{Assignment statement compilation}
+    \label{alg:lua:assignment}
+    \begin{algorithmic}[1]
+        \Statex \textbf{Input}: $rval$ = \texttt{rvalue} read from 
+        \Statex \textbf{Input}: $lval$ = \texttt{lvalue} assigned to
+        \Statex \textbf{Input}: $bus$ = Bus for data path
+        \Statex \textbf{Side-effect}: Bus contains the value from $rval$
+        \Statex% blank
+        \If{$rval$ is an operand}
+            \State Read the bit pattern from the decoded operands
+            \State $bus \gets operand$
+        \Else 
+            \State Value is a module within the machine
+            \State $bus \gets rval$
+        \EndIf
+        \\
+        \State $lval \gets bus$
+    \end{algorithmic}
+\end{algorithm}
+
+%\begin{enumerate}
+%    \item Read the rvalue \cite{cppreference:ValueCategories} of the assignment onto a BUS
+%    \begin{itemize}
+%        \item if the rvalue is an operand, this value is read from the decoding sequence and written to the lvalue \cite{cppreference:ValueCategories} location.
+%        \item Assignment statements may be rewritten depending on order of encoding operations if and only if the assignment has no side-effects in the state machine
+%    \end{itemize}
+%    \item Write the value from the BUS into the lvalue specified (i.e. \luainline{proc.R})
+%\end{enumerate}
+
+\noindent Lua's \luainline{local} variables are handled utilizing the result of any operations or assignments as a ``BusValue'' representing the state of the Bus in use rather than traditional \texttt{integer} values. For example, after an assignment, the result of an operation is a ``BusValue'' that states what is currently on the data bus if and only if the assignment is not a direct module lookup. For example, consider the following \luainline{local} assignments: 
 
 \begin{listing}[h!]
 \begin{minted}{lua}
--- Create an alias, B is proc.B
+-- Create an alias, B is proc:B
 local B = proc:B
 
 -- Create a `BusValue' that has the value of the operation B + A
@@ -415,7 +431,8 @@ local C = proc:B + proc:A
 -- Use the value on the databus as the address into memory
 -- And store the value of that address in that location
 proc:memory[C] = C -- 'result' of this is a `BusValue' of C, still
-proc:X = proc:A + proc:B -- 'result' of this is a `BusValue' of value of proc:X
+proc:X = proc:A + proc:B -- 'result' of this is a `BusValue' 
+                         -- with value proc:X
 \end{minted}
 \caption{Local variable definitions within an \luainline{Instruction:exec()} method.}
 \end{listing}
@@ -424,28 +441,111 @@ proc:X = proc:A + proc:B -- 'result' of this is a `BusValue' of value of proc:X
 
 \subsubsection*{Memory Access}
 
-Memory accesses, \luainline{proc.memory[B]}, read a memory location or write to it depending on whether the access is an lvalue or rvalue. In \cref{lst:lua:urisc:exec} on line 65, the memory access is used as an lvalue, thus the following occurs:
-\begin{enumerate}
-    \item Address \texttt{B} is written to the address bus
-    \item Memory reads address \texttt{B} and writes input from data bus to \texttt{*B}
-\end{enumerate}
-If the memory access was an rvalue, instead of reading from the data bus, writing would occur. 
+Memory accesses, \luainline{proc.memory[B]}, read a memory location or write to it depending on whether the access is an lvalue or rvalue. In \cref{lst:lua:urisc:exec} on line 65, the memory access is used as an lvalue, and we utilize \cref{alg:lua:memory-access:read} to schedule the events.
+
+\begin{algorithm}[h!]
+    \caption{Memory read compilation}
+    \label{alg:lua:memory-access:read}
+    \begin{algorithmic}[1]
+        \Statex \textbf{Input}: $memory$ = Memory unit to read from or write to
+        \Statex \textbf{Input}: $address$ = address within $memory$
+        \Statex \textbf{Input}: $abus$ = Bus for address path
+        \Statex \textbf{Input}: $dbus$ = Bus for data path
+        \Statex \textbf{Side-effect}: $abus$ contains $address$
+        \Statex \textbf{Side-effect}: $dbus$ contains the value from $memory\left[address\right]$
+        \Statex% blank
+        \Statex Write the $address$ to $abus$
+        \State $abus \gets address$
+        \Statex Set $memory.readWrite$ to $READ$
+        \State $memory.readWrite \gets READ$
+        \\
+        \Statex Memory buffer register gets the value at $memory\left[address\right]$ on $memory$ clock pulse
+        \State $memory.buffer \gets memory\left[address\right]$
+        \\
+        \Statex Write result of read to $dbus$ on $dbus$ clock pulse
+        \State $dbus \gets memory.buffer$
+    \end{algorithmic}
+\end{algorithm}
+
+\noindent Alternately, \cref{alg:lua:memory-access:write} showcases the events triggered on writing a value to a location in memory such as \luainline{proc.memory[0x04] = proc.B}.
+
+\begin{algorithm}[h!]
+    \caption{Memory write compilation}
+    \label{alg:lua:memory-access:write}
+    \begin{algorithmic}[1]
+        \Statex \textbf{Input}: $memory$ = Memory unit to read from or write to
+        \Statex \textbf{Input}: $address$ = address within $memory$
+        \Statex \textbf{Input}: $value$ = Value to write to $memory$
+        
+        \Statex \textbf{Input}: $abus$ = Bus for address path
+        \Statex \textbf{Input}: $dbus$ = Bus for data path
+        \Statex \textbf{Side-effect}: $abus$ contains $address$
+        \Statex \textbf{Side-effect}: $dbus$ contains $value$ 
+        \Statex \textbf{Side-effect}: $memory\left[address\right]$ contains $value$
+        \Statex% blank
+        
+        \Statex Write the $address$ to $abus$
+        \State $abus \gets address$
+        \Statex Write $value$ to $dbus$
+        \State $dbus \gets value$
+        \Statex Set $memory.readWrite$ to $WRITE$
+        \State $memory.readWrite \gets WRITE$
+        \\
+        \Statex $memory.buffer$ register gets the $value$ from $dbus$ on the $dbus$ clock pulse
+        \State $memory.buffer \gets dbus$
+        \\
+        \Statex $memory$ writes $value$ to $address$ on $memory$ clock pulse
+        \State $memory\left[address\right] \gets memory.buffer$
+    \end{algorithmic}
+\end{algorithm}
+
+\noindent Once the memory access completes, the bus mechanics reuse the semantics outlined in the previous Assignment \cref{sec:lua:sec:instructions:sec:exec:sec:Assignment}.
     
 \subsubsection*{Arithmetic Operations}
 
-Arithmetic operations, e.g. \luainline{operand.B - proc.R}, happen through a single ALU within procsim's model. In the context of \cref{lst:lua:urisc:exec} line 65, when performing the subtraction ALU conditional bit flags based on the \hcmodel{} condition code flags are assigned by default to the \luainline{proc:C}, \luainline{proc:N}, and \luainline{proc:Z}. For multiplication or division operations, \luainline{proc:O} is also set. In the case of URISC, a manual ``buffer'' register of \luainline{proc:R} is utilized as the ``right-hand side'' of it's adder. In the ALU for procsim, both left and right side of a binary operation have ``buffer'' inputs that can be assigned (and schedule events for these assignments following the assignment schema!). An expanded set of events for the subtraction in Line 65 would be: 
-\begin{spacing}{1.5}
-    \begin{enumerate}
-        \item Assign \luainline{proc.R} to the right-hand-side ``buffer'' of the ALU
-        \item Assign \luainline{operand.B} to the left-hand-side ``buffer'' of the ALU
-        \item Assign the ALU operation selection signal to ``subtract'' (add after two's complement of right-hand-side)
-        \item If and only if the value is assigned to an lvalue,
-        \begin{enumerate}
-            \item Assign the result of the subtraction result to the data bus
-            \item Store the data bus line value to the location of the lvalue
-        \end{enumerate}
-    \end{enumerate}
-\end{spacing}
+Arithmetic operations, e.g. \luainline{operand.B - proc.R}, happen through a single ALU within procsim's model. In the context of \cref{lst:lua:urisc:exec} line 65, when performing the subtraction ALU conditional bit flags based on the \hcmodel{} condition code flags are assigned by default to the \luainline{proc:C}, \luainline{proc:N}, and \luainline{proc:Z}. For multiplication or division operations, \luainline{proc:O} is also set. In the case of URISC, a manual ``buffer'' register of \luainline{proc:R} is utilized as the ``right-hand side'' of it's adder. In the ALU for procsim, both left and right side of a binary operation have ``buffer'' inputs that can be assigned. \Cref{alg:lua:arithmetic} shows the compilation steps for any ALU-based operation. The arithmetic application reuses the previously defined assignment semantics and memory access where required.
+
+\begin{algorithm}[h!]
+    \caption{Arithmetic operation compilation}
+    \label{alg:lua:arithmetic}
+    \begin{algorithmic}[1]
+        \Statex \textbf{Input}: $lhs$ = Left-hand side argument
+        \Statex \textbf{Input}: $rhs$ = Right-hand side argument
+        \Statex \textbf{Input}: $operation$ = Arithmetic operation, e.g. $SUBTRACT$
+        \Statex \textbf{Input}: $result$ = Result location
+        \Statex \textbf{Input}: $dbus$ = Bus for data path
+        \Statex \textbf{Input}: $alu$ = ALU module with condition bit flags
+        
+        \Statex \textbf{Side-effect}: $dbus$ and $result$ contain result of arithmetic operation
+        \Statex \textbf{Side-effect}: $alu$ condition flags are set as appropriate
+        \Statex% blank
+        
+        \Statex Using assignment semantics:
+        \State $alu.lhs \gets lhs$
+        \State $alu.rhs \gets lhs$
+        \State $alu.operation \gets operation$
+        \\
+        \Statex Start operation
+        \State $alu.start \gets START$
+        \\
+        \State Spin until operation completes, signalled via $alu.done$
+        \State $alu$ condition bits are set to appropriate values per the operation
+        \State $result \gets alu.result$
+    \end{algorithmic}
+\end{algorithm}
+
+%\begin{spacing}{1.5}
+%    \begin{enumerate}
+%        \item Assign \luainline{proc.R} to the right-hand-side ``buffer'' of the ALU
+%        \item Assign \luainline{operand.B} to the left-hand-side ``buffer'' of the ALU
+%        \item Assign the ALU operation selection signal to ``subtract'' (add after two's complement of right-hand-side)
+%        \item If and only if the value is assigned to an lvalue,
+%        \begin{enumerate}
+%            \item Assign the result of the subtraction result to the data bus
+%            \item Store the data bus line value to the location of the lvalue
+%        \end{enumerate}
+%    \end{enumerate}
+%\end{spacing}
 
 \section{Project design and technical flaws}
 

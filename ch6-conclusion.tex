@@ -1,72 +1,26 @@
 \chapter{Conclusion}
 \label{ch:conclusion}
 
-This thesis examined the topic of education for Computer and Software Engineering students on the subject of embedded systems and Instruction Set Architectures. While ultimately unsuccessful in developing a working solution, we have provided a series of known working and invalid approaches to solving the problem outlined in \cref{sec:problem-statement}. We proposed a framework of requirements for a solution to work in the modern laboratory and investigated two major solutions. The first implementation used Scala and the distributed framework Akka to develop a massively asynchronous solution to representing an ISA. In addition, this project investigated the use of a Scala program as a configuration definition. We then implemented a set of novel test and build infrastructure components to better build cross-platform C++ applications. Lastly, we used the knowledge gained from the first and second projects to iterate on an existing project and create a Lua-based configuration system for the desktop. The last chapter included a ``compiler''-like implementation of state-machine representations of a microinstruction and showcased a configuration language capable of defining a full Turing-complete machine. In this chapter, we will summarize the main conclusions from each chapter and use the lessons learned to propose future goals for this research question. 
-
-\section{Scala-based event-driven processor simulator}
-
-\Cref{ch:scala-akka} proposed a web application known as procsim.scala built on the Scala.js platform using Akka and Akka.js to simulate a custom, massively parallel processor in a synchronous environment. We outlined a DSL language for specifying a microinstruction's execution state through in a full programming language environment.
-
-From the procsim.scala project, we proposed several novel concepts for further investigation. First, we utilized Scala to generate a DSL language that was easier for students familiar with 
+This thesis examined the topic of education for Computer and Software Engineering students on the subject of embedded systems and Instruction Set Architectures. While ultimately unsuccessful in developing a working solution, we have provided a series of known working and invalid approaches to solving the problem outlined in \cref{sec:problem-statement}. We proposed a framework of requirements for a solution to work in the modern laboratory and investigated two major solutions. The first implementation used Scala and the distributed framework Akka to develop a massively asynchronous solution to representing an ISA. In addition, this project investigated the use of a Scala program as a configuration definition. We then implemented a set of novel test and build infrastructure components to better build cross-platform C++ applications. Lastly, we used the knowledge gained from the first and second projects to iterate on an existing project and create a Lua-based configuration system for the desktop. The last chapter included a ``compiler''-like implementation of state-machine representations of a microinstruction and showcased a configuration language capable of defining a full Turing-complete machine. In this chapter, we will summarize the main contributions from each chapter and use the lessons learned to propose future goals for this research question. 
 
 \section{Contributions}
 
-\todo{Fill this out.. :)}
+\paragraph{Survey of other and previous works.} We provided a quantitative application of the requirements outlined in the Problem Statement within \cref{sec:problem-statement} with previous works in use today. From these existing technologies, we also extracted key features that should be built into new solutions going forward. Many of the existing simulations technologies surveyed use dated software tools to build them and do not provide ample interfaces focused on human computer interaction concepts from the student's perspective. 
 
-This thesis is presented in an additional \numberstringnum{\numexpr\totvalue{chapter} - 1\relax} chapters. This thesis discusses technical topics regarding: existing and future pedagogical simulation technologies; development of web applications on modern platforms; building cross-platform native applications; and integration of scripting languages as configuration engines within a native application. We summarize the contributions to each in the following sections.
+\paragraph{Scala-based event-driven processor simulator.} \Cref{ch:scala-akka} proposed a web application known as procsim.scala built on the Scala.js platform using Akka and Akka.js to simulate a custom, massively parallel processor in a synchronous JavaScript environment. We outlined a DSL language for specifying a microinstruction's execution within a Scala script. We also pushed the envelope for state-of-the-art utilizing emerging tools in a novel environment. Regrettably, these emerging tools could not maintain a high performing application at the time.
 
-\subsection{Survey of other and previous works}
+\paragraph{Developing cross-platform C++ applications.} We discussed an anecdotal account of refactoring the hc12sim project into a modern C++ environment. Through the recount, we proposed infrastructure improvements to test large native applications within multiple platforms while on a single host platform through Vagrant and Oracle's VirtualBox. Further, we developed a project-based CMake pattern to better organize build scripts and ease application development improving agility through build improvements. The improvements for CMake allowed for faster build times and over-all less time spent in compilation. Lastly, implementing a proper continuous integration work flow through the previous developments and Jenkins we provide a simple mechanism for validation within the context of developing a cross-platform C++ application.
 
-Within this section, we provide a quantitative survey of existing simulator technologies in use today analysed against the requirements outlined in \cref{sec:problem-statement}.
-
-\subsection{procsim.scala: a Scala-based event-driven processor simulator for the modern web}
-
-We investigate utilizing Scala and it's compiler back-end Scala.js to build a massively parallel processor simulator for the modern web. Within this investigation, we showcase the following contributions: 
-
-\begin{itemize}
-    \item A design for an asynchronous actor-based model for simulation of a custom processor architecture using distributed computing framework Akka
-    \item A runtime, compiled VHDL-like DSL for specification of instructions within a custom ISA on top of Scala in the Java Virtual Machine and Scala.js
-\end{itemize}
-
-\subsection{Developing cross-platform C++ applications}
-
-We discuss an anecdotal account of refactoring the hc12sim project into a modern C++ environment. We discuss topics involving: developing a multi-platform project and providing adequate quality assurance, improving CMake through custom build scripts, and improving application build times through optimization of build artefact selection. The contributions outlined within this section are: 
-
-\begin{itemize}
-    \item An automated platform-specific testing infrastructure using Virtual Machines provisioned with Vagrant and Oracle VirtualBox automated with Jenkins' Pipeline architecture
-    \item A collection of project-based CMake scripts to isolate build targets while improving build times, reducing manual configuration and modularizing test specification
-\end{itemize}
-
-\subsection{Lua-based configuration-driven processor simulation}
-
-We discuss the use of scripting engines in a native C++ application and their integration points; utilizing Lua as a scripting language within an application; implementation of an application while developing integration tools in parallel; and the pedagogical gains of a high-level language utilized for teaching low-level concepts. We provide the following contributions:
-
-\begin{itemize}
-    \item A design for a runtime configuration specification for custom processor architectures through Lua scripts
-    \item A state-machine-like representation of a processor instruction execution specified through ``compiling'' a Lua function to microinstruction events
-\end{itemize}
-
-
-\section{Future Work}
-\label{sec:future-work}
-
-\begin{enumerate}
-    \item Incorporating data collection from the event-loop for processing in software like modelsim
-\end{enumerate}
+\paragraph{Lua-based configuration-driven processor simulation.} We evaluated the use of four scripting languages within a C++ application as an embedded language runtime. Each of these languages were evaluated and Lua was selected as the optimal choice due to proved use in high-performance applications, ease of embedding and data-description capabilities. We implemented a processor description within Lua that allowed for fully Lua-compliant scripts to describe the modules of a simple architecture. Within this definition, we provided a design for instruction state change microcoding through unintrusive side-effect-based execution which was compiled to events within a simulation engine. This representation hid a lot of implementation details hoping to improve student outcomes, however we realized that through utilizing such high-level constructs to teach low-level hardware design we lost a lot of necessary context.
 
 \section{Recommendations}
 
-\subsubsection{Design considerations\cite{Nakamura2013}}
+While our work in this thesis did not produce a fully working prototype, we developed many contributions towards future work in developing teaching simulation tools for embedded systems and hardware-software co-design. Through our work, we hope others can improve their tooling to close the open problem of improving teaching of a difficult subject for many students. We recommend the following improvements to our models and existing software. 
 
-Utilizes a simple dual-BUS architecture for address and data. Uses memory-mapped ``I/O space'' controller for a port-mapped I/O scheme. An interrupt controller is built consisting of a single register, \verb|intr| that stores information about what device interrupted. The authors used a simplified interrupt model in which only one interrupt is supported at a given time. The addition of the interrupt support required the addition of ``RETURN'' and ``CALL'' instructions to support subroutines. Any interrupt implementation must have these machine instructions specified to give the controller the ability to change execution flow whilst maintaining state of the machine. 
+\paragraph{Remove the requirement for real-time simulations.} Naively, we intended to implement simulations at real-time speeds of older architectures. When implementing the hc12sim project in \cref{sec:hc12sim}, we produced a real-time simulation of the \hcmodel{}. This was an admirable goal, but the cost of this meant utilizing native tools and imposing design requirements that proved undesirable to the pedagogical outcome of the simulations. Maintaining a behaviourally accurate simulation at the cost of speed of execution is a valid if not beneficial trade-off. When implementing Akka.js, \cite{Doeraene2014} showcased that asynchronous software does not necessitate parallelism. By removing parallelism, it opens technology choices we could not previously utilize and allows for a more simplistic simulation engine implementation. 
 
-\section{Next steps}
+\paragraph{Investigate functional style component development through reactive frameworks.} Akka's model for distributed systems is necessary when dealing with bidirectional data flow within an application. We have realized that for circuits and hardware simulation, data flow is generally unidirectional in that signals are passed onto a connection. This is evidenced by how HDL languages like VHDL often treat hardware specifications as input-output connected black boxes. Since developing the procsim.scala project, there has been a movement within the reactive community to produce a series of libraries known as ReactiveX that utilize unidirectional program flow to reduce software complexity within asynchronous applications \cite{ReactiveX:HomePage}. With processor simulation being an asynchronous system, these libraries could simplify application development significantly. Further, the ReactiveX community provides implementations for most major programming environments including Java \cite{ReactiveX:Java}, Scala \cite{ReactiveX:Scala} and JavaScript \cite{ReactiveX:JS}. 
 
-\begin{enumerate}
-    \item high-level is awesome
-    \item Lua is fucking awesome
-    \item Sol is fucking awesome
-    \item Sol makes compilers sad
-    \item Being too fancy with high-level languages creates issues when teaching low-level concepts that leads to ambiguities in teaching ideas
-    \item C++ development is insanely slow compared to non-machine languages
-\end{enumerate}
+\paragraph{Use a bisecting design between Lua-based control units and \cite{Black2013}'s state-table.} The process of compiling the Lua specifications of instruction microcode, we accidentally hid a lot of information to students. We allowed them to quickly define designs, but as others found \cite{Ackovska2014,Djordjevic2005,McLoughlin2010,Nakamura2013,Black2013} students benefit from getting into the deeper design of a hardware architecture. We believe the work completed by \cite{Black2013} to provide a distinction between hardware data paths and the control unit provides a ``deep enough'' philosophy for students to learn how these concepts work without holding them back. We suggest improvements on their model by utilizing state charts over state tables and developing mechanisms to better organize the information into ``modules'' of state for repeatability -- something our Lua configurations allowed through variable declarations. 
+
+\paragraph{Utilize modern web technologies over desktop applications.} While a large component of our work completed in \cref{ch:cross-platform,ch:lua} involved native applications, we believe the best environment for students in a modern classroom is through web applications. With the performance of modern JavaScript in the browser, we believe students are more likely to enjoy computer architecture discussions if the tools they utilize are within comfortable environments. Additionally, we found much higher productivity when working with Scala.js than with our C++ applications. While improving the developer work flow for C++, we continually fought with multiple platforms and massive tool-chain differentiation. We believe JavaScript and modern web technologies give the best of developer productivity and modern applications to reduce the time taken to develop and iterate on these tools. 

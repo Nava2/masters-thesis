@@ -221,39 +221,28 @@ Lastly, over-arching \Cref{req:modern} is to attempt to reduce the overhead gap 
 
 This thesis is presented in an additional \numberstringnum{\numexpr\totvalue{chapter} - 1\relax} chapters. This thesis discusses technical topics regarding: existing and future pedagogical simulation technologies; development of web applications on modern platforms; building cross-platform native applications; and integration of scripting languages as configuration engines within a native application. We summarize the contributions to each in the following sections.
 
-\subsection{Survey of other and previous works}
+\paragraph{Survey of other and previous works.} Within this section, we provide a quantitative survey of existing simulator technologies in use today analysed against the requirements outlined in \cref{sec:problem-statement}.
 
-Within this section, we provide a quantitative survey of existing simulator technologies in use today analysed against the requirements outlined in \cref{sec:problem-statement}.
-
-\subsection{procsim.scala: a Scala-based event-driven processor simulator for the modern web}
-
-We investigate utilizing Scala and it's compiler back-end Scala.js to build a massively parallel processor simulator for the modern web. Within this investigation, we showcase the following contributions: 
-
+\paragraph{procsim.scala: a Scala-based event-driven processor simulator for the modern web.} We investigate utilizing Scala and it's compiler back-end Scala.js to build a massively parallel processor simulator for the modern web. Within this investigation, we showcase the following contributions: 
 \begin{itemize}
     \item A design for an asynchronous actor-based model for simulation of a custom processor architecture using distributed computing framework Akka
     \item A runtime, compiled VHDL-like DSL for specification of instructions within a custom ISA on top of Scala in the Java Virtual Machine and Scala.js
 \end{itemize}
 
-\subsection{Developing cross-platform C++ applications}
-
-We discuss an anecdotal account of refactoring the hc12sim project into a modern C++ environment. We discuss topics involving: developing a multi-platform project and providing adequate quality assurance, improving CMake through custom build scripts, and improving application build times through optimization of build artefact selection. The contributions outlined within this section are: 
-
+\paragraph{Developing cross-platform C++ applications.} We discuss an anecdotal account of refactoring the hc12sim project into a modern C++ environment. We discuss topics involving: developing a multi-platform project and providing adequate quality assurance, improving CMake through custom build scripts, and improving application build times through optimization of build artefact selection. The contributions outlined within this section are: 
 \begin{itemize}
     \item An automated platform-specific testing infrastructure using Virtual Machines provisioned with Vagrant and Oracle VirtualBox automated with Jenkins' Pipeline architecture
     \item A collection of project-based CMake scripts to isolate build targets while improving build times, reducing manual configuration and modularizing test specification
 \end{itemize}
 
-\subsection{Lua-based configuration-driven processor simulation}
-
-We discuss the use of scripting engines in a native C++ application and their integration points; utilizing Lua as a scripting language within an application; implementation of an application while developing integration tools in parallel; and the pedagogical gains of a high-level language utilized for teaching low-level concepts. We provide the following contributions:
-
+\paragraph{Lua-based configuration-driven processor simulation.} We discuss the use of scripting engines in a native C++ application and their integration points; utilizing Lua as a scripting language within an application; implementation of an application while developing integration tools in parallel; and the pedagogical gains of a high-level language utilized for teaching low-level concepts. We provide the following contributions:
 \begin{itemize}
     \item A design for a runtime configuration specification for custom processor architectures through Lua scripts
     \item A state-machine-like representation of a processor instruction execution specified through ``compiling'' a Lua function to microinstruction events
 \end{itemize}
-
-\section{Outline} 
-
-\todo[inline]{Is the previous section better and more direct?}
-
-In \cref{ch:scala-akka} we discuss a the development of a Scala-based processor running on top of the Akka distributed actor framework within a web browser environment through Scala.js. In \cref{ch:cross-platform}, we discuss the steps taken to develop a cross-platform C++ application through continuous integration tools and consistent Virtual Machine specification through Vagrant. Additionally, \cref{ch:cross-platform} discusses a custom set of CMake scripts to automate specification of project components within a multi-project build environment that improves isolation of targets  and flexible build mechanisms. In \cref{ch:lua}, we develop a C++-based simulator built from the original hc12sim project covered in \cref{sec:review-prev-hc12}. We define a configuration specification based on Lua, an embedded scripting language, and a mechanism for specification of instruction execution that utilizes Lua's scripting engine. Lastly, \cref{ch:conclusion} provides conclusions and recommendations for future work. 
+%
+%\section{Outline} 
+%
+%\todo[inline]{Is the previous section better and more direct?}
+%
+%In \cref{ch:scala-akka} we discuss a the development of a Scala-based processor running on top of the Akka distributed actor framework within a web browser environment through Scala.js. In \cref{ch:cross-platform}, we discuss the steps taken to develop a cross-platform C++ application through continuous integration tools and consistent Virtual Machine specification through Vagrant. Additionally, \cref{ch:cross-platform} discusses a custom set of CMake scripts to automate specification of project components within a multi-project build environment that improves isolation of targets  and flexible build mechanisms. In \cref{ch:lua}, we develop a C++-based simulator built from the original hc12sim project covered in \cref{sec:review-prev-hc12}. We define a configuration specification based on Lua, an embedded scripting language, and a mechanism for specification of instruction execution that utilizes Lua's scripting engine. Lastly, \cref{ch:conclusion} provides conclusions and recommendations for future work. 
