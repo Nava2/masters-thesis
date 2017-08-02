@@ -1,0 +1,36 @@
+
+\chapter{Procsim headers}
+\label{ch:procsim-sources}
+\myappendices{\cref{ch:procsim-sources} Procsim headers}
+
+\newcommand{\procsimListing}[1]{%
+    \begin{spacing}{1}%
+        \captionof{listing}{Source for \texttt{#1}.}%
+        \inputminted[breaklines=true]{c++}{./listings/#1}%
+    \end{spacing}
+    \clearpage%
+}
+
+The following listings contain headers describing the core model that is assembled from a Lua configuration such as \cref{lst:lua:urisc-example-1,lst:lua:urisc-example-2}. These headers are supplied to showcase the state produced from Lua configurations. Implementation files are not provided. We have only included the simulation entities for brevity as outlined in \cref{sec:lua:sec:configuration-vs-simulation}.
+
+\section{Memory Components}
+
+\procsimListing{procsim/memory/MemoryUnit.hpp}
+\procsimListing{procsim/memory/Register.hpp}
+    
+\section{Time}
+
+\procsimListing{procsim/time/Clock.hpp}
+\procsimListing{procsim/time/AsyncTimerReceiver.hpp}
+\procsimListing{procsim/time/Timer.hpp}
+
+\section{Encoding}
+
+\procsimListing{procsim/encoding/Algorithm.hpp}
+\procsimListing{procsim/encoding/Code.hpp}
+\procsimListing{procsim/encoding/Operand.hpp}
+
+\section{Core}
+
+\procsimListing{procsim/core/Instruction.hpp}
+\procsimListing{procsim/core/Proc.hpp}

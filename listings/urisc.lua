@@ -60,15 +60,15 @@ return {
 
                 -- Function to execute
                 exec = function (proc, operand)
-                    local B = operand.B -- alias
+                    local B = operand:B -- alias
 
                     -- Store A into "rhs" of operation
-                    proc.R = operand.A
-                    proc.memory[B] = B - proc.R  -- *B <- B - A
-                    if (proc.N) { -- Negative val from ALU
-                        proc.PC = operand.P -- Jump as result was < 0
+                    proc:R = operand:A
+                    proc:memory[B] = B - proc:R  -- *B <- B - A
+                    if (proc:N) { -- Negative val from ALU
+                        proc:PC = operand:P -- Jump as result was < 0
                     } else {
-                        proc.PC++ -- Next ins
+                        proc:PC++ -- Next ins
                     }
                 end
             }

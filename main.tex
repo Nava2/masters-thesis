@@ -264,10 +264,10 @@ To any and all of my colleagues, peers, family and friends thank you for your su
 %%  ***  Put your Abstract here.   ***
 %% (150 words for M.Sc. and 350 words for Ph.D.)
 
-This is a really silly abstract.
+This thesis attempts to develop a solution for teaching students computer architecture and embedded systems through software simulation. We designate a series of requirements of a successful simulation suite for easing student education. Provided these requirements, we build a quantitative ranking of state-of-the-art simulations in use today. Additionally, we rank a previously implemented tool, hc12sim. Using the gaps in implementations from our state-of-the-art survey, we develop two solutions. First, a web-based solution using the Scala.js compiler for Scala with an event-driven simulation engine through Akka. This Scala model implements a VHDL-like DSL for instruction control definition. Next we propose tools for developing cross-platform native applications through a project-based build system within CMake and a continuous integration pipeline using Vagrant, Oracle VirtualBox and Jenkins. Lastly, we propose a configuration-driven processor simulation built from the original hc12sim project that utilizes a Lua-based scripting interface for processor configuration. Lua allows students to use a modern high-level programming language for processor configuration. Instruction controls are defined through Lua functions using high-level constructs that implicitly trigger low-level simulation events. Lastly, we conclude with suggestions for building a new solution that would better meet requirements set forth in our research question building from successful aspects from this work. 
 
 \vfill
-\textbf{Keywords:} Time series analysis, data mining
+\textbf{Keywords:} Embedded systems, computer architecture, computer architecture simulation, pedagogy, cross-platform application development
 \newpage
 \tableofcontents
 \newpage
@@ -331,11 +331,12 @@ This is a really silly abstract.
 %% case, you should probably put the bibliography in a separate file
 %% and \include or \input it here).
 
-%%Appendices.
-%\begin{appendices}
-%\include{appa-software-testing}
+%Appendices.
+\begin{appendices}
+\appendix
+\include{appa-procsim-headers}
 %\include{appb-sentiment-charts}
-%\end{appendices}
+\end{appendices}
 
 %CV only relevant stuff... not full CV.
 \addcontentsline{toc}{chapter}{Curriculum Vitae}
