@@ -87,13 +87,6 @@
 
 \makeatletter
 \numberwithin{figure}{chapter}
-\newenvironment{acknowledgements}%
-{\clearemptydoublepage
- \begin{center}
-  \section*{Acknowledgements}
- \end{center}
- \begingroup
-}{\newpage\endgroup}
 
 \newenvironment{dedication}%
 {\clearemptydoublepage 
@@ -133,7 +126,6 @@
 %% \spacing should be multiplied by 5/6 = 0.8333, so that 1 1/2 spaced
 %% corresponds to \spacing{1.5} and double spaced is \spacing{1.66}.
 \def\normalspacing{1.25} % default line spacing
-
 
 %% Define the "thesis" page style.
 \if@twoside % If two-sided printing.
@@ -186,7 +178,12 @@
   \edef\@tempa{#1}%
   \def\@tempb{}%
   \ifx\@tempa\@tempb
-	\else \newpage \Large Acknowledgements\normalsize\\\indent\\#1\newpage
+  \else%
+    \newpage%
+    \Large\begin{center}\textbf{Acknowledgements}\end{center}%
+    \\\normalsize%
+    \indent\\#1%
+    \newpage%
   \fi
 }
 
@@ -217,8 +214,8 @@
 %Type information about coauthorship here/
 
 }
-\newcommand{\makeacknowlege} {
-%Type in acknowlegements here
+\newcommand{\makeacknowlege}{%
+
 I would like to acknowledge my advisor Dr. Kenneth McIsaac for his continued support and mentorship throughout my undergraduate and graduate works. Thank you for taking the time to debug, construct, and destruct ideas from all angles. Your direction has allowed me to grow as a research, engineer and academic. 
 
 I would like to thank my peers in Dr. McIsaac's lab for providing laughs and support over the course of this work. I would like to extend the same thanks to those in Dr. Xianbin Wang and Dr. Roy Eagleson's labs for being supportive peers through forced geographic association.  
@@ -226,7 +223,6 @@ I would like to thank my peers in Dr. McIsaac's lab for providing laughs and sup
 I would like to thank my father and step mother, John and Amy Brightwell, and my mother and step father, Kyra Hanson and Wilf Wityshyn, for listening to my complaints, failures and successes throughout this work and never batting an eye of support. I would like to thank Mr. Brad de Vlugt and Ms. Trinette Wright for their continued support over the course of this work providing friendship and a talking post repeatedly. Lastly, I would like to thank my boyfriend Eric Pattara for his love, continuous support and delightful immaturity when I needed that most. 
 
 To any and all of my colleagues, peers, family and friends thank you for your support.
-
 }
 \newcommand{\listappendixname}{List of Appendices}
 \newlistof{myappendices}{app}{\listappendixname}
@@ -257,8 +253,13 @@ To any and all of my colleagues, peers, family and friends thank you for your su
 %\addcontentsline{toc}{chapter}{Co-Authorship Statement}
 %\coauthor{\makecoauthor}  %comment this out if none
 %\newpage
-\addcontentsline{toc}{chapter}{Acknowlegements}
-\acknowlege{\makeacknowlege}	%as above
+\phantomsection
+\addcontentsline{toc}{chapter}{Acknowledgements}
+\Large\begin{center}\textbf{Acknowledgements}\end{center}\normalsize
+\makeacknowlege
+\clearpage 
+
+\phantomsection
 \addcontentsline{toc}{chapter}{Abstract}
 \Large\begin{center}\textbf{Abstract}\end{center}\normalsize
 %%  ***  Put your Abstract here.   ***
@@ -272,18 +273,25 @@ This thesis attempts to develop a solution for teaching students computer archit
 \tableofcontents
 \newpage
 \newpage
+
+\phantomsection
 \addcontentsline{toc}{chapter}{List of Figures}
 \listoffigures
 \newpage
+
+\phantomsection
 \addcontentsline{toc}{chapter}{List of Tables}
 \listoftables\newpage
 
+\phantomsection
 \addcontentsline{toc}{chapter}{List of Listings}
 \listoflistings\newpage
 
+\phantomsection
 \addcontentsline{toc}{chapter}{List of Definitions}
 \include{definitions}
 
+\phantomsection
 \addcontentsline{toc}{chapter}{List of Appendices}
 \listofmyappendices\newpage
 %\addcontentsline{toc}{chapter}{List of Abbreviations, Symbols, and Nomenclature}
@@ -318,6 +326,7 @@ This thesis attempts to develop a solution for teaching students computer archit
 \include{ch6-conclusion}
 
 %% This adds a line for the Bibliography in the Table of Contents.
+\phantomsection
 \addcontentsline{toc}{chapter}{Bibliography}
 %% ***   Set the bibliography style.   ***
 
@@ -339,6 +348,7 @@ This thesis attempts to develop a solution for teaching students computer archit
 \end{appendices}
 
 %CV only relevant stuff... not full CV.
+\phantomsection
 \addcontentsline{toc}{chapter}{Curriculum Vitae}
 \chapter*{Curriculum Vitae}
 \begin{singlespace}
