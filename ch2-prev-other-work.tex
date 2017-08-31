@@ -4,7 +4,7 @@
 \section{Previous Work: hc12sim}
 \label{sec:hc12sim}
 
-In 2013, we worked collaboratively with colleague and fellow student Ramesh Raj to build a behaviourally accurate simulator for the \hcmodel{} processor. This work was completed as part of our capstone project for a Computer Engineering degree from \uwo{} \cite{Brightwell2013}. This software was produced over the course of 2013-2014 and had the following features: 
+In 2013, we worked collaboratively with colleague and fellow student Ramesh Raj to build a behaviourally accurate simulator for the \hcmodel{} processor. This work was completed as part of our capstone project for a Computer Engineering degree from \uwo{} \cite{Brightwell2013}. This software was produced over 2013-2014 and had the following features: 
 
 \begin{enumerate}
     \item Included memory element simulation for the \hcmodel{} architecture (e.g. registers, RAM, ROM)
@@ -19,7 +19,7 @@ In 2013, we worked collaboratively with colleague and fellow student Ramesh Raj 
 \begin{figure}[bh!]
     \centering
     \includegraphics[width=0.6\linewidth]{img/hc12ide-invalid-instruction}
-    \caption{hc12ide Integrated Development Environment showing a student error.}
+    \caption{hc12ide Integrated Development Environment showing a student error in an incorrect specification of an instruction mnemonic.}
     \label{fig:hc12ide-invalid-instruction}
 \end{figure}
 
@@ -81,42 +81,57 @@ Due to the \hcmodel{} having over 200 instructions with multiple addressing mode
 \subsubsection{Hardware Simulation}
 \label{sec:hc12sim:sec:hardware-simulation}
 
-Physical modules within the simulation model were all individual custom classes. For example, the \verb|A| and \verb|B| registers were of \cxxinline{class Register<size_t width>} where the \verb|width| template parameter defined the bit width of the \cxxinline{Register}. Regrettably, any special behaviours were ``decorated'' on top of the base type creating many different types depending on how the underlying component was used. Using the pattern of ``compile-time constant templates'' created issues when trying to use these types in polymorphic aggregate containers. For example, if a \cxxinline{Register<8> A} is defined and a \cxxinline{Register<16> X} \cxxinline{typeof A} is not the equal to \cxxinline{typeof X} as templated types are created at instantiation time making the type of a variable a ``new'' type (reuse happens when available) \cite{cppreference:class-template}. This created confusing class hierarchies and directly contradicts advice of the Decorator pattern \cite[p.~175]{go4} creating large concerns for maintainability. Of particular interest was the design of the \cxxinline{class Timer} and \cxxinline{class TimerDependant} types which allowed for completely concurrent, event-based timing. \Cref{fig:hc12sim-timer-seq} shows a sequence diagram of the generic cycle of a \cxxinline{Timer} and \cxxinline{TimerDependant} interacting. While these concurrent timing modules were fast and well designed, it created problems with discrete execution as each component operates concurrently in separate thread contexts and can not be ``stepped'' through without executing all of the threaded operations simultaneously. In addition, each \cxxinline{TimerDependant} added a thread of execution adding runtime overhead to simulation while reducing functionality of the simulation. Due to our ignorance at the time, neither thread nor fork-join pools were used to reduce the thread ``spin-up'' performance penalty. Further, the synchronization properties of this scheme reduced to near-synchronous execution with the time taken to check locks and mutexes likely costing more time than the savings of parallelism afforded -- not to mention the required knowledge of maintaining a highly parallel code base.
+Physical modules within the simulation model were all individual custom classes. For example, the \verb|A| and \verb|B| registers were of \cxxinline{class Register<size_t width>} where the \verb|width| template parameter defined the bit width of the \cxxinline{Register}. Regrettably, any special behaviours were ``decorated'' on top of the base type creating many different types depending on how the underlying component was used. Using the pattern of ``compile-time constant templates'' created issues when trying to use these types in polymorphic aggregate containers. For example, if a \cxxinline{Register<8> A} is defined and a \cxxinline{Register<16> X} \cxxinline{typeof A} is not the equal to \cxxinline{typeof X} as templated types are created at instantiation time making the type of a variable a ``new'' type (reuse happens when available) \cite{cppreference:class-template}. This created confusing class hierarchies and directly contradicts advice of the Decorator pattern \cite[p.~175]{go4} creating large concerns for maintainability. Of particular interest was the design of the \cxxinline{class Timer} and \cxxinline{class TimerDependant} types which allowed for completely concurrent, event-based timing. While these concurrent timing modules were fast and well designed, it created problems with discrete execution as each component operates concurrently in separate thread contexts and can not be ``stepped'' through without executing all of the threaded operations simultaneously. In addition, each \cxxinline{TimerDependant} added a thread of execution adding runtime overhead to simulation while reducing functionality of the simulation. Due to our ignorance at the time, neither thread nor fork-join pools were used to reduce the thread ``spin-up'' performance penalty. Further, the synchronization properties of this scheme reduced to near-synchronous execution with the time taken to check locks and mutexes likely costing more time than the savings of parallelism afforded -- not to mention the required knowledge of maintaining a highly parallel code base.
 
-\begin{figure}[!hp]
-    \begin{minipage}{.5\linewidth}
-        \centering
-        \includegraphics[width=\textwidth]{img/hc12sim-timer-sequence} 
-    \end{minipage}%
-    \begin{minipage}{.5\linewidth}
-        \begin{enumerate}
-            \item A \cxxinline{Timer} object is instantiated and started, it will enter sleep state
-            \item Two \cxxinline{TimerDependant} objects are created with execution methods bound within.
-            \item The \cxxinline{Timer} object binds the two \cxxinline{TimerDependant} objects to itself
-            \item In the \cxxinline{Timer}'s thread, it wakes and asks the Operating system to simultaneously signals all \cxxinline{TimerDependant} objects to wake
-            \item Synchronously, all the \cxxinline{TimerDependant} objects:
-            \begin{enumerate}
-                \item Run it's own execution method within it's thread
-                \item Return to a sleep-state and wait for next notification
-            \end{enumerate}
-        \end{enumerate}
-    \end{minipage}
-    \caption{Sequence of events for \cxxinline{Timer} and two \cxxinline{TimerDependant} modules interaction \cite{Brightwell2013}} 
-    \label{fig:hc12sim-timer-seq}
-\end{figure}
+%\begin{figure}[!hp]
+%    \begin{minipage}{.5\linewidth}
+%        \centering
+%        \includegraphics[width=\textwidth]{img/hc12sim-timer-sequence} 
+%    \end{minipage}%
+%    \begin{minipage}{.5\linewidth}
+%        \begin{enumerate}
+%            \item A \cxxinline{Timer} object is instantiated and started, it will enter sleep state
+%            \item Two \cxxinline{TimerDependant} objects are created with execution methods bound within.
+%            \item The \cxxinline{Timer} object binds the two \cxxinline{TimerDependant} objects to itself
+%            \item In the \cxxinline{Timer}'s thread, it wakes and asks the Operating system to simultaneously signals all \cxxinline{TimerDependant} objects to wake
+%            \item Synchronously, all the \cxxinline{TimerDependant} objects:
+%            \begin{enumerate}
+%                \item Run it's own execution method within it's thread
+%                \item Return to a sleep-state and wait for next notification
+%            \end{enumerate}
+%        \end{enumerate}
+%    \end{minipage}
+%    \caption{Sequence of events for \cxxinline{Timer} and two \cxxinline{TimerDependant} modules interaction \cite{Brightwell2013}} 
+%    \label{fig:hc12sim-timer-seq}
+%\end{figure}
 
 \subsubsection*{Execution}
 
-The simulator implemented execution through an \cxxinline{class Executor} that asynchronously executes the execution scheme specified by the \hcmodel{} \cite[Sec.~4,~p.~47]{hc12Manual2006} which was implemented in terms of \cite[p.~59]{Vahid2002}. The \cxxinline{Executor} utilized a fetch, decode, fetch (if needed), execute loop for executing all instructions. The actual execution of an instruction was completed directly by static code written in the instruction generation step (see \cref{sec:hc12sim:instruction-generation} for more information). However, the generated code is run within a separate thread context to keep the ``clock'' of the system running at a consistent speed. Of particular note, this simulation could not handle interrupts or pipe-lining. The full sequence of actions of this execution unit is shown in \cref{fig:hc12sim-execunit-sequence}. Due to the reliance on the timing mechanisms discussed in \cref{sec:hc12sim:sec:hardware-simulation}, the execution engine suffered from the same ``synchronous'' parallelism. Further, if the clock speed was too fast and execution actions moved too slowly, the result was an non-determinant clock skew over time.
+The simulator implemented execution through an \cxxinline{class Executor} that asynchronously executes the execution scheme specified by the \hcmodel{} \cite[Sec.~4,~p.~47]{hc12Manual2006} which was implemented in terms of \cite[p.~59]{Vahid2002}. The \cxxinline{Executor} utilized a fetch, decode, fetch (if needed), execute loop for executing all instructions. The actual execution of an instruction was completed directly by static code written in the instruction generation step (see \cref{sec:hc12sim:instruction-generation} for more information). However, the generated code is run within a separate thread context to keep the ``clock'' of the system running at a consistent speed. Of particular note, this simulation could not handle interrupts or pipe-lining. Due to the reliance on the timing mechanisms discussed in \cref{sec:hc12sim:sec:hardware-simulation}, the execution engine suffered from the same ``synchronous'' parallelism. Further, if the clock speed was too fast and execution actions moved too slowly, the result was an non-determinant clock skew over time.
 
-\begin{figure}[!ph]
-    \centering
-    \includegraphics[width=.9\linewidth]{img/hc12sim-execunit-sequence}
-    \caption{Sequence diagram of Execution process within Simulator}
-    \label{fig:hc12sim-execunit-sequence}
-\end{figure} 
+%\begin{figure}[!ph]
+%    \centering
+%    \includegraphics[width=.9\linewidth]{img/hc12sim-execunit-sequence}
+%    \caption{Sequence diagram of Execution process within Simulator}
+%    \label{fig:hc12sim-execunit-sequence}
+%\end{figure} 
 
-\subsection{Analysis of Requirements}
+\section{Evaluation of existing simulation technologies} 
+\label{sec:review}
+
+Presented in the following sections are a series of similar projects attempting to tackle the same solution space as the work of this thesis. Each software tool is evaluated against the requirements from \cref{sec:problem-statement}. The intention of this evaluation is dual:
+\begin{enumerate}
+    \item Find previous works that could be expanded upon and improved to match this thesis' requirements rather than building a new solution in a ``green field''
+    \item Extract features from other simulation technologies that are beneficial to future technology
+\end{enumerate}
+\noindent Each simulation project is rated based on the requirements out of five and totalled to create a quantitative matrix of requirements. Each rating contains justifications for the rating assigned following \cref{sec:review-prev-hc12sim}. 
+
+\subsection{Methodology}
+\label{sec:review:methodology}
+
+Holistically, we attempted to find the best solution for each requirement outlined in \cref{sec:problem-statement}. To do this we created a ranking of each of our considered software and applied a rating of zero to five with zero being the worst, and five being the best matching of each requirement. Within this specification, we believe some requirements were not met by any of the software evaluated. For example, there is no ``best'' software in our opinion that met \cref{req:modern} perfectly with having a modern user interface. Our methodology allows for a relative, though opinion-based, approach to contrasting existing solutions.  
+
+\subsection{hc12sim}
 \label{sec:review-prev-hc12sim}
 
 The hc12sim project was very immature and not well implemented in the presented state. hc12sim managed to provide a solution for all of the required platforms when distributed as individual platform specific binaries. The hc12ide was a desktop application and bound to the technology choice of C++, there is no possibility of using the software outside the desktop without large software porting efforts. Unfortunately, building C++ applications such that they can be distributed to cross-platform targets is labour intensive and very difficult without the correct amount of knowledge -- knowledge that was lacking at the time of authorship. Binaries worked for some and often only worked with specific unknown environmental state requirements (particularly with Windows environments). Regarding \cref{req:personal}, the project meets the requirement adequately, but does not do enough. Configuration of the ISA is provided through the JSON-driven mechanism for instruction generation but this mechanism only worked as a compile-time configuration. If students wanted to change the ISA for their processor, it required rebuilding the entire project and testing to see that it worked manually. This was aided by the use of the ``Instruction Generator'' described in \cref{sec:hc12sim:instruction-generation} but does not remove the requirement of building requiring a large compiler tool-chain. Further, without any support for hardware configuration the project did not meet \cref{req:configuration}. hc12sim heavily favoured \cref{req:pedagogical} as it was intended to create a simulator that was behaviourally accurate to the \hcmodel, but only if it allowed students to better understand how the processor works.
@@ -130,17 +145,8 @@ The simulation interface allowed for debugging at an instruction level and setti
         \textbf{\hyperref[sec:review-prev-hc12sim]{hc12sim} \cite{Brightwell2013}} 
         & 3 & 1 & 4 & 2 & 3 & \textbf{15} \\
     \end{tabular}
+    \caption{Qualitative requirement rating of hc12sim \cite{Brightwell2013}}
 \end{table}
-
-\section{Evaluation of existing simulation technologies} 
-\label{sec:review}
-
-Presented in the following sections are a series of similar projects attempting to tackle the same solution space as the work of this thesis. Each software tool is evaluated against the requirements from \cref{sec:problem-statement}. The intention of this evaluation is dual:
-\begin{enumerate}
-    \item Find previous works that could be expanded upon and improved to match this thesis' requirements rather than building a new solution in a ``green field''
-    \item Extract features from other simulation technologies that are beneficial to future technology
-\end{enumerate}
-\noindent Each simulation project is ranked based on the requirements out of five and totalled to create a quantitative matrix of requirements. Each ranking contains justifications for the rankings assigned following \cref{sec:review-prev-hc12sim}.
 
 \subsection{ShelbySim}
 \label{sec:review-shelbysim}
@@ -164,6 +170,7 @@ For \cref{req:personal}, ShelbySim is open-source and claims to run on all major
         \textbf{Requirements} & \textbf{\hyperref[req:personal]{R1}} & \textbf{\hyperref[req:configuration]{R2}} & \textbf{\hyperref[req:pedagogical]{R3}} & \textbf{\hyperref[req:simulations]{R4}} & \textbf{\hyperref[req:modern]{R5}} & \textbf{Total} \\ \hline
         \textbf{\hyperref[sec:review-shelbysim]{ShelbySim} \cite{Tappan2009, Tappan2009-2}} & 4                                  & 4                                    & 3                            & 4                                  & 0                             & \textbf{15}    \\
     \end{tabular}
+    \caption{Qualitative requirement rating of ShelbySim \cite{Tappan2009, Tappan2009-2}}
 \end{table}
 
 \subsection{EDCOMP: Flexible Web-Based Educational System}
@@ -182,6 +189,7 @@ For \cref{req:personal}, EDCOMP is written in Java and was previously run within
        \textbf{EDCOMP \cite{Djordjevic2005}} 
        & 3 & 3 & 4 & 4 & 0 & \textbf{14} \\ 
     \end{tabular}
+    \caption{Qualitative requirement rating of EDCOMP \cite{Djordjevic2005}}
 \end{table}
 
 \subsection{p88110: A Graphical Simulator for Computer Architecture and Organization Courses}
@@ -200,6 +208,7 @@ The authors claim that the p88110 simulator may be run on personal computers, ho
         \textbf{p88110 \cite{Garcia2009}}
         & 1 & 1 & 4 & 3 & 1 & \textbf{10} \\
     \end{tabular}
+    \caption{Qualitative requirement rating of p88110 \cite{Garcia2009}}
 \end{table}
 
 \subsection{EASE - An Extensible Architecture Simulation Engine}
@@ -225,17 +234,18 @@ EASE is a very immature project without a lot of proven use--this makes it diffi
         \textbf{EASE \cite{Skillen2011}}
         & 4 & 2 & 5 & 3 & 2 & \textbf{16} \\
     \end{tabular}
+    \caption{Qualitative requirement rating of EASE \cite{Skillen2011}}
 \end{table}
 
 \subsection{TinyCPU and TinyCSE: Hardware simulations for education}
 \label{sec:review-tiny-cse}
 
-TinyCPU is a teaching assignment designed to be used in a Masters of Science program in embedded systems to teach students about computer architectures by having them incrementally design a CPU (TinyCPU) \cite{McLoughlin2010}. TinyCPU has been used in a program described to be very similar to \uwo's computer engineering program. TinyCPU runs in Verlilog and is a simple stack-based machine. The full block diagram for TinyCPU is shown in \cref{fig:mcloughlin2010-tinycpu-block-diagram}. The architecture is meant to be extremely simple to mitigate extra information for students to consume. The entire CPU configuration is rigidly bound as:
+TinyCPU is a teaching assignment designed to be used in a Masters of Science program in embedded systems to teach students about computer architectures by having them incrementally design a CPU (TinyCPU) \cite{McLoughlin2010}. TinyCPU has been used in a program described to be very similar to \uwo's computer engineering program. TinyCPU runs in Verlilog and is a simple stack-based machine. The full block diagram for TinyCPU is shown in \cref{fig:mcloughlin2010-tinycpu-block-diagram}. The architecture is meant to be extremely simple to mitigate extra information for students to consume. The entire CPU configuration is rigidly bound with:
 \begin{itemize}
     \item 16-bit word size
     \item 12-bit address space
-    \item single ALU
-    \item dual bus structure with a data bus (dbus) and address bus (abus)
+    \item A single ALU
+    \item Dual bus structure with a data bus (dbus) and address bus (abus)
 \end{itemize}
 The CPU is compiled with a Verlilog tool chain (e.g. Xilinx ISE) and loaded onto either a hardware or software-simulated FPGA to run. The execution model is intentionally simplistic for improving ease of learning (shown in \cref{fig:mcloughlin2010-tinycpu-state-chart}). Given that TinyCPU is written in Verlilog, it works well with existing industry tools such as ModelSim. Lastly, there exists a C compiler and assembler for TinyCPU making a very strong case for modern programming interactions. 
 
@@ -269,6 +279,7 @@ For the purposes of analysis, this section will only consider TinyCSE as it is a
         \textbf{TinyCPU/TinyCSE \cite{Nakamura2013, McLoughlin2010}} 
         & 2 & 3 & 3 & 4 & 3 & \textbf{15} \\ 
     \end{tabular}
+    \caption{Qualitative requirement rating of TinyCPU/TinyCSE \cite{Nakamura2013, McLoughlin2010}}
 \end{table}
 
 \subsection{CPU Sim}
@@ -276,10 +287,10 @@ For the purposes of analysis, this section will only consider TinyCSE as it is a
 
 CPU Sim is a Java CPU simulator written for use within a classroom environment \cite{Skrien2001}. CPU Sim allows students to design, modify, and compare various computer architectures at the register-transfer level and higher. Additionally, students may write and debug assembly code for custom architectures. The simulator and IDE are written in Java, with the latter utilizing Oracle's JavaFX user interface. The software is currently available from \cite{Skrien2017} as ``freeware.'' In conversations with Dr. Skrien, he expressed the want to open source CPU Sim in the future to increase availability \cite{Skrien2016}. The user interface is feature rich allowing students to configure a processor with:
 \begin{itemize}
-    \item hardware specifications (e.g. RAM word size, length)
-    \item hardware inter-connections
-    \item processor microcodes
-    \item assembly instructions
+    \item Hardware specifications (e.g. RAM word size, length),
+    \item Hardware inter-connections,
+    \item Processor microcodes,
+    \item Assembly instructions,
 \end{itemize} 
 These specifications gives students the ability to configure a nearly custom processor. However, using the current 4.0.10 release, configuration options are missing: clock speed changes, CISC-like addressing modes, and peripheral support
 \cite{Skrien2017}. Using Java technologies allows CPU Sim to work with the three major platforms as a desktop application. CPU Sim's IDE provides a modern assembly editor for custom architectures providing syntax highlighting, tabbed editor panes and simple editor commands like find-and-replace. During a simulation, CPU Sim allows students to view memory and register states. \Cref{fig:skrien2017-cpusim-desktop} shows the IDE during a simple simulation with a program written in a custom ISA open for editing. CPU Sim fully supports debug points and step-based execution in it's engine. Unfortunately the execution engine is very simplistic and does not provide any configuration points outside of changing the instruction fetch microcode sequence. 
@@ -300,27 +311,21 @@ CPU Sim supports creating custom assembly languages to ``compile'' to the a cust
     \label{fig:skrien2017-cpusim-machine-instruction}
 \end{figure}
 
-Lastly, CPU Sim contains excellent documentation within it's internal help program shown in \cref{fig:skrien2017-cpusim-help}. The help documentation is very deep and has many images and ``tutorial style'' documentation embedded internally. The author used this documentation exclusively to learn how to use CPU Sim and found it very useful. This documentation in particular makes CPU Sim attractive to prospective instructors due to the reduction in student inquiries as most questions may be found in the program itself. 
+Lastly, CPU Sim contains excellent documentation within it's internal help program. The help documentation is very deep and has many images and ``tutorial style'' documentation embedded internally. The author used this documentation exclusively to learn how to use CPU Sim and found it very useful. This documentation in particular makes CPU Sim attractive to prospective instructors due to the reduction in student inquiries as most questions may be found in the program itself. 
 
-\begin{figure}[hb!]
-    \centering
-    \includegraphics[width=0.7\linewidth]{img/skrien2017-cpusim-help}
-    \caption{CPU Sim 4.0.0 Help Window showing depth of documentation \cite{Skrien2017}}
-    \label{fig:skrien2017-cpusim-help}
-\end{figure}
 
 \subsubsection*{Analysis of Requirements}
 
-CPU Sim is readily available for use by downloading it from \cite{Skrien2017}. The software runs well on Microsoft Windows and Linux. macOS support is available, however it has some non-critical user interface bugs that make it feel slightly ``foreign'' on macOS (e.g. the menu bar does not reside in the operating system menu bar). This strongly meets \cref{req:personal} as it runs well on the three major platforms. The assembly editor has many modern features which leads well to having students feel as though they are using a modern software. However when configuring hardware modules, the user interface is difficult to navigate and does not always use suitable user interface components to better utilize the available space. \Cref{fig:skrien2017-cpusim-module-registers} shows the module modification interface for Registers. The interface presented does not scale and for different modules, there exists many disjointed user interface components where the same ``expected action'' between two different dialogs is completed a different way. In our experience, this lead to confusing amongst those using the software. Unfortunately, these usability concerns hinder both \cref{req:modern,req:pedagogical} severely. 
+CPU Sim is readily available for use by downloading it from \cite{Skrien2017}. The software runs well on Microsoft Windows and Linux. macOS support is available, however it has some non-critical user interface bugs that make it feel slightly ``foreign'' on macOS (e.g. the menu bar does not reside in the operating system menu bar). This strongly meets \cref{req:personal} as it runs well on the three major platforms. The assembly editor has many modern features which leads well to having students feel as though they are using a modern software. However when configuring hardware modules, the user interface is difficult to navigate and does not always use suitable user interface components to better utilize the available space. \Cref{fig:skrien2017-cpusim-microinstructions} shows the module modification interface for the Transfer Register to Register Array interface. The interface presented does not scale and for different modules, there exists many disjointed user interface components where the same ``expected action'' between two different dialogs is completed a different way. In our experience, this lead to confusing amongst those using the software. Unfortunately, these usability concerns hinder both \cref{req:modern,req:pedagogical} severely. 
 
 \begin{figure}[th!]
     \centering
-    \includegraphics[width=0.7\linewidth]{img/skrien2017-cpusim-module-registers}
-    \caption{CPU Sim 4.0.0 IDE module specification dialog showing modification of Register components \cite{Skrien2017}}
-    \label{fig:skrien2017-cpusim-module-registers}
+    \includegraphics[width=0.7\linewidth]{img/skrien2017-cpusim-microinstructions}
+    \caption{CPU Sim 4.0.0 IDE module specification dialog showing modification of Transfer Register to Register Array microinstruction \cite{Skrien2017}}
+    \label{fig:skrien2017-cpusim-microinstructions}
 \end{figure}
 
-While usability is hurt, the simplicity of these interfaces improves the pedagogical outcomes by removing non-essential information which supports \cref{req:pedagogical}. Dr. Skrien's intention to open source CPU Sim should improve student learning by allowing students to investigate the source code within \cite{Skrien2016,Coppola2004,Koohang2005}. The large amount of configuration available strongly supports \cref{req:configuration}; however due to missing features such as changing how the simulator executes code and the addition of external peripherals CPU Sim is not a perfect match for \cref{req:configuration}. Lastly, CPU Sim's simulations are very accurate and the user interface makes it simple to watch modules within the simulated engine partially meeting \cref{req:simulations} -- though external peripherals are missing.
+While usability is impacted, the simplicity of these interfaces improves the pedagogical outcomes by removing non-essential information which supports \cref{req:pedagogical}. Dr. Skrien's intention to open source CPU Sim should improve student learning by allowing students to investigate the source code within \cite{Skrien2016,Coppola2004,Koohang2005}. The large amount of configuration available strongly supports \cref{req:configuration}; however due to missing features such as changing how the simulator executes code and the addition of external peripherals CPU Sim is not a perfect match for \cref{req:configuration}. Lastly, CPU Sim's simulations are very accurate and the user interface makes it simple to watch modules within the simulated engine partially meeting \cref{req:simulations} -- though external peripherals are missing.
 
 \begin{table}[h!]
     \centering
@@ -329,6 +334,7 @@ While usability is hurt, the simplicity of these interfaces improves the pedagog
         \textbf{CPU Sim \cite{Skrien2001, Skrien2001}}
         & 5 & 4 & 4 & 2 & 3 & \textbf{18} \\
     \end{tabular}
+    \caption{Qualitative requirement rating of CPU Sim \cite{Skrien2001, Skrien2001}}
 \end{table}
 
 \subsection{Emumaker86: A Hardware Simulator for Teaching CPU Design}
@@ -358,12 +364,13 @@ Enumaker86 meets most of the requirements outlined in \cref{sec:problem-statemen
         \textbf{Emumaker86 \cite{Black2013}}
         & 4 & 5 & 5 & 2 & 2 & \textbf{18} \\ 
     \end{tabular}
+    \caption{Qualitative requirement rating of Emumaker86 \cite{Black2013}}
 \end{table}
 
 \section{Summary}
 \label{sec:review-summary}
 
-Given the results accumulated through objective comparison in \cref{sec:review}, the results were tabulated into \cref{table:simulator-evaluation-summary}. Naively, out of the simulations, CPU Sim \cite{Skrien2001,Skrien2017} and Emumaker86 \cite{Black2013} have the largest total match for the requirements. This information was considered when selecting a trajectory for the thesis' project, however the raw numbers do not extract enough information. Each simulator project has design ideas that can be combined into a better software to meet the requirements from \cref{sec:problem-statement}. 
+Given the results accumulated through our best effort objective comparison in \cref{sec:review}, the results were tabulated into \cref{table:simulator-evaluation-summary}. Naively, out of the simulations, CPU Sim \cite{Skrien2001,Skrien2017} and Emumaker86 \cite{Black2013} have the largest total match for the requirements. This information was considered when selecting a trajectory for the thesis' project, however the raw numbers do not extract enough information. Each simulator project has design ideas that can be combined into a better software to meet the requirements from \cref{sec:problem-statement}. 
 
 \begin{table}[h!]
     \centering

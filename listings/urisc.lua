@@ -1,5 +1,4 @@
--- URISC Machine defined in procsim
--- \cite{Mavaddat1988}
+-- URISC |\cite{Mavaddat1988}| Machine defined in procsim
 
 -- variable defined for convenience
 local wordWidth = 16

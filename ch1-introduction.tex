@@ -41,7 +41,7 @@ microelectronics
 \end{itemize}
 \end{comment}
 
-Embedded systems and computer architectures are a critical part of both computer and software engineering undergraduate programs \cite{cec2016, sec2015, ece-ce-program, Ristov2011, Stolikj2011}. Over time, it is expected that knowledge of embedded systems and computer architectures will be required given the rapid growth of positions in both systems software developers (+13\%) and computer occupations (+12.5\%) \cite{bls2014}. At our institution, \uwo{}, two courses cover embedded systems and computer architectures, ECE 3375 - Microprocessors and Microcomputers and ECE 3390 - Hardware/Software Co-Design \cite{eceOutlines}. These topics are taught through the use of industry focused software such as Intel Quartus Prime (formerly Altera Quartus II) \cite{quartus}, Xilinx ISE WebPACK \cite{xilinxISE} or WinIDE \cite{winide}. These established industry tools are complex and powerful for industry but often have students feeling overwhelmed during use. Additionally with the prevalence of high-level programming languages, embedded systems work has become increasingly difficult for students. Students are troubled connecting high-level concepts to low-level details in computer architectures largely due to theoretical discontinuities between lecture materials and the ``black box'' of hardware. 
+Embedded systems and computer architectures are a critical part of both computer and software engineering undergraduate programs \cite{cec2016, sec2015, ece-ce-program, Ristov2011, Stolikj2011}. Over time, it is expected that knowledge of embedded systems and computer architectures will be required given projections of rapid growth of positions in both systems software developers (+13\%) and computer occupations (+12.5\%) for 2020 \cite{bls2014}. At our institution, \uwo{}, four courses cover embedded systems and computer architectures, \textit{ECE 3375 - Microprocessors and Microcomputers}, \textit{ECE 3389 - Computer System Design}, \textit{ECE 3390 - Hardware/Software Co-Design} and \textit{ECE 4460 - Real-time and Embedded Systems} \cite{eceOutlines}. These topics are taught through the use of industry focused software such as Intel Quartus Prime (formerly Altera Quartus II) \cite{quartus}, Xilinx ISE WebPACK \cite{xilinxISE} or WinIDE \cite{winide}. These established industry tools are complex and powerful for industry but we have anecdotally found students often feel overwhelmed during use. Additionally with the prevalence of high-level programming languages, embedded systems work has become increasingly difficult for students. Students are troubled connecting high-level concepts to low-level details in computer architectures largely due to theoretical discontinuities between lecture materials and the ``black box'' of hardware. 
 
 \section{Research Question}
 
@@ -51,17 +51,17 @@ Can improvements and increased usage of software simulation technologies within 
 \end{displayquote}
 Given the overall research question, there exist sub-questions: 
 \begin{enumerate}
-	\item Are simulation software considered beneficial to student outcomes in computer and software engineering programs?
-	\item What elements of simulation software are required for successful implementation within an undergraduate course?
+	\item Are simulation software beneficial to improvements in student outcomes in computer and software engineering programs?
+	\item What elements of simulation software should be required for successful implementation within an undergraduate course?
 \end{enumerate}
 Each of these questions are elaborated in further sections. 
 
 \section{Motivation}
 \label{sec:motivation}
 
-Students in computer engineering have a growing requirement to have strong knowledge of both embedded systems and computer architectures due to increases in computer engineering careers \cite{cec2016, bls2014}. Unfortunately, many students do not show enthusiasm for these subjects \cite{Ackovska2014,Ackovska2014,Stolikj2011}. 
+Students in computer engineering have a growing requirement to have strong knowledge of both embedded systems and computer architectures due to increases in computer engineering careers \cite{cec2016, bls2014}. Unfortunately, many students do not show enthusiasm for subjects surrounding computer architecture and embedded systems \cite{Ackovska2014,Ackovska2014,Stolikj2011}. This lowered enthusiasm reduces student achievements and creates implicit barriers for learning new material \cite{Ackovska2014, Ristov2011}.
 
-At \uwo{}, students in all programs in Electrical \& Computer Engineering must take the course ECE 3375 - Microprocessors and Microcomputers \cite{uwo-we-programprogression, eceoutline-ece3375}. As seen in \cref{table-course-enthusiasm-ece3375}, student enthusiasm for ECE 3375 at \uwo{} is extremely mixed. Unfortunately, our collected data is not broken down between computer and software engineering -- both are required to take this course. Additionally, with primitive sentiment analysis applied to \cite{evals:ece3375-2013, evals:ece3375-2014}, shown in \cref{fig:ece-3375-course-sentiment}, we can see that after completion of the course, students are pleased overall with the course content itself as approximately 73\% of students found the experience positive. However, by filtering comments regarding the laboratory sessions and applying the same technique for sentiment as the course, shown in \cref{fig:ece-3375-lab-sentiment}, we find that students are likely very unhappy with the lab components as approximately 33\% stated negative reviews and only 24\% stated positive reviews. 
+At \uwo{}, students in all students in Electrical \& Computer Engineering degree programs must take the course ECE 3375 - Microprocessors and Microcomputers \cite{uwo-we-programprogression, eceoutline-ece3375}. We utilized the feedback students provide through end-of-semester course evaluations to gauge student enthusiasm and sentiment regarding ECE 3375. \todo{Scan of the form?} In order to extract sentiment, we applied a simplistic approach. If a comment was overtly positive or negative, we stated it was positive or negative respectively. If a comment was indistinguishable, we erred to neutral to try and remove our own biases. Unfortunately due to confidentiality, we are unable to provide these comments directly. As seen in \cref{table-course-enthusiasm-ece3375}, student enthusiasm for ECE 3375 at \uwo{} is mixed. Unfortunately, our collected data is not broken down between computer and software engineering -- both are required to take this course. Additionally, with primitive sentiment analysis applied to results from 2013 and 2014 \cite{evals:ece3375-2013, evals:ece3375-2014}, shown in \cref{fig:ece-3375-course-sentiment}, we can see that after completion of the course, students are pleased overall with the course content itself as approximately 73\% of students found the experience positive. However, by filtering comments regarding the laboratory sessions and applying the same technique for sentiment as the course, shown in \cref{fig:ece-3375-lab-sentiment}, we find that students are likely very unhappy with the lab components as approximately 33\% stated negative reviews and only 24\% stated positive reviews. Due to time constraints, we were unable to compile a formal survey due to time required for ethics approvals and program duration.
 
 \begin{table}[b!]
     \centering
@@ -73,9 +73,8 @@ At \uwo{}, students in all programs in Electrical \& Computer Engineering must t
         Low           & \%       & 0.0                      & 8.9                      & 5.4                       \\ 
         Total         & \#       & 59                       & 90                       & 149                       \\ \hline
     \end{tabular}
-    \caption{ECE 3375 Course ``Level of enthusiasm before taking the course'' as reported by undergraduate students \cite{evals:ece3375-2013, evals:ece3375-2014}.} 
+    \caption{ECE 3375 Course ``Level of enthusiasm before taking the course'' as reported by undergraduate students following course completion \cite{evals:ece3375-2013, evals:ece3375-2014}.} 
     \label{table-course-enthusiasm-ece3375}
-    \todofig{Update with 2015/2016 data if provided}
 \end{table}
 
 
@@ -95,10 +94,10 @@ At \uwo{}, students in all programs in Electrical \& Computer Engineering must t
         \label{fig:ece-3375-lab-sentiment}
     \end{subfigure}
     
-    \caption{ECE 3375 - Course Sentiment Analysis\cite{evals:ece3375-2013, evals:ece3375-2014}}
+    \caption{ECE 3375 - Course Sentiment Analysis Results \cite{evals:ece3375-2013, evals:ece3375-2014}}
 \end{figure}
 
-Researchers have found that there are concerns with low-level hardware constructs being taught to high-level Computer Science, Software Engineering and Computer Engineering graduates \cite{Ristov2011, Stolikj2011}. Additionally, we can corroborate the following claims regarding student's opinions on microprocessor courses: 
+Researchers have found that there are concerns with low-level hardware constructs being taught to high-level Computer Science, Software Engineering and Computer Engineering graduates \cite{Ristov2011, Stolikj2011}. Additionally, we can corroborate the following claims by Ristov et. al. \cite{Ristov2011} regarding student's opinions on microprocessor courses: 
 \begin{displayquote}[{\cite[p.~340]{Ristov2011}}]
     \begin{observations}
         \item Disjointed material between lectures, theoretical and practical
@@ -110,7 +109,7 @@ Researchers have found that there are concerns with low-level hardware construct
             \label{quote:ristov:3}
     \end{observations}
 \end{displayquote}
-Given our first-hand experiences in both taking and assisting in the instruction of ECE 3375 and ECE 3390, these claims are repeated by students during laboratory exercises and review sessions creating hostility towards the subject matter. In a direct example supporting \cref{quote:ristov:2}, students in ECE 3375 use the WinIDE12Z Integrated Development Environment \cite{winide}, shown in \cref{fig:winide-screenshot-pemicro}. In ECE 3375, students found WinIDE complicated, frustrating and ``outdated'' \cite{evals:ece3375-2013, evals:ece3375-2014} directly supporting both \cref{quote:ristov:2} and \cref{quote:ristov:3}. Additionally students found it difficult to move from lecture material that presented embedded systems as ``translucent'' devices composed of inner components to the literal ``black box'' of the physical hardware shown in \cref{fig:hc12-board}. 
+Given our first-hand experiences in both taking and assisting in the instruction of ECE 3375 and ECE 3390, these claims are repeated by students during laboratory exercises and review sessions creating hostility towards the subject matter. In a direct example supporting \cref{quote:ristov:2}, students in ECE 3375 use the WinIDE12Z Integrated Development Environment \cite{winide}, shown in \cref{fig:winide-screenshot-pemicro}, for completing laboratory work ranging from simple ``hello world'' assembly programs to hardware interfacing. In ECE 3375, students found WinIDE complicated, frustrating and ``outdated'' \cite{evals:ece3375-2013, evals:ece3375-2014} directly supporting both \cref{quote:ristov:2} and \cref{quote:ristov:3}. Additionally students found it difficult to move from lecture material that presented embedded systems as ``translucent'' devices composed of inner components to the literal ``black box'' of the physical hardware shown in \cref{fig:hc12-board}. 
 
 \begin{figure}[bh!]
     \centering
@@ -122,11 +121,11 @@ Given our first-hand experiences in both taking and assisting in the instruction
 \begin{figure}[bh!]
     \centering
     \includegraphics[width=0.8\linewidth]{img/board-on-cropped}
-    \caption{Freescale S12CPUV2 development board built by Western Engineering Electronics Shop for use in ECE 3375}
+    \caption{\hcmodel{} development board built by Western Engineering Electronics Shop for use in ECE 3375}
     \label{fig:hc12-board}
 \end{figure}
 
-With sentiment analysis and the comments provided by students, we extracted several propositions for improving laboratory sessions: 
+With sentiment analysis and the comments provided by students in course evaluation feedback \cite{evals:ece3375-2013, evals:ece3375-2014}, we extracted several common propositions for improving laboratory sessions: 
 
 \begin{propositions}%[label={\textbf{\theproposition \arabic*}}]
     \item Increase the number of laboratory sessions 
@@ -143,21 +142,21 @@ With sentiment analysis and the comments provided by students, we extracted seve
 
 All of these considerations were brought to the course instructor and limitations were noted for each. For \cref{prop:add-lab-sessions,,prop:add-tutorial-sessions}, while the addition of more hands-on experience has been shown to improve student outcomes \cite{Ristov2011, Stolikj2011}, due to the large amount of financial resources required to add more laboratory sessions, this option is likely unavailable for many programs. In addition, due to the layout of the current course laboratory sessions, there does not exist enough weeks in the 12-week course to add more sessions given current staffing resources. It is reasonable to assume that these issues are prevalent at other institutions. Thus, both \cref{prop:add-lab-sessions,,prop:add-tutorial-sessions} can not be implemented given financial and temporal restrictions.
 
-\Cref{prop:change-course-materials} asks the instructor to change the current course material to use more modern hardware and software architecture. There are several reasons why this is not beneficial to the improvement of learning outcomes. The current architecture used is the \hcmodel{}. This architecture provides a simple CISC ISA with only \numberstringnum{4} 16-bit addressable registers (\verb|SP|, \verb|PC|, \verb|X|, \verb|Y|); \numberstringnum{2} \numberstringnum{8}-bit accumulators (\verb|A|, \verb|B|) and multiple addressing modes \cite{hc12Manual2006}. The software abstractions of the \hcmodel{} assembly is similar to current Intel\textregistered{} x86 processors \cite{intel2017}. The parallelism between architectures allows instructors to use more simple architectures that still allow students to apply concepts to newer architectures while simultaneously reducing the cognitive ``base knowledge'' required to succeed. Using simpler architectures like the Ultimate Reduced Instruction Set Computer (URISC, \cite{Mavaddat1988}) has been shown to be very beneficial to improving student outcomes \cite{Nakamura2013, McLoughlin2010, Mavaddat1988, Djordjevic2005, Garcia2009}. Additionally, by changing course materials, it leads into changing the laboratory hardware which \cref{prop:replace-hardware} discusses. Unfortunately, replacing laboratory equipment requires significant investment and with justifications for \cref{prop:change-course-materials} showcasing that there is not noticeable improvements in learning outcomes, the cost-benefit analysis does not prove worthwhile to adjust both \cref{prop:change-course-materials,,prop:replace-hardware}.
+\Cref{prop:change-course-materials} asks the instructor to change the current course material to use more modern hardware and software architecture. There are several reasons why this is not beneficial to the improvement of learning outcomes. The current architecture used is the \hcmodel{}. This architecture provides a simple Complex Instruction Set Computer (CISC) Instruction Set Architecture (ISA) with only \numberstringnum{4} 16-bit addressable registers (\verb|SP|, \verb|PC|, \verb|X|, \verb|Y|); \numberstringnum{2} \numberstringnum{8}-bit accumulators (\verb|A|, \verb|B|) and multiple addressing modes \cite{hc12Manual2006}. The software abstractions of the \hcmodel{} assembly is similar to current Intel\textregistered{} x86 processors \cite{intel2017}. Parallels between architectures allows instructors to use more simple architectures that still allow students to apply concepts to newer architectures while simultaneously reducing the cognitive ``base knowledge'' required to succeed. Using simpler architectures like the Ultimate Reduced Instruction Set Computer (URISC, \cite{Mavaddat1988}) has been shown to be very beneficial to improving student outcomes \cite{Nakamura2013, McLoughlin2010, Mavaddat1988, Djordjevic2005, Garcia2009}. Additionally, by changing course materials, it leads into changing the laboratory hardware which \cref{prop:replace-hardware} discusses. Unfortunately, replacing laboratory equipment requires significant investment and with justifications for \cref{prop:change-course-materials} showcasing that there is not noticeable improvements in learning outcomes, the cost-benefit analysis does not prove worthwhile to adjust both \cref{prop:change-course-materials,,prop:replace-hardware}.
 
 The last proposition, \cref{prop:replace-software} is the most attainable. Researchers have found that improving software technology in the classroom and laboratory can vastly improve the learning outcomes of students while improving engagement \cite{Ackovska2014, Stolikj2011, Ristov2011, Ristov2014, Nikolic2009, Skillen2011, Tappan2009, Djordjevic2005, cec2016}. Students within ECE3375 are immediately presented with the interfaces shown in \cref{fig:winide-screenshot-pemicro}. Students have expressed immense frustrations with the software when used in the laboratory exercises and often encounter hardware issues that are not caused by their own work \cite{evals:ece3375-2013, evals:ece3375-2014}. Other researchers have found hardware solutions problematic with hardware-specific problems common such as broken peripherals and unconnected pins \cite{Ackovska2014}. These errors are hard to debug, if not impossible for students with no prior knowledge. Teaching assistants and instructors are often unable to debug these issues without the aid of technicians. These hard-to-diagnose hardware issues lead to strained teaching resources and frustrations, supporting a large potential gain by replacing this ageing software with new tooling. Given these justifications, this thesis looks to investigate the requirements surrounding replacing the current software in use within the ECE 3375 course and propose a configurable solution for others to utilize in other courses. 
 
 \section{Problem Statement}
 \label{sec:problem-statement}
 
-Our analysis of the current state of the ECE 3375 course showcased the pervasive dislike and discomfort with the current laboratory exercises \cite{evals:ece3375-2013, evals:ece3375-2014}. Given previous analysis, we chose to improve the current software used within the laboratory exercises and the classroom. To do this, a current survey of known technologies must be done to ascertain whether a new solution should be created or an existing solution will provide the requirements. Therein the formal problem becomes: 
+Our analysis of the current state of the ECE 3375 course showcased the pervasive dislike and discomfort with the current laboratory exercises \cite{evals:ece3375-2013, evals:ece3375-2014}. Given previous analysis, we chose to improve the current software used within the laboratory exercises and the classroom. To do this, a current survey of known technologies is completed to ascertain whether a new solution should be created or an existing solution will provide the requirements. Therein the formal problem becomes: 
 \begin{displayquote}
     Can a solution be provided to students that is configurable for hardware and software interfaces and showcases the connection between hardware and software while focusing on pedagogy rather than industry performance? 
 \end{displayquote}
-While the formalization is accurate, \textquote[\cite{Skillen2011}]{striking the right balance between teaching sufficient details of hardware components and their working principles, and important theoretical concepts useful for programming the computer is always a challenge.} From reviewing many existing software solutions to this problem, we concluded that in order to be successful a solution must meet the following requirements:
+While the formalization is accurate, \textquote[\cite{Skillen2011}]{striking the right balance between teaching sufficient details of hardware components and their working principles, and important theoretical concepts useful for programming the computer is always a challenge.} From reviewing many existing software solutions to this problem, we propose the following requirements for a successful solution:
 
 \begin{requirements}
-    \item\label{req:personal} Must be available for use outside of the laboratory on personal computers
+    \item\label{req:personal} Must be available for use outside of the laboratory on personal computers including all major desktop platforms (e.g. Windows, macOS and Linux)
         
     \item\label{req:configuration} Provide a student configurable system for different ISAs including configuration of:
         \begin{requirements}
@@ -167,7 +166,7 @@ While the formalization is accurate, \textquote[\cite{Skillen2011}]{striking the
             \item external peripherals
         \end{requirements}
         
-    \item\label{req:pedagogical} Focus on pedagogy over simulation accuracy
+    \item\label{req:pedagogical} Focus on pedagogy over simulation accuracy as best as reasonable
        
     \item\label{req:simulations} Simulations must allow: 
         \begin{requirements}
@@ -181,7 +180,7 @@ While the formalization is accurate, \textquote[\cite{Skillen2011}]{striking the
         
 \end{requirements}
 
-\Cref{req:personal} outlines that the software must work on personal computers. StackOverflow's Developer survey \cite{StackOverflowSurvey2016} found that approximately 47.9\% of those surveyed used a non-Microsoft Windows environment (macOS or Linux). The metrics recorded for 2016 desktop operating systems are shown in \cref{fig:stack-overflow-os-share}. While other metrics show that over 80\% of computers are Microsoft Windows \cite{StatCounter2017}, we believe the StackOverflow survey is better given students in computer and software engineering programs likely go on to become hardware or software developers \cite[Sec.~II.~Developer~Profiles]{StackOverflowSurvey2016}. Further, StackOverflow has found the year-over-year change to show a decrease in Microsoft Windows-based operating systems between 2013 and 2016 \cite{StackOverflowSurvey2016}. StackOverflow's results imply that this project's solution must run on all three major operating systems with minimal effort to allow students to perform out-of-classroom exercises. 
+\paragraph{\Cref{req:personal}: Personal computer usage.} \Cref{req:personal} outlines that any software must be cross-platform. StackOverflow's Developer survey \cite{StackOverflowSurvey2016} found that approximately 47.9\% of those surveyed used a non-Microsoft Windows environment (macOS or Linux). The metrics recorded for 2016 desktop operating systems are shown in \cref{fig:stack-overflow-os-share}. While other metrics show that over 80\% of computers are Microsoft Windows \cite{StatCounter2017}, we believe the StackOverflow survey is better given students in computer and software engineering programs likely go on to become hardware or software developers \cite[Sec.~II.~Developer~Profiles]{StackOverflowSurvey2016}. Further, StackOverflow has found the year-over-year change to show a decrease in Microsoft Windows-based operating systems between 2013 and 2016 \cite{StackOverflowSurvey2016}. StackOverflow's results imply that this project's solution must run on all three major operating systems with minimal effort to allow students to perform out-of-classroom exercises. 
 
 \newcommand{\ostitlecell}[1]{\parbox[t]{2mm}{\multirow{6}{*}{\rotatebox[origin=c]{90}{\textbf{#1}}}}}
 
@@ -205,23 +204,29 @@ While the formalization is accurate, \textquote[\cite{Skillen2011}]{striking the
     \label{fig:stack-overflow-os-share}
 \end{figure}
 
-As stated within the Computer Engineering Curricula 2016:
+\paragraph{\Cref{req:configuration}: Expanded hardware / software configuration.} As stated within the Computer Engineering Curricula 2016:
 \begin{displayquote}[{\cite[p.~32]{cec2016}}]
     One area of concern to the computer engineer is the software/hardware interface, where difficult trade-off decisions often provide engineering challenges. Considerations on this interface or boundary lead to an    appreciation of and insights into computer architecture and the importance of a computer’s machine code. At this boundary, difficult decisions regarding hardware/software trade-offs can occur, and they lead naturally to the design of special-purpose computers and systems.
 \end{displayquote}
-\noindent \Cref{req:configuration} enables students to design and configure all of the hardware/software component interactions. This enables students to have a stronger understanding of ISA design. While many tools have this flexibility (discussed later in \cref{sec:review}), many of the currently used, industry-grade solutions provide over-complicated and powerful options that are overwhelming for students. It is expected that disorientation by complication of user interfaces for users may have an impact on performance, production, motivation and morale of users \cite{Chalmers2003}. This ``user hostility'' must be reduced for students as they are less likely to have the motivation that an industry professional may have \cite{Djordjevic2005}. As the focus of this thesis is to improve student learning outcomes, the amount of irrelevant options for learning must be reduced as a trade-off in favour of pedagogical improvement instead of accuracy as listed in \Cref{req:pedagogical}. 
+\noindent \Cref{req:configuration} enables students to design and configure all of the hardware/software component interactions. This enables students to have a stronger understanding of ISA design. While many tools have this flexibility (discussed later in \cref{sec:review}), many of the currently used, industry-grade solutions provide over-complicated and powerful options that are overwhelming for students. It is expected that disorientation by complication of user interfaces for users may have an impact on performance, production, motivation and morale of users \cite{Chalmers2003}. This ``user hostility'' must be reduced for students as they are less likely to have the motivation that an industry professional may have \cite{Djordjevic2005}. As the focus of this thesis is to improve student learning outcomes, the amount of irrelevant options for learning must be reduced as a trade-off in favour of pedagogical improvement instead of accuracy as listed in \Cref{req:pedagogical}.
 
-\Cref{req:simulations} outlines the software requirements that simulations must meet while still respecting \cref{req:pedagogical}. Simulations are an important practical tool for students to see the inner workings of hardware components and attempts to increase the transparency into the long-standing ``black-box'' of hardware for embedded systems courses. For computer architecture courses, simulation tools are required for debugging and implementing ISAs. 
+\paragraph{\Cref{req:pedagogical}: Pedagogical versus accuracy trade-offs.} While pedagogy is the most important aspect of a teaching simulation, we also acknowledge that it is not a binary scenario. Any such solution must be accurate enough for students to understand underlying concepts while being high-level enough to not inhibit their learning outcomes by overwhelming them. \Cref{req:simulations} outlines the software requirements that simulations must meet while still respecting \cref{req:pedagogical}. Simulations are an important practical tool for students to see the inner workings of hardware components and attempts to increase the transparency into the long-standing ``black-box'' of hardware for embedded systems courses. For computer architecture courses, simulation tools are required for debugging and implementing ISAs. 
 
-Lastly, over-arching \Cref{req:modern} attempts to reduce the overhead gap of working with new tools by reducing differences in features for students. Decreasing the overall cognitive load by integrating similar styles and controls to existing tools within interfaces will lower the cognitive load for students which should in turn improve learning outcomes \cite{Chalmers2003, Mavaddat1988}.
+\paragraph{\Cref{req:simulations}: Run-time simulation features.} We believe students best learn from fully understanding concepts from a bottom-up approach. With the ubiquitous nature of debugging facilities in modern software environments, we assert any successful software simulation must have similar capabilities for the hardware it is simulating. This includes breakpoints and viewing of registers as ``variables'' within the context. These features give students a familiarity and a view inside the workings of a simulation.
+
+\paragraph{\Cref{req:modern}: Modern interface.} \Cref{req:modern} attempts to reduce the overhead gap of working with new tools by reducing differences in features for students. Decreasing the overall cognitive load by integrating similar styles and controls to existing tools within interfaces will lower the cognitive load for students which should in turn improve learning outcomes \cite{Chalmers2003, Mavaddat1988}.
+
+\subsection{Software versus Hardware}
+
+While providing a solution in software that emulates hardware we would like to discuss how the hardware itself comes into teaching contexts. Some would argue that a ``simulator may perform the same actions as a hardware device, therein deprecating the use of hardware.'' We believe this is false. Students require the use of hardware to understand the physical nature of the device being used. Many defects found in embedded systems projects are only found by probing and testing hardware directly. By providing a better software simulation, we can provide students with a home experience that is similar but not equivalent to working directly with hardware. This new experience allows students to spend less time learning in the moment on the hardware and more time understanding the physical nature of the devices \cite{Ristov2014, Skrien2001}.
 
 \section{Contributions}
 
 This thesis is presented in an additional \numberstringnum{\numexpr\totvalue{chapter} - 1\relax} chapters. This thesis discusses technical topics regarding: existing and future pedagogical simulation technologies; development of web applications on modern platforms; building cross-platform native applications; and integration of scripting languages as configuration engines within a native application. We summarize the contributions to each in the following sections.
 
-\paragraph{\nameref{ch:prev-other-work}} Within this section, we provide a quantitative survey of existing simulator technologies in use today analysed against the requirements outlined in \cref{sec:problem-statement}.
+\paragraph{\nameref{ch:prev-other-work}} Within this chapter, we provide a quantitative survey of existing simulator technologies in use today analysed against the requirements outlined in \cref{sec:problem-statement}.
 
-\paragraph{\nameref{ch:scala-akka}} We investigate utilizing Scala and it's compiler back-end Scala.js to build a massively parallel processor simulator for the modern web. Within this investigation, we showcase the following contributions: 
+\paragraph{\nameref{ch:scala-akka}} We investigate utilizing Scala and its compiler back-end Scala.js to build a  parallel component-based processor simulator for the modern web. Within this investigation, we showcase the following contributions: 
 \begin{itemize}
     \item A design for an asynchronous actor-based model for simulation of a custom processor architecture using distributed computing framework Akka
     \item A runtime, compiled VHDL-like DSL for specification of instructions within a custom ISA on top of Scala in the Java Virtual Machine and Scala.js
@@ -238,4 +243,3 @@ This thesis is presented in an additional \numberstringnum{\numexpr\totvalue{cha
     \item A design for a runtime configuration specification for custom processor architectures through Lua scripts
     \item A state-machine-like representation of a processor instruction execution specified through ``compiling'' a Lua function to microinstruction events
 \end{itemize}
-

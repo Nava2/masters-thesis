@@ -13,7 +13,7 @@ procsim.scala had a VHDL-like syntax for defining instructions within a processo
 
 \subsubsection{Python} 
 
-Several scripting languages were evaluated against each other for candidacy as the configuration specification language. First, Python was considered \cite{Python:Homepage}. Python is a mature, stable, dynamically typed language with wide use in industry, scientific and academic communities \cite{StackOverflowSurvey2016}. Python was considered due to it's exposed foreign function interface (FFI) which allows for C functions to be called from Python or C functions to call into Python. Python's syntax supports overriding operators \cite{Python:Operators}, object-oriented programming \cite{Python:Classes} and low-level bitwise operations \cite{Python:BuiltinTypes} -- features excellent for implementing low-level hardware simulations and configurations. For working with the Python VM, the Python community provides a library called CFFI that wraps python's FFI interface to call into and from Python. CFFI's purpose is to provide a bridge layer between Python and C easing the effort required. Any library wishing to utilize CFFI for interacting with the Python engine requires all exposed functions in the foreign library are externalized as C functions. procsim heavily employed C++11 syntax and does easily extend to a C-based API through its use of \cxxinline{template}, \cxxinline{inline} functions and \cxxinline{constexpr} values or functions. Thus porting procsim's API as a C API to utilize CFFI would become tedious. 
+Several scripting languages were evaluated against each other for candidacy as the configuration specification language. First, Python was considered \cite{Python:Homepage}. Python is a mature, stable, dynamically typed language with wide use in industry, scientific and academic communities \cite{StackOverflowSurvey2016}. Python was considered due to its exposed foreign function interface (FFI) which allows for C functions to be called from Python or C functions to call into Python. Python's syntax supports overriding operators \cite{Python:Operators}, object-oriented programming \cite{Python:Classes} and low-level bitwise operations \cite{Python:BuiltinTypes} -- features excellent for implementing low-level hardware simulations and configurations. For working with the Python VM, the Python community provides a library called CFFI that wraps python's FFI interface to call into and from Python. CFFI's purpose is to provide a bridge layer between Python and C easing the effort required. Any library wishing to utilize CFFI for interacting with the Python engine requires all exposed functions in the foreign library are externalized as C functions. procsim heavily employed C++11 syntax and does easily extend to a C-based API through its use of \cxxinline{template}, \cxxinline{inline} functions and \cxxinline{constexpr} values or functions. Thus porting procsim's API as a C API to utilize CFFI would become tedious. 
 
 An alternate to the CFFI library is Boost.Python which provides binding mechanisms for working with complex classes in C++ and having them work within the Python virtual machine \cite{Boost1.53.0:Python}. Boost.Python provides a very simple and easy to use syntax for defining types. Further, Boost.Python respects \cxxinline{constructor} and \cxxinline{destructor} semantics of any types passed into Python. \Cref{lst:lua:python-example} showcases a simple type exposed into Python. Given the simplicity of exposing data into Python, and the ubiquitous nature of the language, it lends itself well to a pedagogical application (\cref{req:pedagogical}) and will feel modern to students coming from Software Engineering contexts (\cref{req:modern}). Regrettably, the largest compelling argument against Python is that to run Python scripts, one must install a Python virtual machine adding an extra dependency that is external to the project. This makes distribution more difficult for personal computers, though not all as some operating systems come with python pre-installed (e.g. most Linux distributions and macOS).
 
@@ -225,7 +225,7 @@ Working with sol was not entirely without problems. Because sol was actively dev
 
 The original hc12sim project shared all modules between both configuration and simulation. This meant less lines of code to understand and generally made the software ``easier'' to write for novice developers. However as modules grow in size, they become more complicated to maintain. Something found in work for \cref{ch:scala-akka} was that immutable objects produce easier to reason and better performing software. In developing configuration entities to specify simulation entities, it was found that a lot of meta-information required to make configurations easier to specify could be removed once the system was fully specified. The meta-information was provided to students to reduce their cognitive load but does not provide value to a simulation. Most values within the configuration entity need to be mutable within a configuration file, but within the simulation these values are immutable allowing for simpler testing of a simulation engine.
 
-For example, when defining a \texttt{Register} component, there are a several values that are required to when configuring an instance: 
+For example, when defining a \texttt{Register} component, there are a several values that are required when configuring an instance: 
 \begin{itemize}
 \item name - A logical name
 \item clock - The clock that this Register is bound to (Registers are sequential)
@@ -257,7 +257,7 @@ To limit the scope of a system's configuration, procsim only exposes the followi
 \end{listing}
 
 \begin{listing*}[hp!]
-    \inputminted[escapeinside=||, firstline=45]{lua}{./listings/urisc.lua}
+    \inputminted[escapeinside=||, firstline=43]{lua}{./listings/urisc.lua}
     \caption{(Continued) Configuration of \cref{fig:urisc-architecture} for the URISC processor \cite{Mavaddat1988}.}
     \label{lst:lua:urisc-example-2}
 \end{listing*}
@@ -578,7 +578,7 @@ Simulations within procsim were fast and provided hooks for all information with
     \begin{tabular}{l|cccccc}
         \textbf{Requirements} & \textbf{\hyperref[req:personal]{R1}} & \textbf{\hyperref[req:configuration]{R2}} & \textbf{\hyperref[req:pedagogical]{R3}} & \textbf{\hyperref[req:simulations]{R4}} & \textbf{\hyperref[req:modern]{R5}} & \textbf{Total} \\ \hline
         \textbf{\hyperref[ch:lua]{procsim}} & 
-        4 & 3 & 4 & 4 & 4 & \textbf{19} \\
+        4 & 3 & 3 & 3 & 4 & \textbf{17} \\
     \end{tabular}
     \caption{Summary of requirement matching for procsim.}
 \end{table}
